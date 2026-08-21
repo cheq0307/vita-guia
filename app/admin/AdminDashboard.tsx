@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Check, Copy, Link2, Plus, RefreshCw, Search, ShieldCheck, Trash2 } from "lucide-react";
+import { Check, Copy, Link2, Plus, RefreshCw, Search, ShieldCheck, Trash2, LogOut } from "lucide-react";
 
 type LinkRecord = {
   id:number; token:string; recipientName:string; recipientContact:string; expiresAt:string;
@@ -48,6 +48,11 @@ export default function AdminDashboard({ advisorToken, advisorName }: { advisorT
     if (response.ok) setLinks((current) => current.map((link) => link.id === id ? { ...link, revoked:true } : link));
   }
 
+  async function logout() {
+    await fetch("/api/auth/logout",{method:"POST"});
+    window.location.assign("/login");
+  }
+
   function status(link: LinkRecord) {
     if (link.revoked) return ["Revocado", "revoked"];
     if (new Date(link.expiresAt).getTime() < Date.now()) return ["Vencido", "expired"];
@@ -59,6 +64,7 @@ export default function AdminDashboard({ advisorToken, advisorName }: { advisorT
       <aside className="admin-sidebar">
         <a className="brand admin-brand" href="/"><span className="brand-mark">V</span><span>Vita Guia</span></a>
         <nav><a className="selected" href={advisorToken ? `/asesor/${advisorToken}` : "/admin"}><Link2 size={18}/> Enlaces</a>{!advisorToken && <a href="/admin/usuarios"><ShieldCheck size={18}/> Usuarios</a>}<a href={advisorToken ? `/asesor/${advisorToken}/biblioteca` : "/admin/biblioteca"}><ShieldCheck size={18}/> Ver biblioteca</a></nav>
+        {!advisorToken&&<button className="sidebar-logout" onClick={logout}><LogOut size={17}/> Cerrar sesion</button>}
         <p>Panel de distribucion</p>
       </aside>
       <section className="admin-main">
