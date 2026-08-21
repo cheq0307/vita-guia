@@ -50,7 +50,7 @@ class GuideController extends Controller
         return view('guide.show', [
             'link' => $link,
             'token' => $token,
-            'items' => ContentItem::with('assets')
+            'items' => ContentItem::with(['assets', 'author'])
                 ->where('active', true)
                 ->where('status', 'published')
                 ->orderBy('sort_order')

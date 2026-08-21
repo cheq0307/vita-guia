@@ -12,10 +12,7 @@ class ContentAssetController extends Controller
     public function staff(Request $request, ContentAsset $asset)
     {
         $asset->load('contentItem');
-        abort_unless(
-            $request->user()->isAdmin() || $asset->contentItem->author_id === $request->user()->id,
-            403,
-        );
+        abort_unless($request->user()->active, 403);
 
         return $this->response($asset);
     }

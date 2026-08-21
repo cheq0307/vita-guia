@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\AccessLink;
 use App\Models\ContentItem;
+use App\Models\SubscriptionPlan;
 use App\Models\User;
 use App\Services\ContentAssetService;
 use App\Services\ContentIndexer;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
 {
@@ -19,7 +21,8 @@ class AdminController extends Controller
     public function dashboard()
     {
         return view('admin.dashboard', [
-            'users' => User::whereIn('role', ['advisor', 'professional'])->latest()->get(),
+            'users' => User::with('subscriptionPlan')->whereIn('role', ['advisor', 'professional'])->latest()->get(),
+            'plans' => SubscriptionPlan::orderBy('price')->orderBy('name')->get(),
             'stats' => [
                 'advisors' => User::where('role', 'advisor')->where('active', true)->count(),
                 'professionals' => User::where('role', 'professional')->where('active', true)->count(),
@@ -36,7 +39,9 @@ class AdminController extends Controller
             'email' => ['required', 'email', 'max:190', 'unique:users,email'],
             'password' => ['required', 'string', 'min:10'],
             'role' => ['required', 'in:advisor,professional'],
+            'subscription_plan_id' => ['nullable', 'required_if:role,advisor', 'exists:subscription_plans,id'],
         ]);
+        $data['subscription_plan_id'] = $data['role'] === 'advisor' ? $data['subscription_plan_id'] : null;
         User::create($data + ['active' => true]);
 
         return back()->with('success', $data['role'] === 'professional' ? 'Profesional creado correctamente.' : 'Asesor creado correctamente.');
@@ -48,6 +53,32 @@ class AdminController extends Controller
         $user->update(['active' => ! $user->active]);
 
         return back()->with('success', 'Estado del usuario actualizado.');
+    }
+
+    public function storePlan(Request $request)
+    {
+        $data = $this->validatedPlan($request);
+        SubscriptionPlan::create($data);
+
+        return back()->with('success', 'Plan de suscripcion creado.');
+    }
+
+    public function updatePlan(Request $request, SubscriptionPlan $plan)
+    {
+        $plan->update($this->validatedPlan($request, $plan));
+
+        return back()->with('success', 'Plan de suscripcion actualizado.');
+    }
+
+    public function assignPlan(Request $request, User $user)
+    {
+        abort_unless($user->role === 'advisor', 404);
+        $data = $request->validate([
+            'subscription_plan_id' => ['nullable', 'exists:subscription_plans,id'],
+        ]);
+        $user->update(['subscription_plan_id' => $data['subscription_plan_id'] ?? null]);
+
+        return back()->with('success', 'Suscripcion del asesor actualizada.');
     }
 
     public function content()
@@ -116,6 +147,17 @@ class AdminController extends Controller
         $item->delete();
 
         return back()->with('success', 'Contenido eliminado.');
+    }
+
+    private function validatedPlan(Request $request, ?SubscriptionPlan $plan = null): array
+    {
+        return $request->validate([
+            'name' => ['required', 'string', 'max:100', Rule::unique('subscription_plans', 'name')->ignore($plan?->id)],
+            'price' => ['required', 'numeric', 'min:0', 'max:999999.99'],
+            'client_limit' => ['required', 'integer', 'min:1', 'max:100000'],
+            'link_duration_hours' => ['required', 'integer', 'min:1', 'max:8760'],
+            'active' => ['required', 'boolean'],
+        ]);
     }
 
     private function storeResources(Request $request, ContentItem $item): void

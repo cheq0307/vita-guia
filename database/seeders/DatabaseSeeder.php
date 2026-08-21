@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\ContentItem;
+use App\Models\SubscriptionPlan;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -30,12 +31,18 @@ class DatabaseSeeder extends Seeder
             return;
         }
 
+        $defaultPlan = SubscriptionPlan::firstOrCreate(
+            ['name' => 'Inicial'],
+            ['price' => 0, 'client_limit' => 25, 'link_duration_hours' => 168, 'active' => true],
+        );
+
         User::updateOrCreate(
             ['email' => 'asesor@vita-guia.local'],
             [
                 'name' => 'Asesor de demostracion',
                 'password' => env('ADVISOR_PASSWORD', 'AsesorDemo123!'),
                 'role' => 'advisor',
+                'subscription_plan_id' => $defaultPlan->id,
                 'active' => true,
             ],
         );

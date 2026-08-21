@@ -16,7 +16,7 @@ class GuideController extends Controller
     {
         $session = $request->attributes->get('clientAccessSession');
         $link = $session->accessLink;
-        $items = ContentItem::with('assets')
+        $items = ContentItem::with(['assets', 'author'])
             ->where('active', true)
             ->where('status', 'published')
             ->orderBy('sort_order')
@@ -79,6 +79,10 @@ class GuideController extends Controller
             'summary' => $item->summary,
             'body' => $item->body,
             'sort_order' => $item->sort_order,
+            'professional_contact' => $item->author?->isProfessional() ? [
+                'name' => $item->author->name,
+                'email' => $item->author->email,
+            ] : null,
             'assets' => $item->assets->map(fn (ContentAsset $asset) => [
                 'id' => $asset->id,
                 'kind' => $asset->kind,

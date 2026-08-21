@@ -5,6 +5,7 @@ use App\Http\Controllers\AdvisorController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ContentAssetController;
 use App\Http\Controllers\GuideController;
+use App\Http\Controllers\LibraryController;
 use App\Http\Controllers\ProfessionalController;
 use Illuminate\Support\Facades\Route;
 
@@ -15,11 +16,18 @@ Route::middleware('guest')->group(function (): void {
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 Route::get('/recursos/{asset}', [ContentAssetController::class, 'staff'])->middleware('auth')->name('assets.staff');
+Route::middleware('auth')->prefix('biblioteca')->name('library.')->group(function (): void {
+    Route::get('/', [LibraryController::class, 'show'])->name('show');
+    Route::post('/preguntar', [LibraryController::class, 'chat'])->middleware('throttle:30,1')->name('chat');
+});
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function (): void {
     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::post('/usuarios', [AdminController::class, 'storeUser'])->name('users.store');
     Route::patch('/usuarios/{user}/estado', [AdminController::class, 'toggleUser'])->name('users.toggle');
+    Route::patch('/usuarios/{user}/plan', [AdminController::class, 'assignPlan'])->name('users.plan');
+    Route::post('/planes', [AdminController::class, 'storePlan'])->name('plans.store');
+    Route::put('/planes/{plan}', [AdminController::class, 'updatePlan'])->name('plans.update');
     Route::get('/contenido', [AdminController::class, 'content'])->name('content');
     Route::post('/contenido', [AdminController::class, 'storeContent'])->name('content.store');
     Route::patch('/contenido/{item}/aprobar', [AdminController::class, 'approveContent'])->name('content.approve');

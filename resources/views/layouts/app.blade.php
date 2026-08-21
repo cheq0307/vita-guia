@@ -21,6 +21,7 @@
             @else
                 <a href="{{ route('advisor.dashboard') }}">Enlaces</a>
             @endif
+            <a href="{{ route('library.show') }}">Biblioteca</a>
         </nav>
         <div class="account">
             <span>{{ auth()->user()->name }}</span>

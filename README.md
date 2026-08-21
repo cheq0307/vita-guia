@@ -4,10 +4,11 @@ Sistema web independiente para compartir informacion de productos con clientes m
 
 ## Funciones
 
-- Roles separados: administrador, profesional y asesor.
-- El administrador crea profesionales y asesores, revisa borradores y controla las publicaciones.
-- Los profesionales suben borradores; solo el administrador puede aprobarlos y publicarlos.
-- Los asesores generan enlaces por cliente con fecha de vencimiento y limite opcional de aperturas.
+- El superadministrador crea el equipo, revisa publicaciones y define planes para asesores.
+- Cada plan controla costo, clientes con enlace vigente y duracion maxima por enlace.
+- Los profesionales suben borradores, figuran como contacto y consultan toda la biblioteca publicada.
+- Los asesores consultan la misma biblioteca y generan enlaces dentro del cupo de su suscripcion.
+- Los clientes visualizan y preguntan solamente mediante su enlace temporal.
 - Una apertura cuenta por sesion; el cliente puede seguir navegando y usar el chat durante esa sesion.
 - Cada contenido se clasifica por formato y por tema: Salud, Negocios o Mixto.
 - La guia y el asistente pueden filtrarse por tema; Mixto participa tanto en Salud como en Negocios.
@@ -51,8 +52,9 @@ Los estilos y el JavaScript ya estan en public/assets; no hay que compilar nada.
 1. content_items conserva el texto editorial, autor, formato, tema y estado de aprobacion.
 2. content_assets conserva cada PDF, imagen, video o enlace asociado.
 3. content_chunks divide texto, transcripciones y paginas en fragmentos consultables.
-4. Solo fragmentos de contenido published y active pueden responder al cliente.
-5. Ejecuta php artisan content:reindex cuando se cambie manualmente la base.
+4. subscription_plans define costo, cupo de clientes activos y vigencia maxima para cada asesor.
+5. Solo fragmentos de contenido published y active pueden responder al cliente o al equipo.
+6. Ejecuta php artisan content:reindex cuando se cambie manualmente la base.
 
 ## Despliegue en el servidor Atom
 

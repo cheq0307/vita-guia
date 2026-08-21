@@ -10,13 +10,18 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    protected $fillable = ['name', 'email', 'password', 'role', 'active'];
+    protected $fillable = ['name', 'email', 'password', 'role', 'subscription_plan_id', 'active'];
 
     protected $hidden = ['password', 'remember_token'];
 
     protected function casts(): array
     {
         return ['email_verified_at' => 'datetime', 'password' => 'hashed', 'active' => 'boolean'];
+    }
+
+    public function subscriptionPlan()
+    {
+        return $this->belongsTo(SubscriptionPlan::class);
     }
 
     public function links()
