@@ -18,10 +18,13 @@ class VitaGuideTest extends TestCase
     {
         $admin = User::create(['name' => 'Admin', 'email' => 'admin@test.local', 'password' => 'password-segura', 'role' => 'admin', 'active' => true]);
         $advisor = User::create(['name' => 'Asesor', 'email' => 'advisor@test.local', 'password' => 'password-segura', 'role' => 'advisor', 'active' => true]);
+        $professional = User::create(['name' => 'Profesional', 'email' => 'professional@test.local', 'password' => 'password-segura', 'role' => 'professional', 'active' => true]);
 
         $this->post('/login', ['email' => $admin->email, 'password' => 'password-segura'])->assertRedirect(route('admin.dashboard'));
         $this->post('/logout');
         $this->post('/login', ['email' => $advisor->email, 'password' => 'password-segura'])->assertRedirect(route('advisor.dashboard'));
+        $this->post('/logout');
+        $this->post('/login', ['email' => $professional->email, 'password' => 'password-segura'])->assertRedirect(route('professional.dashboard'));
     }
 
     public function test_one_open_link_remains_available_in_the_same_session(): void
@@ -56,6 +59,57 @@ class VitaGuideTest extends TestCase
         $this->postJson('/guia/chat-token/preguntar', ['question' => 'Cual es el clima de manana?'])
             ->assertOk()
             ->assertJsonFragment(['answer' => 'No encontré esa respuesta en la información disponible. Consulta directamente con tu asesor.']);
+    }
+
+    public function test_professional_content_requires_admin_approval(): void
+    {
+        $professional = User::create(['name' => 'Profesional', 'email' => 'writer@test.local', 'password' => 'password-segura', 'role' => 'professional', 'active' => true]);
+        $admin = User::create(['name' => 'Admin', 'email' => 'reviewer@test.local', 'password' => 'password-segura', 'role' => 'admin', 'active' => true]);
+        $this->makeLink('review-flow', 3);
+
+        $this->actingAs($professional)->post('/profesional/contenido', [
+            'type' => 'product',
+            'title' => 'Producto pendiente',
+            'summary' => 'Informacion que requiere aprobacion.',
+            'body' => 'Contenido completo pendiente.',
+            'sort_order' => 1,
+            'action' => 'submit',
+        ])->assertRedirect();
+
+        $item = ContentItem::where('title', 'Producto pendiente')->firstOrFail();
+        $this->actingAs($professional)->get('/profesional')->assertOk()->assertSee('Producto pendiente');
+        $this->assertSame('review', $item->status);
+        $this->get('/guia/review-flow')->assertOk()->assertDontSee('Producto pendiente');
+
+        $this->actingAs($admin)->get('/admin/contenido')->assertOk()->assertSee('Producto pendiente');
+        $this->actingAs($admin)->patch('/admin/contenido/'.$item->id.'/aprobar')->assertRedirect();
+        $this->assertSame('published', $item->fresh()->status);
+        $this->get('/guia/review-flow')->assertOk()->assertSee('Producto pendiente');
+    }
+
+    public function test_rejected_content_returns_to_its_author_with_notes(): void
+    {
+        $professional = User::create(['name' => 'Profesional', 'email' => 'correction@test.local', 'password' => 'password-segura', 'role' => 'professional', 'active' => true]);
+        $admin = User::create(['name' => 'Admin', 'email' => 'approval@test.local', 'password' => 'password-segura', 'role' => 'admin', 'active' => true]);
+        $item = ContentItem::create([
+            'type' => 'instruction',
+            'title' => 'Indicacion por revisar',
+            'summary' => '',
+            'body' => 'Texto inicial.',
+            'author_id' => $professional->id,
+            'status' => 'review',
+            'submitted_at' => now(),
+            'active' => false,
+        ]);
+
+        $this->actingAs($admin)->patch('/admin/contenido/'.$item->id.'/rechazar', [
+            'review_notes' => 'Agrega la advertencia correspondiente.',
+        ])->assertRedirect();
+
+        $this->assertSame('rejected', $item->fresh()->status);
+        $this->actingAs($professional)->get('/profesional/contenido/'.$item->id.'/editar')
+            ->assertOk()
+            ->assertSee('Agrega la advertencia correspondiente.');
     }
 
     public function test_admin_can_store_a_video_on_the_local_disk(): void

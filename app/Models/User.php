@@ -24,8 +24,32 @@ class User extends Authenticatable
         return $this->hasMany(AccessLink::class, 'advisor_id');
     }
 
+    public function authoredContent()
+    {
+        return $this->hasMany(ContentItem::class, 'author_id');
+    }
+
+    public function reviewedContent()
+    {
+        return $this->hasMany(ContentItem::class, 'reviewer_id');
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
+    }
+
+    public function isProfessional(): bool
+    {
+        return $this->role === 'professional';
+    }
+
+    public function homeRoute(): string
+    {
+        return match ($this->role) {
+            'admin' => 'admin.dashboard',
+            'professional' => 'professional.dashboard',
+            default => 'advisor.dashboard',
+        };
     }
 }

@@ -47,7 +47,7 @@ class GuideController extends Controller
         return view('guide.show', [
             'link' => $link,
             'token' => $token,
-            'items' => ContentItem::where('active', true)->orderBy('sort_order')->orderBy('id')->get()->groupBy('type'),
+            'items' => ContentItem::where('active', true)->where('status', 'published')->orderBy('sort_order')->orderBy('id')->get()->groupBy('type'),
         ]);
     }
 

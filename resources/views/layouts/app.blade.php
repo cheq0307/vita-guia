@@ -15,7 +15,9 @@
         <nav class="nav">
             @if(auth()->user()->isAdmin())
                 <a href="{{ route('admin.dashboard') }}">Usuarios</a>
-                <a href="{{ route('admin.content') }}">Contenido</a>
+                <a href="{{ route('admin.content') }}">Revision</a>
+            @elseif(auth()->user()->isProfessional())
+                <a href="{{ route('professional.dashboard') }}">Mis contenidos</a>
             @else
                 <a href="{{ route('advisor.dashboard') }}">Enlaces</a>
             @endif

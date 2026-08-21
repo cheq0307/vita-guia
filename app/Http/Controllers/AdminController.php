@@ -13,61 +13,94 @@ class AdminController extends Controller
     public function dashboard()
     {
         return view('admin.dashboard', [
-            'advisors' => User::where('role', 'advisor')->latest()->get(),
+            'users' => User::whereIn('role', ['advisor', 'professional'])->latest()->get(),
             'stats' => [
                 'advisors' => User::where('role', 'advisor')->where('active', true)->count(),
+                'professionals' => User::where('role', 'professional')->where('active', true)->count(),
                 'links' => AccessLink::where('revoked', false)->where('expires_at', '>', now())->count(),
-                'opens' => AccessLink::sum('open_count'),
-                'content' => ContentItem::where('active', true)->count(),
+                'pending' => ContentItem::where('status', 'review')->count(),
             ],
         ]);
     }
 
-    public function storeAdvisor(Request $request)
+    public function storeUser(Request $request)
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:160'],
             'email' => ['required', 'email', 'max:190', 'unique:users,email'],
             'password' => ['required', 'string', 'min:10'],
+            'role' => ['required', 'in:advisor,professional'],
         ]);
-        User::create($data + ['role' => 'advisor', 'active' => true]);
+        User::create($data + ['active' => true]);
 
-        return back()->with('success', 'Asesor creado correctamente.');
+        return back()->with('success', $data['role'] === 'professional' ? 'Profesional creado correctamente.' : 'Asesor creado correctamente.');
     }
 
-    public function toggleAdvisor(User $user)
+    public function toggleUser(User $user)
     {
-        abort_unless($user->role === 'advisor', 404);
+        abort_unless(in_array($user->role, ['advisor', 'professional'], true), 404);
         $user->update(['active' => ! $user->active]);
 
-        return back()->with('success', 'Estado del asesor actualizado.');
+        return back()->with('success', 'Estado del usuario actualizado.');
     }
 
     public function content()
     {
-        return view('admin.content', ['items' => ContentItem::orderBy('sort_order')->latest()->get()]);
+        return view('admin.content', [
+            'items' => ContentItem::with(['author', 'reviewer'])
+                ->orderByRaw("CASE status WHEN 'review' THEN 0 WHEN 'rejected' THEN 1 WHEN 'published' THEN 2 ELSE 3 END")
+                ->orderBy('sort_order')
+                ->latest()
+                ->get(),
+        ]);
     }
 
     public function storeContent(Request $request)
     {
-        $data = $request->validate([
-            'type' => ['required', 'in:product,instruction,video,story'],
-            'title' => ['required', 'string', 'max:190'],
-            'summary' => ['nullable', 'string', 'max:500'],
-            'body' => ['required', 'string'],
-            'media_url' => ['nullable', 'url', 'max:500'],
-            'media_file' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,mp4,webm', 'max:102400'],
-            'sort_order' => ['nullable', 'integer', 'min:0'],
-        ]);
+        $data = $this->validatedContent($request);
         $data['summary'] ??= '';
         $data['sort_order'] ??= 0;
+        $data['author_id'] = $request->user()->id;
+        $data['reviewer_id'] = $request->user()->id;
+        $data['status'] = 'published';
+        $data['reviewed_at'] = now();
+
         if ($request->hasFile('media_file')) {
             $data['media_url'] = Storage::url($request->file('media_file')->store('content', 'public'));
         }
         unset($data['media_file']);
         ContentItem::create($data);
 
-        return back()->with('success', 'Contenido guardado.');
+        return back()->with('success', 'Contenido publicado.');
+    }
+
+    public function approveContent(Request $request, ContentItem $item)
+    {
+        abort_unless($item->status === 'review', 422);
+        $item->update([
+            'status' => 'published',
+            'active' => true,
+            'reviewer_id' => $request->user()->id,
+            'review_notes' => null,
+            'reviewed_at' => now(),
+        ]);
+
+        return back()->with('success', 'Contenido aprobado y publicado.');
+    }
+
+    public function rejectContent(Request $request, ContentItem $item)
+    {
+        abort_unless($item->status === 'review', 422);
+        $data = $request->validate(['review_notes' => ['required', 'string', 'max:1000']]);
+        $item->update([
+            'status' => 'rejected',
+            'active' => false,
+            'reviewer_id' => $request->user()->id,
+            'review_notes' => $data['review_notes'],
+            'reviewed_at' => now(),
+        ]);
+
+        return back()->with('success', 'Contenido devuelto al profesional con observaciones.');
     }
 
     public function destroyContent(ContentItem $item)
@@ -78,5 +111,18 @@ class AdminController extends Controller
         $item->delete();
 
         return back()->with('success', 'Contenido eliminado.');
+    }
+
+    private function validatedContent(Request $request): array
+    {
+        return $request->validate([
+            'type' => ['required', 'in:product,instruction,video,story'],
+            'title' => ['required', 'string', 'max:190'],
+            'summary' => ['nullable', 'string', 'max:500'],
+            'body' => ['required', 'string'],
+            'media_url' => ['nullable', 'url', 'max:500'],
+            'media_file' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,mp4,webm', 'max:102400'],
+            'sort_order' => ['nullable', 'integer', 'min:0'],
+        ]);
     }
 }

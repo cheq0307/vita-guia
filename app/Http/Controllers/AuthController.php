@@ -22,7 +22,7 @@ class AuthController extends Controller
         }
         $request->session()->regenerate();
 
-        return redirect()->intended($request->user()->isAdmin() ? route('admin.dashboard') : route('advisor.dashboard'));
+        return redirect()->intended(route($request->user()->homeRoute()));
     }
 
     public function logout(Request $request)

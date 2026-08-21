@@ -17,8 +17,15 @@ return new class extends Migration
             $table->string('media_url')->nullable();
             $table->unsignedInteger('sort_order')->default(0);
             $table->boolean('active')->default(true);
+            $table->foreignId('author_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('reviewer_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->enum('status', ['draft', 'review', 'published', 'rejected'])->default('published');
+            $table->text('review_notes')->nullable();
+            $table->dateTime('submitted_at')->nullable();
+            $table->dateTime('reviewed_at')->nullable();
             $table->timestamps();
-            $table->index(['type', 'active', 'sort_order']);
+            $table->index(['type', 'active', 'status', 'sort_order']);
+            $table->index(['author_id', 'status']);
         });
     }
 

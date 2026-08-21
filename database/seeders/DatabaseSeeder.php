@@ -40,6 +40,16 @@ class DatabaseSeeder extends Seeder
             ],
         );
 
+        User::updateOrCreate(
+            ['email' => 'profesional@vita-guia.local'],
+            [
+                'name' => 'Profesional de demostracion',
+                'password' => env('PROFESSIONAL_PASSWORD', 'ProfesionalDemo123!'),
+                'role' => 'professional',
+                'active' => true,
+            ],
+        );
+
         $items = [
             ['type' => 'product', 'title' => 'Producto de ejemplo', 'summary' => 'Informacion general disponible para cada cliente.', 'body' => 'Agrega aqui la descripcion real, ingredientes, presentacion y cualquier advertencia autorizada del producto.', 'sort_order' => 10],
             ['type' => 'instruction', 'title' => 'Como utilizarlo', 'summary' => 'Sigue siempre las indicaciones proporcionadas por tu asesor.', 'body' => 'Este contenido es demostrativo. El administrador puede reemplazarlo con instrucciones claras, horarios y recomendaciones de uso.', 'sort_order' => 20],

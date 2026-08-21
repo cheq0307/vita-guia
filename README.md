@@ -4,8 +4,9 @@ Sistema web independiente para compartir informacion de productos con clientes m
 
 ## Funciones
 
-- Roles separados: administrador y asesor.
-- El administrador crea asesores y administra productos, indicaciones, videos y testimonios.
+- Roles separados: administrador, profesional y asesor.
+- El administrador crea profesionales y asesores, revisa borradores y controla las publicaciones.
+- Los profesionales suben borradores; solo el administrador puede aprobarlos y publicarlos.
 - Los asesores generan enlaces por cliente con fecha de vencimiento y limite opcional de aperturas.
 - Una apertura cuenta por sesion; el cliente puede seguir navegando y usar el chat durante esa sesion.
 - El asistente busca exclusivamente en el contenido publicado en MariaDB.
