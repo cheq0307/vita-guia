@@ -2,8 +2,10 @@ import { getChatGPTUser } from "../chatgpt-auth";
 import { findAdvisorByToken } from "../../db/advisors";
 
 export async function requireAdminRequest(request: Request) {
-  const host = new URL(request.url).hostname;
-  if (host === "localhost" || host === "127.0.0.1") {
+  const requestHost = new URL(request.url).hostname;
+  const headerHost = (request.headers.get("host") ?? "").split(":")[0];
+  const localHosts = new Set(["localhost", "127.0.0.1", "::1", "0.0.0.0"]);
+  if (localHosts.has(requestHost) || localHosts.has(headerHost)) {
     return { userId: "local-admin", email: "vista@local" };
   }
   return getChatGPTUser();
