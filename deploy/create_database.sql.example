@@ -1,0 +1,4 @@
+CREATE DATABASE vita_guia CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'vita_guia'@'localhost' IDENTIFIED BY 'CAMBIA_ESTA_CLAVE';
+GRANT ALL PRIVILEGES ON vita_guia.* TO 'vita_guia'@'localhost';
+FLUSH PRIVILEGES;
