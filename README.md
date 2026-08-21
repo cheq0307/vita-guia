@@ -31,3 +31,7 @@ Tambien puedes importar `database/schema.sql` desde phpMyAdmin. Los datos perman
 
 La vista del cliente esta en `/`. El panel principal esta en `/admin` y cada
 usuario accede mediante su enlace privado en `/asesor/{token}`.
+
+## Acceso administrativo
+
+Las credenciales y el secreto de sesion se configuran en el archivo .env.local. Este archivo no se publica en GitHub. Para usar HTTPS en produccion, cambia COOKIE_SECURE=true.

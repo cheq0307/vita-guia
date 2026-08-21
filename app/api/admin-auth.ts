@@ -1,22 +1,25 @@
-import { getChatGPTUser } from "../chatgpt-auth";
+import { ADMIN_COOKIE, isValidAdminToken } from "../admin-session";
 import { findAdvisorByToken } from "../../db/advisors";
 
-export async function requireAdminRequest(request: Request) {
-  const requestHost = new URL(request.url).hostname;
-  const headerHost = (request.headers.get("host") ?? "").split(":")[0];
-  const localHosts = new Set(["localhost", "127.0.0.1", "::1", "0.0.0.0"]);
-  if (localHosts.has(requestHost) || localHosts.has(headerHost)) {
-    return { userId: "local-admin", email: "vista@local" };
+function cookieValue(request:Request,name:string) {
+  const cookies=request.headers.get("cookie")??"";
+  for(const item of cookies.split(";")) {
+    const [key,...parts]=item.trim().split("=");
+    if(key===name)return decodeURIComponent(parts.join("="));
   }
-  return getChatGPTUser();
+  return null;
 }
 
-export async function resolveLinkActor(request: Request) {
-  const advisorToken = request.headers.get("x-advisor-token")?.trim();
-  if (advisorToken) {
-    const advisor = await findAdvisorByToken(advisorToken);
-    return advisor ? { kind:"advisor" as const, userId:`advisor:${advisor.id}`, advisor } : null;
+export async function requireAdminRequest(request:Request) {
+  return isValidAdminToken(cookieValue(request,ADMIN_COOKIE))?{userId:"local-admin",email:"admin@local"}:null;
+}
+
+export async function resolveLinkActor(request:Request) {
+  const advisorToken=request.headers.get("x-advisor-token")?.trim();
+  if(advisorToken) {
+    const advisor=await findAdvisorByToken(advisorToken);
+    return advisor?{kind:"advisor" as const,userId:"advisor:"+advisor.id,advisor}:null;
   }
-  const admin = await requireAdminRequest(request);
-  return admin ? { kind:"admin" as const, userId:admin.userId, advisor:null } : null;
+  const admin=await requireAdminRequest(request);
+  return admin?{kind:"admin" as const,userId:admin.userId,advisor:null}:null;
 }
