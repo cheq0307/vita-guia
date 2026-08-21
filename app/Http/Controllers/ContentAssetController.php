@@ -30,6 +30,18 @@ class ContentAssetController extends Controller
             403,
         );
 
+        return $this->publishedResponse($asset);
+    }
+
+    public function api(Request $request, ContentAsset $asset)
+    {
+        abort_unless($request->attributes->has('clientAccessSession'), 401);
+
+        return $this->publishedResponse($asset);
+    }
+
+    private function publishedResponse(ContentAsset $asset)
+    {
         $asset->load('contentItem');
         abort_unless(
             $asset->contentItem->active && $asset->contentItem->status === 'published',

@@ -3,13 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\AccessLink;
-use App\Models\ContentChunk;
 use App\Models\ContentItem;
+use App\Services\GuideAnswerService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class GuideController extends Controller
 {
+    public function __construct(private readonly GuideAnswerService $answers) {}
+
     private function findLink(string $token): ?AccessLink
     {
         return AccessLink::with('advisor')->where('token_hash', hash('sha256', $token))->first();
@@ -63,76 +64,14 @@ class GuideController extends Controller
     {
         $link = $this->findLink($token);
         abort_unless($link && $this->isAvailableFor($request, $link), 403);
-        $validated = $request->validate([
+        $data = $request->validate([
             'question' => ['required', 'string', 'max:500'],
             'scope' => ['nullable', 'in:all,health,business,mixed'],
         ]);
-        $question = trim($validated['question']);
-        $scope = $validated['scope'] ?? 'all';
-        $words = collect(preg_split('/[^[:alnum:]áéíóúüñ]+/iu', mb_strtolower($question)))
-            ->filter(fn ($word) => mb_strlen($word) >= 4)
-            ->reject(fn ($word) => in_array($word, ['como', 'cual', 'para', 'esta', 'este', 'esto', 'debo', 'puedo'], true))
-            ->unique()
-            ->take(8);
 
-        if ($words->isEmpty()) {
-            return $this->notFound();
-        }
-
-        $chunks = ContentChunk::with('contentItem')
-            ->whereHas('contentItem', function ($query) use ($scope) {
-                $query->where('active', true)->where('status', 'published');
-
-                if (in_array($scope, ['health', 'business'], true)) {
-                    $query->whereIn('topic', [$scope, 'mixed']);
-                } elseif ($scope === 'mixed') {
-                    $query->where('topic', 'mixed');
-                }
-            })
-            ->where(function ($query) use ($words) {
-                foreach ($words as $word) {
-                    $query->orWhere('text', 'like', '%'.$word.'%');
-                }
-            })
-            ->limit(60)
-            ->get()
-            ->map(function (ContentChunk $chunk) use ($words) {
-                $haystack = mb_strtolower($chunk->text);
-                $chunk->match_score = $words->sum(fn ($word) => substr_count($haystack, $word));
-
-                return $chunk;
-            })
-            ->sortByDesc('match_score')
-            ->take(4);
-
-        if ($chunks->isEmpty()) {
-            return $this->notFound();
-        }
-
-        $answer = $chunks->map(function (ContentChunk $chunk) {
-            $source = $chunk->source_label;
-            if ($chunk->page_number) {
-                $source .= ', pagina '.$chunk->page_number;
-            }
-
-            return 'Fuente: '.$source.'
-'.Str::limit($chunk->text, 520);
-        })->join('
-
-');
-
-        return response()->json([
-            'answer' => $answer,
-            'mode' => 'extractive',
-            'notice' => 'Fragmentos recuperados literalmente de la biblioteca aprobada.',
-        ]);
-    }
-
-    private function notFound()
-    {
-        return response()->json([
-            'answer' => 'No encontré esa respuesta en la información aprobada. Consulta directamente con tu asesor.',
-            'mode' => 'extractive',
-        ]);
+        return response()->json($this->answers->answer(
+            $data['question'],
+            $data['scope'] ?? 'all',
+        ));
     }
 }

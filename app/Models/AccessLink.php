@@ -13,6 +13,11 @@ class AccessLink extends Model
         return ['token' => 'encrypted', 'expires_at' => 'datetime', 'first_opened_at' => 'datetime', 'last_opened_at' => 'datetime', 'revoked' => 'boolean'];
     }
 
+    public function clientSessions()
+    {
+        return $this->hasMany(ClientAccessSession::class);
+    }
+
     public function advisor()
     {
         return $this->belongsTo(User::class, 'advisor_id');

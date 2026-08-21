@@ -16,7 +16,12 @@ Sistema web independiente para compartir informacion de productos con clientes m
 - Los PDF se extraen por pagina con Python y pypdf, sin servicios de IA ni consumo de tokens.
 - Las imagenes y videos usan una descripcion o transcripcion manual para alimentar la busqueda.
 - El chat es extractivo: devuelve fragmentos aprobados con nombre de fuente y pagina.
+- Incluye una API REST `/api/v1` compartida por Android e iOS con sesiones Bearer por instalacion.
 - No requiere Node.js, Vite, OpenAI ni Cloudflare para funcionar.
+
+## Aplicaciones moviles
+
+El contrato, los ejemplos de Retrofit y las reglas de seguridad estan en `docs/mobile-api-v1.md`. La especificacion OpenAPI esta en `docs/openapi-v1.yaml`. En el emulador Android usa `http://10.0.2.2:8082/api/v1/`; en produccion usa HTTPS.
 
 ## Requisitos
 
