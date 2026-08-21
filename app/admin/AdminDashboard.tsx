@@ -16,7 +16,7 @@ export default function AdminDashboard({ advisorToken, advisorName }: { advisorT
   const [query, setQuery] = useState("");
   const [error, setError] = useState("");
   const [form, setForm] = useState({ recipientName:"", recipientContact:"", validDays:7, maxOpens:"" });
-  const advisorHeaders = advisorToken ? { "x-advisor-token":advisorToken } : {};
+  const advisorHeaders: Record<string,string> = advisorToken ? { "x-advisor-token":advisorToken } : {};
 
   const loadLinks = async () => {
     setLoading(true); setError("");

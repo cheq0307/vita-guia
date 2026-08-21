@@ -1,6 +1,8 @@
 @import "tailwindcss";
 
-:root { --ink:#18211d; --muted:#65716b; --green:#1c6b52; --mint:#dceee6; --coral:#ed765d; --paper:#f7f8f4; --line:#dfe4df; }
+:root {
+  --font-body: Arial, Helvetica, sans-serif;
+  --font-display: "Segoe UI", Arial, sans-serif; --ink:#18211d; --muted:#65716b; --green:#1c6b52; --mint:#dceee6; --coral:#ed765d; --paper:#f7f8f4; --line:#dfe4df; }
 * { box-sizing:border-box; }
 html { scroll-behavior:smooth; }
 body { margin:0; background:var(--paper); color:var(--ink); font-family:var(--font-body),Arial,sans-serif; letter-spacing:0; }
