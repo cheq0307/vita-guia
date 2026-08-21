@@ -11,6 +11,7 @@ return new class extends Migration
         Schema::create('content_items', function (Blueprint $table) {
             $table->id();
             $table->enum('type', ['product', 'instruction', 'video', 'story']);
+            $table->enum('topic', ['health', 'business', 'mixed'])->default('health');
             $table->string('title');
             $table->string('summary', 500)->default('');
             $table->text('body');
@@ -26,6 +27,7 @@ return new class extends Migration
             $table->timestamps();
             $table->index(['type', 'active', 'status', 'sort_order']);
             $table->index(['author_id', 'status']);
+            $table->index(['topic', 'status', 'active']);
         });
     }
 

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ContentItem extends Model
 {
-    protected $fillable = ['type', 'title', 'summary', 'body', 'media_url', 'sort_order', 'active', 'author_id', 'reviewer_id', 'status', 'review_notes', 'submitted_at', 'reviewed_at'];
+    protected $fillable = ['type', 'topic', 'title', 'summary', 'body', 'media_url', 'sort_order', 'active', 'author_id', 'reviewer_id', 'status', 'review_notes', 'submitted_at', 'reviewed_at'];
 
     protected function casts(): array
     {

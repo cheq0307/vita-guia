@@ -63,7 +63,12 @@ class GuideController extends Controller
     {
         $link = $this->findLink($token);
         abort_unless($link && $this->isAvailableFor($request, $link), 403);
-        $question = trim($request->validate(['question' => ['required', 'string', 'max:500']])['question']);
+        $validated = $request->validate([
+            'question' => ['required', 'string', 'max:500'],
+            'scope' => ['nullable', 'in:all,health,business,mixed'],
+        ]);
+        $question = trim($validated['question']);
+        $scope = $validated['scope'] ?? 'all';
         $words = collect(preg_split('/[^[:alnum:]áéíóúüñ]+/iu', mb_strtolower($question)))
             ->filter(fn ($word) => mb_strlen($word) >= 4)
             ->reject(fn ($word) => in_array($word, ['como', 'cual', 'para', 'esta', 'este', 'esto', 'debo', 'puedo'], true))
@@ -75,7 +80,15 @@ class GuideController extends Controller
         }
 
         $chunks = ContentChunk::with('contentItem')
-            ->whereHas('contentItem', fn ($query) => $query->where('active', true)->where('status', 'published'))
+            ->whereHas('contentItem', function ($query) use ($scope) {
+                $query->where('active', true)->where('status', 'published');
+
+                if (in_array($scope, ['health', 'business'], true)) {
+                    $query->whereIn('topic', [$scope, 'mixed']);
+                } elseif ($scope === 'mixed') {
+                    $query->where('topic', 'mixed');
+                }
+            })
             ->where(function ($query) use ($words) {
                 foreach ($words as $word) {
                     $query->orWhere('text', 'like', '%'.$word.'%');

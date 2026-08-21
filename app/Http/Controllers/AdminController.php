@@ -138,6 +138,7 @@ class AdminController extends Controller
     {
         return $request->validate([
             'type' => ['required', 'in:product,instruction,video,story'],
+            'topic' => ['required', 'in:health,business,mixed'],
             'title' => ['required', 'string', 'max:190'],
             'summary' => ['nullable', 'string', 'max:500'],
             'body' => ['required', 'string'],
@@ -154,7 +155,7 @@ class AdminController extends Controller
     private function onlyContentFields(array $data): array
     {
         return collect($data)->only([
-            'type', 'title', 'summary', 'body', 'sort_order', 'author_id',
+            'type', 'topic', 'title', 'summary', 'body', 'sort_order', 'author_id',
             'reviewer_id', 'status', 'reviewed_at',
         ])->all();
     }

@@ -9,6 +9,7 @@
             <div class="content-main">
                 <div class="meta-line">
                     <span class="type">{{ ['product'=>'Producto','instruction'=>'Indicacion','video'=>'Video','story'=>'Testimonio'][$item->type] }}</span>
+                    <span class="topic {{ $item->topic }}">{{ ['health'=>'Salud','business'=>'Negocios','mixed'=>'Mixto'][$item->topic] }}</span>
                     <span class="status {{ $item->status }}">{{ ['draft'=>'Borrador','review'=>'En revision','published'=>'Publicado','rejected'=>'Rechazado'][$item->status] }}</span>
                 </div>
                 <h3>{{ $item->title }}</h3>
@@ -37,7 +38,7 @@
         <h2>Publicacion directa</h2>
         <p class="hint">El administrador puede publicar sin revision.</p>
         <form class="stack" method="POST" action="{{ route('admin.content.store') }}" enctype="multipart/form-data">@csrf
-            <div><label for="type">Tipo</label><select id="type" name="type" required><option value="product">Producto</option><option value="instruction">Indicacion de uso</option><option value="video">Video</option><option value="story">Testimonio</option></select></div>
+            <div class="fields-2"><div><label for="type">Formato</label><select id="type" name="type" required><option value="product">Producto</option><option value="instruction">Indicacion de uso</option><option value="video">Video</option><option value="story">Testimonio</option></select></div><div><label for="topic">Tema</label><select id="topic" name="topic" required><option value="health">Salud</option><option value="business">Negocios</option><option value="mixed">Mixto</option></select></div></div>
             <div><label for="title">Titulo</label><input id="title" name="title" required></div>
             <div><label for="summary">Resumen</label><textarea id="summary" name="summary" rows="2"></textarea></div>
             <div><label for="body">Informacion completa</label><textarea id="body" name="body" rows="6" required></textarea></div>

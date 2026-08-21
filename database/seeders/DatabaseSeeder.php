@@ -51,9 +51,9 @@ class DatabaseSeeder extends Seeder
         );
 
         $items = [
-            ['type' => 'product', 'title' => 'Producto de ejemplo', 'summary' => 'Informacion general disponible para cada cliente.', 'body' => 'Agrega aqui la descripcion real, ingredientes, presentacion y cualquier advertencia autorizada del producto.', 'sort_order' => 10],
-            ['type' => 'instruction', 'title' => 'Como utilizarlo', 'summary' => 'Sigue siempre las indicaciones proporcionadas por tu asesor.', 'body' => 'Este contenido es demostrativo. El administrador puede reemplazarlo con instrucciones claras, horarios y recomendaciones de uso.', 'sort_order' => 20],
-            ['type' => 'story', 'title' => 'Historia de experiencia', 'summary' => 'Espacio para compartir testimonios reales y autorizados.', 'body' => 'Los testimonios representan experiencias personales y no sustituyen una evaluacion profesional.', 'sort_order' => 30],
+            ['type' => 'product', 'topic' => 'health', 'title' => 'Producto de ejemplo', 'summary' => 'Informacion general disponible para cada cliente.', 'body' => 'Agrega aqui la descripcion real, ingredientes, presentacion y cualquier advertencia autorizada del producto.', 'sort_order' => 10],
+            ['type' => 'instruction', 'topic' => 'health', 'title' => 'Como utilizarlo', 'summary' => 'Sigue siempre las indicaciones proporcionadas por tu asesor.', 'body' => 'Este contenido es demostrativo. El administrador puede reemplazarlo con instrucciones claras, horarios y recomendaciones de uso.', 'sort_order' => 20],
+            ['type' => 'story', 'topic' => 'health', 'title' => 'Historia de experiencia', 'summary' => 'Espacio para compartir testimonios reales y autorizados.', 'body' => 'Los testimonios representan experiencias personales y no sustituyen una evaluacion profesional.', 'sort_order' => 30],
         ];
 
         foreach ($items as $item) {

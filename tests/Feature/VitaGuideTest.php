@@ -44,6 +44,7 @@ class VitaGuideTest extends TestCase
         $this->makeLink('chat-token', 3);
         $item = ContentItem::create([
             'type' => 'instruction',
+            'topic' => 'health',
             'title' => 'Uso del producto',
             'summary' => 'Tomar con alimentos segun la indicacion publicada.',
             'body' => 'No se debe exceder la cantidad indicada.',
@@ -71,6 +72,7 @@ class VitaGuideTest extends TestCase
 
         $this->actingAs($professional)->post('/profesional/contenido', [
             'type' => 'product',
+            'topic' => 'health',
             'title' => 'Producto pendiente',
             'summary' => 'Informacion que requiere aprobacion.',
             'body' => 'Contenido completo pendiente.',
@@ -95,6 +97,7 @@ class VitaGuideTest extends TestCase
         $admin = User::create(['name' => 'Admin', 'email' => 'approval@test.local', 'password' => 'password-segura', 'role' => 'admin', 'active' => true]);
         $item = ContentItem::create([
             'type' => 'instruction',
+            'topic' => 'health',
             'title' => 'Indicacion por revisar',
             'summary' => '',
             'body' => 'Texto inicial.',
@@ -121,6 +124,7 @@ class VitaGuideTest extends TestCase
 
         $this->actingAs($admin)->post('/admin/contenido', [
             'type' => 'video',
+            'topic' => 'health',
             'title' => 'Video local',
             'body' => 'Explicacion del producto.',
             'media_file' => UploadedFile::fake()->create('explicacion.mp4', 500, 'video/mp4'),
@@ -141,6 +145,7 @@ class VitaGuideTest extends TestCase
 
         $this->actingAs($professional)->post('/profesional/contenido', [
             'type' => 'video',
+            'topic' => 'health',
             'title' => 'Demostracion multimedia',
             'body' => 'Recursos para el cliente.',
             'action' => 'submit',
@@ -161,6 +166,42 @@ class VitaGuideTest extends TestCase
         $this->postJson('/guia/media-flow/preguntar', ['question' => 'Que explica sobre la mezcla nocturna?'])
             ->assertOk()
             ->assertJsonPath('answer', fn ($answer) => str_contains($answer, 'mezcla nocturna'));
+    }
+
+    public function test_topic_filters_scope_the_guide_and_chat(): void
+    {
+        $this->makeLink('topic-flow', 10);
+        $items = [
+            ['topic' => 'health', 'title' => 'Rutina Cardiozen', 'body' => 'Cardiozen acompana una rutina de bienestar personal.'],
+            ['topic' => 'business', 'title' => 'Plan Comerciomax', 'body' => 'Comerciomax explica una estrategia comercial para el equipo.'],
+            ['topic' => 'mixed', 'title' => 'Programa Nexusmixto', 'body' => 'Nexusmixto relaciona bienestar y crecimiento del negocio.'],
+        ];
+
+        foreach ($items as $data) {
+            $item = ContentItem::create($data + [
+                'type' => 'instruction',
+                'summary' => '',
+                'active' => true,
+                'status' => 'published',
+            ]);
+            app(\App\Services\ContentIndexer::class)->reindex($item);
+        }
+
+        $this->get('/guia/topic-flow')
+            ->assertOk()
+            ->assertSee('data-topic="health"', false)
+            ->assertSee('data-topic="business"', false)
+            ->assertSee('data-topic="mixed"', false);
+
+        $notFound = 'No encontré esa respuesta en la información aprobada. Consulta directamente con tu asesor.';
+        $this->postJson('/guia/topic-flow/preguntar', ['question' => 'Que explica Comerciomax?', 'scope' => 'health'])
+            ->assertOk()->assertJsonFragment(['answer' => $notFound]);
+        $this->postJson('/guia/topic-flow/preguntar', ['question' => 'Que explica Comerciomax?', 'scope' => 'business'])
+            ->assertOk()->assertJsonPath('answer', fn ($answer) => str_contains($answer, 'estrategia comercial'));
+        $this->postJson('/guia/topic-flow/preguntar', ['question' => 'Que dice Nexusmixto?', 'scope' => 'health'])
+            ->assertOk()->assertJsonPath('answer', fn ($answer) => str_contains($answer, 'bienestar y crecimiento'));
+        $this->postJson('/guia/topic-flow/preguntar', ['question' => 'Que dice Cardiozen?', 'scope' => 'mixed'])
+            ->assertOk()->assertJsonFragment(['answer' => $notFound]);
     }
 
     private function makeLink(string $token, int $maxOpens): AccessLink

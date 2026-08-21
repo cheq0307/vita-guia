@@ -9,6 +9,8 @@ Sistema web independiente para compartir informacion de productos con clientes m
 - Los profesionales suben borradores; solo el administrador puede aprobarlos y publicarlos.
 - Los asesores generan enlaces por cliente con fecha de vencimiento y limite opcional de aperturas.
 - Una apertura cuenta por sesion; el cliente puede seguir navegando y usar el chat durante esa sesion.
+- Cada contenido se clasifica por formato y por tema: Salud, Negocios o Mixto.
+- La guia y el asistente pueden filtrarse por tema; Mixto participa tanto en Salud como en Negocios.
 - El asistente busca exclusivamente en el contenido publicado en MariaDB.
 - PDF, imagenes y videos se guardan en almacenamiento privado; YouTube y otros sitios se registran como enlaces.
 - Los PDF se extraen por pagina con Python y pypdf, sin servicios de IA ni consumo de tokens.
@@ -41,7 +43,7 @@ Los estilos y el JavaScript ya estan en public/assets; no hay que compilar nada.
 
 ### Metodologia documental
 
-1. content_items conserva el texto editorial, autor, categoria y estado de aprobacion.
+1. content_items conserva el texto editorial, autor, formato, tema y estado de aprobacion.
 2. content_assets conserva cada PDF, imagen, video o enlace asociado.
 3. content_chunks divide texto, transcripciones y paginas en fragmentos consultables.
 4. Solo fragmentos de contenido published y active pueden responder al cliente.

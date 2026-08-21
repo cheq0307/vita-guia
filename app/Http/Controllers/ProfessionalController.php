@@ -113,6 +113,7 @@ class ProfessionalController extends Controller
     {
         return $request->validate([
             'type' => ['required', 'in:product,instruction,video,story'],
+            'topic' => ['required', 'in:health,business,mixed'],
             'title' => ['required', 'string', 'max:190'],
             'summary' => ['nullable', 'string', 'max:500'],
             'body' => ['required', 'string'],
@@ -129,7 +130,7 @@ class ProfessionalController extends Controller
     private function onlyContentFields(array $data): array
     {
         return collect($data)->only([
-            'type', 'title', 'summary', 'body', 'sort_order', 'author_id',
+            'type', 'topic', 'title', 'summary', 'body', 'sort_order', 'author_id',
             'status', 'active', 'submitted_at', 'reviewer_id', 'review_notes', 'reviewed_at',
         ])->all();
     }

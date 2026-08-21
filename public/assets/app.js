@@ -9,9 +9,36 @@ document.addEventListener('click', async (event) => {
     setTimeout(() => button.textContent = original, 1800);
 });
 
+document.querySelectorAll('[data-topic-filters]').forEach((filters) => {
+    const buttons = [...filters.querySelectorAll('[data-topic-filter]')];
+    const cards = [...document.querySelectorAll('[data-topic]')];
+    const sections = [...document.querySelectorAll('[data-topic-section]')];
+    const chatScope = document.querySelector('[data-chat] select[name=scope]');
+
+    buttons.forEach((button) => button.addEventListener('click', () => {
+        const selected = button.dataset.topicFilter;
+        buttons.forEach((candidate) => {
+            const active = candidate === button;
+            candidate.classList.toggle('is-active', active);
+            candidate.setAttribute('aria-pressed', active ? 'true' : 'false');
+        });
+
+        cards.forEach((card) => {
+            const shared = card.dataset.topic === 'mixed' && ['health', 'business'].includes(selected);
+            card.hidden = selected !== 'all' && card.dataset.topic !== selected && !shared;
+        });
+        sections.forEach((section) => {
+            const sectionCards = [...section.querySelectorAll('[data-topic]')];
+            section.hidden = selected !== 'all' && sectionCards.every((card) => card.hidden);
+        });
+        if (chatScope) chatScope.value = selected;
+    }));
+});
+
 document.querySelectorAll('[data-chat]').forEach((chat) => {
     const form = chat.querySelector('form');
     const input = form.querySelector('input');
+    const scope = form.querySelector('select[name=scope]');
     const messages = chat.querySelector('.chat-messages');
 
     form.addEventListener('submit', async (event) => {
@@ -26,7 +53,7 @@ document.querySelectorAll('[data-chat]').forEach((chat) => {
             const response = await fetch(chat.dataset.endpoint, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content},
-                body: JSON.stringify({question})
+                body: JSON.stringify({question, scope: scope?.value || 'all'})
             });
             const data = await response.json();
             if (!response.ok) {
