@@ -5,11 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\AccessLink;
 use App\Models\ContentItem;
 use App\Models\User;
+use App\Services\ContentAssetService;
+use App\Services\ContentIndexer;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
+    public function __construct(
+        private readonly ContentAssetService $assetService,
+        private readonly ContentIndexer $indexer,
+    ) {}
+
     public function dashboard()
     {
         return view('admin.dashboard', [
@@ -47,7 +53,7 @@ class AdminController extends Controller
     public function content()
     {
         return view('admin.content', [
-            'items' => ContentItem::with(['author', 'reviewer'])
+            'items' => ContentItem::with(['author', 'reviewer', 'assets'])
                 ->orderByRaw("CASE status WHEN 'review' THEN 0 WHEN 'rejected' THEN 1 WHEN 'published' THEN 2 ELSE 3 END")
                 ->orderBy('sort_order')
                 ->latest()
@@ -64,14 +70,12 @@ class AdminController extends Controller
         $data['reviewer_id'] = $request->user()->id;
         $data['status'] = 'published';
         $data['reviewed_at'] = now();
+        $item = ContentItem::create($this->onlyContentFields($data));
 
-        if ($request->hasFile('media_file')) {
-            $data['media_url'] = Storage::url($request->file('media_file')->store('content', 'public'));
-        }
-        unset($data['media_file']);
-        ContentItem::create($data);
+        $this->storeResources($request, $item);
+        $this->indexer->reindex($item);
 
-        return back()->with('success', 'Contenido publicado.');
+        return back()->with('success', 'Contenido y recursos publicados.');
     }
 
     public function approveContent(Request $request, ContentItem $item)
@@ -84,6 +88,7 @@ class AdminController extends Controller
             'review_notes' => null,
             'reviewed_at' => now(),
         ]);
+        $this->indexer->reindex($item);
 
         return back()->with('success', 'Contenido aprobado y publicado.');
     }
@@ -105,12 +110,28 @@ class AdminController extends Controller
 
     public function destroyContent(ContentItem $item)
     {
-        if ($item->media_url && str_starts_with($item->media_url, '/storage/')) {
-            Storage::disk('public')->delete(str_replace('/storage/', '', $item->media_url));
+        foreach ($item->assets as $asset) {
+            $this->assetService->delete($asset);
         }
         $item->delete();
 
         return back()->with('success', 'Contenido eliminado.');
+    }
+
+    private function storeResources(Request $request, ContentItem $item): void
+    {
+        $files = $request->file('media_files', []);
+        if ($request->hasFile('media_file')) {
+            $files[] = $request->file('media_file');
+        }
+
+        $this->assetService->attachUploads($item, $files, $request->input('resource_notes'));
+        $this->assetService->attachExternal(
+            $item,
+            $request->input('external_url'),
+            $request->input('external_kind'),
+            $request->input('resource_notes'),
+        );
     }
 
     private function validatedContent(Request $request): array
@@ -120,9 +141,21 @@ class AdminController extends Controller
             'title' => ['required', 'string', 'max:190'],
             'summary' => ['nullable', 'string', 'max:500'],
             'body' => ['required', 'string'],
-            'media_url' => ['nullable', 'url', 'max:500'],
-            'media_file' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,mp4,webm', 'max:102400'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
+            'media_file' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,mp4,webm,pdf', 'max:'.config('content.max_upload_kb')],
+            'media_files' => ['nullable', 'array', 'max:8'],
+            'media_files.*' => ['file', 'mimes:jpg,jpeg,png,webp,mp4,webm,pdf', 'max:'.config('content.max_upload_kb')],
+            'external_kind' => ['nullable', 'in:youtube,link'],
+            'external_url' => ['nullable', 'url', 'max:1000', 'required_with:external_kind'],
+            'resource_notes' => ['nullable', 'string', 'max:20000'],
         ]);
+    }
+
+    private function onlyContentFields(array $data): array
+    {
+        return collect($data)->only([
+            'type', 'title', 'summary', 'body', 'sort_order', 'author_id',
+            'reviewer_id', 'status', 'reviewed_at',
+        ])->all();
     }
 }

@@ -13,6 +13,16 @@ class ContentItem extends Model
         return ['active' => 'boolean', 'submitted_at' => 'datetime', 'reviewed_at' => 'datetime'];
     }
 
+    public function assets()
+    {
+        return $this->hasMany(ContentAsset::class)->orderBy('sort_order')->orderBy('id');
+    }
+
+    public function chunks()
+    {
+        return $this->hasMany(ContentChunk::class);
+    }
+
     public function author()
     {
         return $this->belongsTo(User::class, 'author_id');

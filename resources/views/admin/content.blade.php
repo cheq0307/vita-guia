@@ -14,6 +14,13 @@
                 <h3>{{ $item->title }}</h3>
                 <p>{{ $item->summary ?: \Illuminate\Support\Str::limit($item->body, 150) }}</p>
                 <small>Autor: {{ $item->author?->name ?? 'Administrador' }} @if($item->submitted_at) · Enviado {{ $item->submitted_at->format('d/m/Y H:i') }} @endif</small>
+                @if($item->assets->isNotEmpty())
+                <div class="asset-summary">
+                    @foreach($item->assets as $asset)
+                    <span><strong>{{ strtoupper($asset->kind) }}</strong> {{ $asset->original_name }} @if($asset->page_count)· {{ $asset->page_count }} paginas @endif · {{ ['ready'=>'texto listo','partial'=>'texto parcial','failed'=>'sin extraccion','pending'=>'procesando','not_needed'=>'descripcion manual'][$asset->extraction_status] }}</span>
+                    @endforeach
+                </div>
+                @endif
                 @if($item->review_notes)<div class="review-note"><strong>Observaciones:</strong> {{ $item->review_notes }}</div>@endif
             </div>
             <div class="row-actions">
@@ -34,8 +41,9 @@
             <div><label for="title">Titulo</label><input id="title" name="title" required></div>
             <div><label for="summary">Resumen</label><textarea id="summary" name="summary" rows="2"></textarea></div>
             <div><label for="body">Informacion completa</label><textarea id="body" name="body" rows="6" required></textarea></div>
-            <div><label for="media_file">Archivo local</label><input id="media_file" name="media_file" type="file" accept=".jpg,.jpeg,.png,.webp,.mp4,.webm"><small class="hint">Imagen o video, maximo 100 MB.</small></div>
-            <div><label for="media_url">O enlace externo</label><input id="media_url" name="media_url" type="url" placeholder="https://"></div>
+            <div><label for="media_files">Archivos locales</label><input id="media_files" name="media_files[]" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.mp4,.webm"><small class="hint">Hasta 8 PDF, imagenes o videos; maximo {{ floor(config('content.max_upload_kb') / 1024) }} MB cada uno.</small></div>
+            <div class="fields-2"><div><label for="external_kind">Tipo de enlace</label><select id="external_kind" name="external_kind"><option value="">Sin enlace</option><option value="youtube">YouTube</option><option value="link">Otro sitio</option></select></div><div><label for="external_url">URL</label><input id="external_url" name="external_url" type="url" placeholder="https://"></div></div>
+            <div><label for="resource_notes">Descripcion o transcripcion</label><textarea id="resource_notes" name="resource_notes" rows="5" placeholder="Describe imagenes o pega la transcripcion del video para que el chatbot pueda consultarla."></textarea></div>
             <div><label for="sort_order">Orden</label><input id="sort_order" name="sort_order" type="number" min="0" value="0"></div>
             <button class="button primary" type="submit">Publicar contenido</button>
         </form>

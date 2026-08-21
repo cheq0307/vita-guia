@@ -10,7 +10,10 @@ Sistema web independiente para compartir informacion de productos con clientes m
 - Los asesores generan enlaces por cliente con fecha de vencimiento y limite opcional de aperturas.
 - Una apertura cuenta por sesion; el cliente puede seguir navegando y usar el chat durante esa sesion.
 - El asistente busca exclusivamente en el contenido publicado en MariaDB.
-- Imagenes y videos pueden guardarse en el servidor o enlazarse desde una URL.
+- PDF, imagenes y videos se guardan en almacenamiento privado; YouTube y otros sitios se registran como enlaces.
+- Los PDF se extraen por pagina con Python y pypdf, sin servicios de IA ni consumo de tokens.
+- Las imagenes y videos usan una descripcion o transcripcion manual para alimentar la busqueda.
+- El chat es extractivo: devuelve fragmentos aprobados con nombre de fuente y pagina.
 - No requiere Node.js, Vite, OpenAI ni Cloudflare para funcionar.
 
 ## Requisitos
@@ -19,6 +22,7 @@ Sistema web independiente para compartir informacion de productos con clientes m
 - MariaDB 10.5 o posterior.
 - Composer.
 - Extensiones PHP habituales de Laravel: PDO MySQL, mbstring, OpenSSL, tokenizer, XML, ctype, JSON y fileinfo.
+- Python 3 con pypdf para extraer PDF. Configura PDF_EXTRACTOR_PYTHON si el ejecutable no esta en PATH.
 - Nginx o Apache.
 
 ## Instalacion local con XAMPP
@@ -34,6 +38,14 @@ Sistema web independiente para compartir informacion de productos con clientes m
     php artisan serve
 
 Los estilos y el JavaScript ya estan en public/assets; no hay que compilar nada.
+
+### Metodologia documental
+
+1. content_items conserva el texto editorial, autor, categoria y estado de aprobacion.
+2. content_assets conserva cada PDF, imagen, video o enlace asociado.
+3. content_chunks divide texto, transcripciones y paginas en fragmentos consultables.
+4. Solo fragmentos de contenido published y active pueden responder al cliente.
+5. Ejecuta php artisan content:reindex cuando se cambie manualmente la base.
 
 ## Despliegue en el servidor Atom
 

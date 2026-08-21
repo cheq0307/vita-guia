@@ -14,7 +14,7 @@
         <article class="content-row">
             <div class="content-main">
                 <div class="meta-line"><span class="type">{{ ['product'=>'Producto','instruction'=>'Indicacion','video'=>'Video','story'=>'Testimonio'][$item->type] }}</span><span class="status {{ $item->status }}">{{ ['draft'=>'Borrador','review'=>'En revision','published'=>'Publicado','rejected'=>'Por corregir'][$item->status] }}</span></div>
-                <h3>{{ $item->title }}</h3><p>{{ $item->summary ?: \Illuminate\Support\Str::limit($item->body, 150) }}</p>
+                <h3>{{ $item->title }}</h3>@if($item->assets->isNotEmpty())<span class="asset-count">{{ $item->assets->count() }} recursos adjuntos</span>@endif<p>{{ $item->summary ?: \Illuminate\Support\Str::limit($item->body, 150) }}</p>
                 @if($item->review_notes)<div class="review-note"><strong>Observaciones del administrador:</strong> {{ $item->review_notes }}</div>@endif
             </div>
             @if(in_array($item->status, ['draft', 'rejected']))

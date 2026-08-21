@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\AccessLink;
+use App\Models\ContentChunk;
 use App\Models\ContentItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class GuideController extends Controller
 {
@@ -47,7 +49,13 @@ class GuideController extends Controller
         return view('guide.show', [
             'link' => $link,
             'token' => $token,
-            'items' => ContentItem::where('active', true)->where('status', 'published')->orderBy('sort_order')->orderBy('id')->get()->groupBy('type'),
+            'items' => ContentItem::with('assets')
+                ->where('active', true)
+                ->where('status', 'published')
+                ->orderBy('sort_order')
+                ->orderBy('id')
+                ->get()
+                ->groupBy('type'),
         ]);
     }
 
@@ -58,24 +66,60 @@ class GuideController extends Controller
         $question = trim($request->validate(['question' => ['required', 'string', 'max:500']])['question']);
         $words = collect(preg_split('/[^[:alnum:]áéíóúüñ]+/iu', mb_strtolower($question)))
             ->filter(fn ($word) => mb_strlen($word) >= 4)
+            ->reject(fn ($word) => in_array($word, ['como', 'cual', 'para', 'esta', 'este', 'esto', 'debo', 'puedo'], true))
             ->unique()
             ->take(8);
 
-        $query = ContentItem::where('active', true);
-        $query->where(function ($builder) use ($words) {
-            foreach ($words as $word) {
-                $builder->orWhere('title', 'like', '%'.$word.'%')
-                    ->orWhere('summary', 'like', '%'.$word.'%')
-                    ->orWhere('body', 'like', '%'.$word.'%');
-            }
-        });
-        $matches = $words->isEmpty() ? collect() : $query->limit(3)->get();
-        if ($matches->isEmpty()) {
-            return response()->json(['answer' => 'No encontré esa respuesta en la información disponible. Consulta directamente con tu asesor.']);
+        if ($words->isEmpty()) {
+            return $this->notFound();
         }
 
-        $answer = $matches->map(fn ($item) => $item->title.': '.($item->summary ?: str($item->body)->limit(260)))->join("\n\n");
+        $chunks = ContentChunk::with('contentItem')
+            ->whereHas('contentItem', fn ($query) => $query->where('active', true)->where('status', 'published'))
+            ->where(function ($query) use ($words) {
+                foreach ($words as $word) {
+                    $query->orWhere('text', 'like', '%'.$word.'%');
+                }
+            })
+            ->limit(60)
+            ->get()
+            ->map(function (ContentChunk $chunk) use ($words) {
+                $haystack = mb_strtolower($chunk->text);
+                $chunk->match_score = $words->sum(fn ($word) => substr_count($haystack, $word));
 
-        return response()->json(['answer' => $answer]);
+                return $chunk;
+            })
+            ->sortByDesc('match_score')
+            ->take(4);
+
+        if ($chunks->isEmpty()) {
+            return $this->notFound();
+        }
+
+        $answer = $chunks->map(function (ContentChunk $chunk) {
+            $source = $chunk->source_label;
+            if ($chunk->page_number) {
+                $source .= ', pagina '.$chunk->page_number;
+            }
+
+            return 'Fuente: '.$source.'
+'.Str::limit($chunk->text, 520);
+        })->join('
+
+');
+
+        return response()->json([
+            'answer' => $answer,
+            'mode' => 'extractive',
+            'notice' => 'Fragmentos recuperados literalmente de la biblioteca aprobada.',
+        ]);
+    }
+
+    private function notFound()
+    {
+        return response()->json([
+            'answer' => 'No encontré esa respuesta en la información aprobada. Consulta directamente con tu asesor.',
+            'mode' => 'extractive',
+        ]);
     }
 }

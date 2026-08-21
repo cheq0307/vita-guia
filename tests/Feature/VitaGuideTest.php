@@ -42,7 +42,7 @@ class VitaGuideTest extends TestCase
     public function test_chat_uses_only_published_content(): void
     {
         $this->makeLink('chat-token', 3);
-        ContentItem::create([
+        $item = ContentItem::create([
             'type' => 'instruction',
             'title' => 'Uso del producto',
             'summary' => 'Tomar con alimentos segun la indicacion publicada.',
@@ -50,15 +50,17 @@ class VitaGuideTest extends TestCase
             'sort_order' => 1,
             'active' => true,
         ]);
+        app(\App\Services\ContentIndexer::class)->reindex($item);
 
         $this->get('/guia/chat-token')->assertOk();
         $this->postJson('/guia/chat-token/preguntar', ['question' => 'Como debo tomar el producto?'])
             ->assertOk()
-            ->assertJsonFragment(['answer' => 'Uso del producto: Tomar con alimentos segun la indicacion publicada.']);
+            ->assertJsonPath('mode', 'extractive')
+            ->assertJsonPath('answer', fn ($answer) => str_contains($answer, 'Tomar con alimentos segun la indicacion publicada.'));
 
         $this->postJson('/guia/chat-token/preguntar', ['question' => 'Cual es el clima de manana?'])
             ->assertOk()
-            ->assertJsonFragment(['answer' => 'No encontré esa respuesta en la información disponible. Consulta directamente con tu asesor.']);
+            ->assertJsonFragment(['answer' => 'No encontré esa respuesta en la información aprobada. Consulta directamente con tu asesor.']);
     }
 
     public function test_professional_content_requires_admin_approval(): void
@@ -114,7 +116,7 @@ class VitaGuideTest extends TestCase
 
     public function test_admin_can_store_a_video_on_the_local_disk(): void
     {
-        Storage::fake('public');
+        Storage::fake('local');
         $admin = User::create(['name' => 'Admin', 'email' => 'upload@test.local', 'password' => 'password-segura', 'role' => 'admin', 'active' => true]);
 
         $this->actingAs($admin)->post('/admin/contenido', [
@@ -125,7 +127,40 @@ class VitaGuideTest extends TestCase
         ])->assertRedirect();
 
         $item = ContentItem::where('title', 'Video local')->firstOrFail();
-        Storage::disk('public')->assertExists(str_replace('/storage/', '', $item->media_url));
+        $asset = $item->assets()->firstOrFail();
+        $this->assertSame('video', $asset->kind);
+        Storage::disk('local')->assertExists($asset->storage_path);
+    }
+
+    public function test_professional_can_attach_pdf_image_and_youtube_transcript(): void
+    {
+        Storage::fake('local');
+        $professional = User::create(['name' => 'Profesional', 'email' => 'media@test.local', 'password' => 'password-segura', 'role' => 'professional', 'active' => true]);
+        $admin = User::create(['name' => 'Admin', 'email' => 'media-admin@test.local', 'password' => 'password-segura', 'role' => 'admin', 'active' => true]);
+        $this->makeLink('media-flow', 3);
+
+        $this->actingAs($professional)->post('/profesional/contenido', [
+            'type' => 'video',
+            'title' => 'Demostracion multimedia',
+            'body' => 'Recursos para el cliente.',
+            'action' => 'submit',
+            'media_files' => [
+                UploadedFile::fake()->create('producto.jpg', 10, 'image/jpeg'),
+                UploadedFile::fake()->create('manual.pdf', 50, 'application/pdf'),
+            ],
+            'external_kind' => 'youtube',
+            'external_url' => 'https://www.youtube.com/watch?v=abcdefghijk',
+            'resource_notes' => 'La demostracion audiovisual explica la mezcla nocturna.',
+        ])->assertRedirect();
+
+        $item = ContentItem::where('title', 'Demostracion multimedia')->firstOrFail();
+        $this->assertEqualsCanonicalizing(['image', 'pdf', 'youtube'], $item->assets()->pluck('kind')->all());
+        $this->actingAs($admin)->patch('/admin/contenido/'.$item->id.'/aprobar')->assertRedirect();
+
+        $this->get('/guia/media-flow')->assertOk()->assertSee('Demostracion multimedia');
+        $this->postJson('/guia/media-flow/preguntar', ['question' => 'Que explica sobre la mezcla nocturna?'])
+            ->assertOk()
+            ->assertJsonPath('answer', fn ($answer) => str_contains($answer, 'mezcla nocturna'));
     }
 
     private function makeLink(string $token, int $maxOpens): AccessLink

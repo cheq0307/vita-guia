@@ -33,9 +33,27 @@
                     <img src="{{ $item->media_url }}" alt="" loading="lazy">
                 @endif
             @endif
+            @foreach($item->assets as $asset)
+                @if($asset->kind === 'image')
+                    <img src="{{ route('guide.asset', [$token, $asset]) }}" alt="{{ $item->title }}" loading="lazy">
+                @elseif($asset->kind === 'video')
+                    <video controls preload="metadata"><source src="{{ route('guide.asset', [$token, $asset]) }}" type="{{ $asset->mime_type }}"></video>
+                @elseif($asset->kind === 'pdf')
+                    <a class="document-link" href="{{ route('guide.asset', [$token, $asset]) }}" target="_blank"><span>PDF</span><div><strong>{{ $asset->original_name }}</strong><small>{{ $asset->page_count ? $asset->page_count.' paginas' : 'Documento' }}</small></div></a>
+                @elseif($asset->kind === 'youtube' && $asset->youtubeEmbedUrl())
+                    <div class="video-embed"><iframe src="{{ $asset->youtubeEmbedUrl() }}" title="{{ $item->title }}" loading="lazy" allow="accelerometer; autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe></div>
+                @elseif($asset->external_url)
+                    <a class="media-link" href="{{ $asset->external_url }}" target="_blank" rel="noopener">Abrir recurso</a>
+                @endif
+            @endforeach
             <span class="type">{{ $title }}</span><h3>{{ $item->title }}</h3>
             @if($item->summary)<p class="summary">{{ $item->summary }}</p>@endif
             <div class="body-copy">{!! nl2br(e($item->body)) !!}</div>
+            @foreach($item->assets->whereNotNull('transcript') as $asset)
+                @if(trim($asset->transcript))
+                <details class="resource-notes"><summary>Descripcion o transcripcion de {{ $asset->original_name ?: 'este recurso' }}</summary><p>{!! nl2br(e($asset->transcript)) !!}</p></details>
+                @endif
+            @endforeach
         </article>
     @empty
         <p class="empty">Tu asesor agregara informacion en esta seccion.</p>
