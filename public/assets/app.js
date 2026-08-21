@@ -9,30 +9,67 @@ document.addEventListener('click', async (event) => {
     setTimeout(() => button.textContent = original, 1800);
 });
 
-document.querySelectorAll('[data-topic-filters]').forEach((filters) => {
-    const buttons = [...filters.querySelectorAll('[data-topic-filter]')];
+document.querySelectorAll('[data-guide-modules]').forEach((navigation) => {
+    const moduleButtons = [...navigation.querySelectorAll('[data-module-target]')];
+    const topicFilters = document.querySelector('[data-topic-filters]');
+    const topicButtons = [...(topicFilters?.querySelectorAll('[data-topic-filter]') || [])];
+    const topicBar = document.querySelector('[data-topic-filter-bar]');
     const cards = [...document.querySelectorAll('[data-topic]')];
     const sections = [...document.querySelectorAll('[data-topic-section]')];
+    const assistant = document.querySelector('[data-assistant-section]');
+    const emptyState = document.querySelector('[data-topic-empty]');
     const chatScope = document.querySelector('[data-chat] select[name=scope]');
+    const requestedModule = window.location.hash.slice(1);
+    let activeModule = moduleButtons.some((button) => button.dataset.moduleTarget === requestedModule)
+        ? requestedModule
+        : 'productos';
+    let activeTopic = 'all';
 
-    buttons.forEach((button) => button.addEventListener('click', () => {
-        const selected = button.dataset.topicFilter;
-        buttons.forEach((candidate) => {
-            const active = candidate === button;
-            candidate.classList.toggle('is-active', active);
-            candidate.setAttribute('aria-pressed', active ? 'true' : 'false');
+    const matchesTopic = (card) => {
+        const shared = card.dataset.topic === 'mixed' && ['health', 'business'].includes(activeTopic);
+        return activeTopic === 'all' || card.dataset.topic === activeTopic || shared;
+    };
+
+    const render = () => {
+        moduleButtons.forEach((button) => {
+            const active = button.dataset.moduleTarget === activeModule;
+            button.classList.toggle('is-active', active);
+            button.setAttribute('aria-pressed', active ? 'true' : 'false');
         });
-
+        topicButtons.forEach((button) => {
+            const active = button.dataset.topicFilter === activeTopic;
+            button.classList.toggle('is-active', active);
+            button.setAttribute('aria-pressed', active ? 'true' : 'false');
+        });
         cards.forEach((card) => {
-            const shared = card.dataset.topic === 'mixed' && ['health', 'business'].includes(selected);
-            card.hidden = selected !== 'all' && card.dataset.topic !== selected && !shared;
+            card.hidden = !matchesTopic(card);
         });
+        let activeSectionHasResults = false;
         sections.forEach((section) => {
             const sectionCards = [...section.querySelectorAll('[data-topic]')];
-            section.hidden = selected !== 'all' && sectionCards.every((card) => card.hidden);
+            const hasResults = activeTopic === 'all' || sectionCards.some(matchesTopic);
+            if (section.id === activeModule) activeSectionHasResults = hasResults;
+            section.hidden = section.id !== activeModule || !hasResults;
         });
-        if (chatScope) chatScope.value = selected;
+
+        const assistantActive = activeModule === 'asistente';
+        if (assistant) assistant.hidden = !assistantActive;
+        if (emptyState) emptyState.hidden = assistantActive || activeSectionHasResults;
+        if (topicBar) topicBar.hidden = assistantActive;
+        if (chatScope) chatScope.value = activeTopic;
+    };
+
+    moduleButtons.forEach((button) => button.addEventListener('click', () => {
+        activeModule = button.dataset.moduleTarget;
+        window.history.replaceState(null, '', '#' + activeModule);
+        render();
     }));
+    topicButtons.forEach((button) => button.addEventListener('click', () => {
+        activeTopic = button.dataset.topicFilter;
+        render();
+    }));
+
+    render();
 });
 
 document.querySelectorAll('[data-chat]').forEach((chat) => {

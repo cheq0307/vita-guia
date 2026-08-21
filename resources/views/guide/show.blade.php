@@ -10,8 +10,8 @@
 <header class="guide-header"><a class="brand" href="#"><span class="brand-mark">V</span><span>Vita Guia</span></a><span>Enlace vigente hasta {{ $link->expires_at->format('d/m/Y H:i') }}</span></header>
 <main>
 <section class="guide-hero"><div><p class="eyebrow">Informacion preparada para ti</p><h1>Hola, {{ $link->recipient_name }}</h1><p>Aqui encontraras los productos, indicaciones y experiencias que tu asesor selecciono para resolver tus dudas.</p><div class="advisor-line"><span>Tu asesor</span><strong>{{ $link->advisor->name }}</strong></div></div></section>
-<nav class="guide-tabs"><a href="#productos">Productos</a><a href="#indicaciones">Como usarlo</a><a href="#videos">Videos</a><a href="#historias">Experiencias</a><a href="#asistente">Preguntar</a></nav>
-<div class="topic-filter-bar"><div class="topic-filters" data-topic-filters aria-label="Filtrar por tema"><button type="button" class="is-active" data-topic-filter="all" aria-pressed="true">Todo</button><button type="button" data-topic-filter="health" aria-pressed="false">Salud</button><button type="button" data-topic-filter="business" aria-pressed="false">Negocios</button><button type="button" data-topic-filter="mixed" aria-pressed="false">Mixto</button></div></div>
+<nav class="guide-tabs" data-guide-modules aria-label="Modulos de la guia"><button type="button" data-module-target="productos">Productos</button><button type="button" data-module-target="indicaciones">Como usarlo</button><button type="button" data-module-target="videos">Videos</button><button type="button" data-module-target="historias">Experiencias</button><button type="button" data-module-target="asistente">Preguntar</button></nav>
+<div class="topic-filter-bar" data-topic-filter-bar><div class="topic-filters" data-topic-filters aria-label="Filtrar por tema"><button type="button" class="is-active" data-topic-filter="all" aria-pressed="true">Todo</button><button type="button" data-topic-filter="health" aria-pressed="false">Salud</button><button type="button" data-topic-filter="business" aria-pressed="false">Negocios</button><button type="button" data-topic-filter="mixed" aria-pressed="false">Mixto</button></div></div>
 
 @php($sections = [
     'product' => ['productos', 'Productos', 'Informacion esencial de cada producto.'],
@@ -63,7 +63,9 @@
 </section>
 @endforeach
 
-<section id="asistente" class="assistant-section">
+<section class="guide-empty-state" data-topic-empty hidden><p class="eyebrow">Sin resultados</p><h2>No hay contenido publicado para este tema.</h2><p>Prueba con Todo o selecciona otro tema.</p></section>
+
+<section id="asistente" class="assistant-section" data-assistant-section>
     <div><p class="eyebrow">Asistente Vita</p><h2>Pregunta sobre esta informacion</h2><p>Las respuestas se obtienen solamente del contenido publicado en esta guia.</p></div>
     <div class="chat" data-chat data-endpoint="{{ route('guide.chat', $token) }}">
         <div class="chat-messages" aria-live="polite"><div class="message bot">Hola. Escribe una duda sobre los productos o sus indicaciones.</div></div>

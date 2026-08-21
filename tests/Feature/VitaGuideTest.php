@@ -189,6 +189,8 @@ class VitaGuideTest extends TestCase
 
         $this->get('/guia/topic-flow')
             ->assertOk()
+            ->assertSee('data-module-target="productos"', false)
+            ->assertSee('data-module-target="asistente"', false)
             ->assertSee('data-topic="health"', false)
             ->assertSee('data-topic="business"', false)
             ->assertSee('data-topic="mixed"', false);
