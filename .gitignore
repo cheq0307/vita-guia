@@ -39,6 +39,7 @@ yarn-error.log*
 /dist/
 /.wrangler/
 /outputs/
+/backups/
 /work/
 
 # Node.js portatil local

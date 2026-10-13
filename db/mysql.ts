@@ -44,7 +44,7 @@ export async function ensureDatabase() {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
   })().catch((error) => {
     globalThis.vitaGuiaSchemaPromise = undefined;
-    throw new Error(`No se pudo conectar con MariaDB. Enciende MySQL en XAMPP y revisa .env.local. ${error instanceof Error ? error.message : ""}`);
+    throw new Error(`No se pudo conectar con MariaDB. Enciende MySQL en Laragon y revisa .env.local. ${error instanceof Error ? error.message : ""}`);
   });
   return globalThis.vitaGuiaSchemaPromise;
 }

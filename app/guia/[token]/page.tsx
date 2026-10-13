@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { openAccessLink, peekAccessLink } from "../../../db/access-links";
-import { ClientPortal } from "../../page";
+import { ClientPortal } from "../../ClientPortal";
 
 export const dynamic = "force-dynamic";
 

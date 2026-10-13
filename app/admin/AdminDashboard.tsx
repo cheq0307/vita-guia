@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Check, Copy, Link2, Plus, RefreshCw, Search, ShieldCheck, Trash2, LogOut } from "lucide-react";
+import Link from "next/link";
+import { Check, Copy, Eye, Link2, Plus, RefreshCw, Search, ShieldCheck, Trash2 } from "lucide-react";
+import LogoutButton from "../LogoutButton";
 
 type LinkRecord = {
   id:number; token:string; recipientName:string; recipientContact:string; expiresAt:string;
@@ -17,6 +19,8 @@ export default function AdminDashboard({ advisorToken, advisorName }: { advisorT
   const [error, setError] = useState("");
   const [form, setForm] = useState({ recipientName:"", recipientContact:"", validDays:7, maxOpens:"" });
   const advisorHeaders: Record<string,string> = advisorToken ? { "x-advisor-token":advisorToken } : {};
+  const workspaceHref = advisorToken ? `/asesor/${advisorToken}` : "/admin";
+  const libraryHref = `${workspaceHref}/biblioteca`;
 
   const loadLinks = async () => {
     setLoading(true); setError("");
@@ -48,11 +52,6 @@ export default function AdminDashboard({ advisorToken, advisorName }: { advisorT
     if (response.ok) setLinks((current) => current.map((link) => link.id === id ? { ...link, revoked:true } : link));
   }
 
-  async function logout() {
-    await fetch("/api/auth/logout",{method:"POST"});
-    window.location.assign("/login");
-  }
-
   function status(link: LinkRecord) {
     if (link.revoked) return ["Revocado", "revoked"];
     if (new Date(link.expiresAt).getTime() < Date.now()) return ["Vencido", "expired"];
@@ -62,13 +61,12 @@ export default function AdminDashboard({ advisorToken, advisorName }: { advisorT
   return (
     <main className="admin-shell">
       <aside className="admin-sidebar">
-        <a className="brand admin-brand" href="/"><span className="brand-mark">V</span><span>Vita Guia</span></a>
-        <nav><a className="selected" href={advisorToken ? `/asesor/${advisorToken}` : "/admin"}><Link2 size={18}/> Enlaces</a>{!advisorToken && <a href="/admin/usuarios"><ShieldCheck size={18}/> Usuarios</a>}<a href={advisorToken ? `/asesor/${advisorToken}/biblioteca` : "/admin/biblioteca"}><ShieldCheck size={18}/> Ver biblioteca</a></nav>
-        {!advisorToken&&<button className="sidebar-logout" onClick={logout}><LogOut size={17}/> Cerrar sesion</button>}
+        <Link className="brand admin-brand" href={workspaceHref}><span className="brand-mark">V</span><span>Vita Guia</span></Link>
+        <nav><a className="selected" href={workspaceHref}><Link2 size={18}/> Enlaces</a>{!advisorToken && <a href="/admin/usuarios"><ShieldCheck size={18}/> Usuarios</a>}<Link href={libraryHref}><Eye size={18} aria-hidden="true"/> Ver página</Link></nav>
         <p>Panel de distribucion</p>
       </aside>
       <section className="admin-main">
-        <header className="admin-top"><div><p className="eyebrow">{advisorName ? `Usuario · ${advisorName}` : "Administracion"}</p><h1>Enlaces de clientes</h1></div><a className="library-link" href={advisorToken ? `/asesor/${advisorToken}/biblioteca` : "/admin/biblioteca"}>Vista de la biblioteca <span>→</span></a></header>
+        <header className="admin-top"><div><p className="eyebrow">{advisorName ? `Usuario · ${advisorName}` : "Administracion"}</p><h1>Enlaces de clientes</h1></div><div className="workspace-actions"><Link className="workspace-link" href={libraryHref}><Eye size={18} aria-hidden="true"/>Ver página</Link>{!advisorToken && <LogoutButton />}</div></header>
 
         <div className="admin-stats"><article><span>Enlaces activos</span><strong>{links.filter((x) => status(x)[1] === "active").length}</strong></article><article><span>Personas que ingresaron</span><strong>{links.filter((x) => x.firstOpenedAt).length}</strong></article><article><span>Aperturas totales</span><strong>{links.reduce((sum, x) => sum + x.openCount, 0)}</strong></article></div>
 

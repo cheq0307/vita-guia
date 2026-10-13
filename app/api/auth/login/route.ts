@@ -1,23 +1,37 @@
 import { cookies } from "next/headers";
 import { ADMIN_COOKIE, adminCookieOptions, createAdminToken, validAdminCredentials } from "../../../admin-session";
+import { createLoginAttempts } from "../../../login-attempts";
 
-type Attempt = { count:number; resetAt:number };
-const attempts = new Map<string,Attempt>();
-const WINDOW_MS = 15 * 60 * 1000;
-const MAX_ATTEMPTS = 5;
+const attempts = createLoginAttempts();
+
+function cooldownResponse(retryAfter: number) {
+  return Response.json(
+    { error: "Hagamos una pausa breve. Después puedes volver a intentarlo.", retryAfter },
+    { status: 429, headers: { "Retry-After": String(retryAfter), "Cache-Control": "no-store" } },
+  );
+}
 
 export async function POST(request:Request) {
   const ip=request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
   const now=Date.now();
-  const current=attempts.get(ip);
-  if(current&&current.resetAt>now&&current.count>=MAX_ATTEMPTS) return Response.json({error:"Demasiados intentos. Espera 15 minutos."},{status:429});
-  const payload=await request.json().catch(()=>null) as {username?:string;password?:string}|null;
-  if(!payload||!validAdminCredentials(payload.username?.trim()??"",payload.password??"")) {
-    const next=current&&current.resetAt>now?{...current,count:current.count+1}:{count:1,resetAt:now+WINDOW_MS};
-    attempts.set(ip,next);
-    return Response.json({error:"Usuario o contrasena incorrectos."},{status:401});
+  const retryAfter = attempts.retryAfter(ip, now);
+  if (retryAfter) return cooldownResponse(retryAfter);
+
+  const payload: unknown = await request.json().catch(() => null);
+  if (!payload || typeof payload !== "object"
+    || !("username" in payload) || typeof payload.username !== "string"
+    || !("password" in payload) || typeof payload.password !== "string") {
+    const remaining = attempts.recordFailure(ip, now);
+    if (remaining) return cooldownResponse(remaining);
+    return Response.json({ error: "Escribe tu correo y contraseña para entrar." }, { status: 400 });
   }
-  attempts.delete(ip);
+
+  if (!validAdminCredentials(payload.username.trim(), payload.password)) {
+    const remaining = attempts.recordFailure(ip, now);
+    if (remaining) return cooldownResponse(remaining);
+    return Response.json({ error: "Revisa tu correo y contraseña. Puedes mostrar la contraseña para comprobarla." }, { status: 401 });
+  }
+  attempts.clear(ip);
   (await cookies()).set(ADMIN_COOKIE,createAdminToken(),adminCookieOptions());
   return Response.json({ok:true});
 }
