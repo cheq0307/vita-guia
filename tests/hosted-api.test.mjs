@@ -1,0 +1,30 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+
+test('D1 preview persists advisors and client links with isolated permissions', {skip:!process.env.VITA_TEST_URL}, async () => {
+  const base = new URL(process.env.VITA_TEST_URL);
+  assert.ok(['localhost','127.0.0.1'].includes(base.hostname));
+  const login = await fetch(new URL('/api/auth/login',base), {method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({username:process.env.ADMIN_USERNAME,password:process.env.ADMIN_PASSWORD})});
+  assert.equal(login.status,200);
+  const cookie=login.headers.get('set-cookie').split(';')[0];
+  const headers={'content-type':'application/json',cookie};
+  const created=await fetch(new URL('/api/advisors',base),{method:'POST',headers,body:JSON.stringify({name:'Prueba local D1',contact:'local@example.test'})});
+  assert.equal(created.status,201);
+  const {advisor}=await created.json();
+  const advisorHeaders={'content-type':'application/json','x-advisor-token':advisor.token};
+  const linkResponse=await fetch(new URL('/api/links',base),{method:'POST',headers:advisorHeaders,body:JSON.stringify({recipientName:'Cliente de prueba local',recipientContact:'cliente@example.test',validDays:7,maxOpens:1})});
+  assert.equal(linkResponse.status,201);
+  const {link}=await linkResponse.json();
+  assert.equal((await (await fetch(new URL('/api/links',base),{headers:advisorHeaders})).json()).links[0].id,link.id);
+  const guide=await fetch(new URL('/guia/'+link.token,base));
+  assert.equal(guide.status,200);
+  const html=await guide.text();
+  assert.ok(html.includes('Cliente de prueba local'));
+  assert.ok(!html.includes('Panel administrativo'));
+  assert.ok((await (await fetch(new URL('/guia/'+link.token,base))).text()).includes('Este enlace alcanzo su limite'));
+  assert.equal((await fetch(new URL('/api/advisors',base),{headers:advisorHeaders})).status,401);
+  assert.equal((await fetch(new URL('/api/links/'+link.id,base),{method:'PATCH',headers})).status,200);
+  const disabled=await fetch(new URL('/api/advisors/'+advisor.id,base),{method:'PATCH',headers});
+  assert.equal(disabled.status,200);
+  assert.equal((await fetch(new URL('/api/links',base),{headers:advisorHeaders})).status,401);
+});
