@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+
 import { Check, Copy, Eye, Link2, Plus, RefreshCw, Search, ShieldCheck, Trash2 } from "lucide-react";
 import LogoutButton from "../LogoutButton";
 
@@ -61,12 +61,12 @@ export default function AdminDashboard({ advisorToken, advisorName }: { advisorT
   return (
     <main className="admin-shell">
       <aside className="admin-sidebar">
-        <Link className="brand admin-brand" href={workspaceHref}><span className="brand-mark">V</span><span>Vita Guia</span></Link>
-        <nav><a className="selected" href={workspaceHref}><Link2 size={18}/> Enlaces</a>{!advisorToken && <a href="/admin/usuarios"><ShieldCheck size={18}/> Usuarios</a>}<Link href={libraryHref}><Eye size={18} aria-hidden="true"/> Ver página</Link></nav>
+        <a className="brand admin-brand" href={workspaceHref}><span className="brand-mark">V</span><span>Vita Guia</span></a>
+        <nav><a className="selected" href={workspaceHref}><Link2 size={18}/> Enlaces</a>{!advisorToken && <a href="/admin/usuarios"><ShieldCheck size={18}/> Usuarios</a>}<a href={libraryHref}><Eye size={18} aria-hidden="true"/> Ver página</a></nav>
         <p>Panel de distribucion</p>
       </aside>
       <section className="admin-main">
-        <header className="admin-top"><div><p className="eyebrow">{advisorName ? `Usuario · ${advisorName}` : "Administracion"}</p><h1>Enlaces de clientes</h1></div><div className="workspace-actions"><Link className="workspace-link" href={libraryHref}><Eye size={18} aria-hidden="true"/>Ver página</Link>{!advisorToken && <LogoutButton />}</div></header>
+        <header className="admin-top"><div><p className="eyebrow">{advisorName ? `Usuario · ${advisorName}` : "Administracion"}</p><h1>Enlaces de clientes</h1></div><div className="workspace-actions"><a className="workspace-link" href={libraryHref}><Eye size={18} aria-hidden="true"/>Ver página</a>{!advisorToken && <LogoutButton />}</div></header>
 
         <div className="admin-stats"><article><span>Enlaces activos</span><strong>{links.filter((x) => status(x)[1] === "active").length}</strong></article><article><span>Personas que ingresaron</span><strong>{links.filter((x) => x.firstOpenedAt).length}</strong></article><article><span>Aperturas totales</span><strong>{links.reduce((sum, x) => sum + x.openCount, 0)}</strong></article></div>
 

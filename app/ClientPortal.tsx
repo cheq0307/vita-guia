@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+
 import { ArrowLeft } from "lucide-react";
 import LogoutButton from "./LogoutButton";
 
@@ -51,7 +51,7 @@ export function ClientPortal({ recipientName = "", expiresAt, workspaceLink, sho
         <a className="brand" href="#inicio" aria-label="Vita Guia inicio"><span className="brand-mark">V</span><span>Vita Guia</span></a>
         <div className={showAdminLogout ? "topbar-actions admin-preview-actions" : "topbar-actions"}>
           <div className="access-status"><span className="status-dot" /> {workspaceLink ? "Vista de cliente" : "Acceso privado"}</div>
-          {workspaceLink && <Link className="workspace-link workspace-link-outline" href={workspaceLink.href}><ArrowLeft size={18} aria-hidden="true"/>{workspaceLink.label}</Link>}
+          {workspaceLink && <a className="workspace-link workspace-link-outline" href={workspaceLink.href}><ArrowLeft size={18} aria-hidden="true"/>{workspaceLink.label}</a>}
           {showAdminLogout && <LogoutButton />}
         </div>
       </header>
