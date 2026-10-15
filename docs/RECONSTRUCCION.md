@@ -289,3 +289,11 @@ Rotar un secreto de sesión invalida las sesiones firmadas con el anterior. Camb
 Al continuar, actualizar esta bitácora con qué cambió, por qué, qué archivos lo implementan, cómo reconstruirlo y qué verificaciones se ejecutaron realmente. Separar solicitudes pendientes de funcionalidad entregada. No convertir la documentación en una promesa de implementar automáticamente todos los puntos pendientes.
 
 Decisiones todavía necesarias para ampliar el producto: editor de contenido y campos por formato, consultas paginadas sobre contenido persistente, gestión de medios, recuperación de acceso, respaldo/restauración de D1 y audiencia para clientes externos. Implementarlas en su tarea correspondiente con alcance confirmado.
+
+### Verificación de la separación de menús en producción
+
+Publicación verificada el 15 de octubre de 2026: commit `102d870a71b797da6da51e64bfaf18b160edc25a`, deployment `appgdep_6ad072ce3f788191be8e955c3413cf06`, estado `succeeded`, URL `https://vita-guia.genialbull64.chatgpt.site`. La audiencia privada y los secretos existentes se conservaron; no hubo migraciones nuevas ni importación de datos.
+
+En Chrome se verificó Inicio como portada, Productos/Videos/Historias como rutas distintas, búsqueda de `nutricion` devolviendo solo Vita Daily, regreso a Panel administrativo y vuelta con Ver página. Al probar formularios, esperar explícitamente su navegación antes de hacer clic en otro menú; una captura inmediata puede mostrar todavía el documento anterior. Captura de evidencia: `outputs/menus-separados-publicados.png` (archivo local ignorado por Git).
+
+Las once pruebas completas volvieron a pasar con D1 local, incluyendo las cuatro páginas del asesor activo y la denegación al desactivarlo. La revisión independiente detectó pérdida de filtros durante la entrada del cliente y se corrigió conservando `q` y `pagina` en ambos saltos; el escenario de integración quedó cubierto. La paginación se probó con una colección sintética de 22 elementos; los materiales reales de esta copia siguen siendo tres productos, tres videos de muestra y una historia de muestra, por lo que no aparece un paginador innecesario cuando caben en una sola página.
