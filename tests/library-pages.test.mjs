@@ -17,12 +17,12 @@ test('separate catalog pages, searches and guide navigation preserve permissions
     assert.match(html,new RegExp('href="/admin/biblioteca/'+section+'"[^>]*aria-current="page"'));
     assert.match(html,/Panel administrativo/);
     if(section==='inicio') assert.ok(!html.includes('product-grid'));
-    if(section==='productos'){assert.ok(html.includes('Fibras +'));assert.ok(!html.includes('video-catalog-card'));}
+    if(section==='productos'){assert.ok(html.includes('Active Pro'));assert.ok(!html.includes('video-catalog-card'));}
     if(section==='videos'){assert.ok(html.includes('video-catalog-card'));assert.ok(!html.includes('product-card'));}
     if(section==='historias'){assert.ok(html.includes('Mariana'));assert.ok(!html.includes('product-card'));}
   }
-  const filtered=await(await fetch(new URL('/admin/biblioteca/productos?q=nutricion&pagina=999',base),{headers})).text();
-  assert.ok(filtered.includes('Vita Daily'));assert.ok(!filtered.includes('Calm Night'));
+  const filtered=await(await fetch(new URL('/admin/biblioteca/productos?q=chocolate&pagina=999',base),{headers})).text();
+  assert.ok(filtered.includes('Active Pro · Chocolate'));assert.ok(!filtered.includes('Active Pro · Fresa'));
   const empty=await(await fetch(new URL('/admin/biblioteca/videos?q=zzzz',base),{headers})).text();
   assert.ok(empty.includes('No encontramos coincidencias'));
   assert.equal((await fetch(new URL('/admin/biblioteca/desconocido',base),{headers})).status,404);
@@ -30,15 +30,15 @@ test('separate catalog pages, searches and guide navigation preserve permissions
   const created=await fetch(new URL('/api/links',base),{method:'POST',headers,body:JSON.stringify({recipientName:'Prueba menús independientes',validDays:7,maxOpens:1})});
   assert.equal(created.status,201);
   const {link}=await created.json();
-  const pending=await fetch(new URL('/guia/'+link.token+'/productos?q=nutricion&pagina=2',base),{redirect:'manual'});
+  const pending=await fetch(new URL('/guia/'+link.token+'/productos?q=chocolate&pagina=2',base),{redirect:'manual'});
   assert.equal(pending.status,307);
   const startUrl=new URL(pending.headers.get('location'),base);
-  assert.equal(startUrl.searchParams.get('q'),'nutricion');
+  assert.equal(startUrl.searchParams.get('q'),'chocolate');
   assert.equal(startUrl.searchParams.get('pagina'),'2');
   const entry=await fetch(startUrl,{redirect:'manual'});
   assert.equal(entry.status,303);
   const destination=new URL(entry.headers.get('location'),base);
-  assert.equal(destination.searchParams.get('q'),'nutricion');
+  assert.equal(destination.searchParams.get('q'),'chocolate');
   assert.equal(destination.searchParams.get('pagina'),'2');
   const guideCookie=entry.headers.get('set-cookie').split(';')[0];
   assert.match(entry.headers.get('set-cookie'),/HttpOnly/i);

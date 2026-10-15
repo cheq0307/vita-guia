@@ -313,3 +313,12 @@ Incidencias reales pendientes de resolver antes de publicar indicaciones: Active
 Campos a conservar por variante: nombre y familia, sabor, forma/presentación y contenido del envase, descripción, ingredientes y cantidades disponibles, modo de preparación/uso de fuente, frecuencia y vía, advertencias y precauciones, preguntas frecuentes, imagen, documento/página y estado editorial. Desconocidos se mantienen nulos o pendientes. Los beneficios, estudios porcentuales, sugerencias de combinaciones y sellos son afirmaciones del material comercial: su presencia en el PDF no constituye verificación clínica ni un certificado de producto validado. No generar testimonios, enlaces de video, horarios personalizados, precios actuales o promesas de ingresos a partir de las fuentes.
 
 La estructura de catálogo elaborada en `work/source-documents/2026-10-15/catalog-draft.json` permanece en borrador, con 2 conflictos de uso explícitos y referencias verificadas dentro del rango de páginas. La documentación no equivale a haber cargado esos productos en D1 ni a haber sustituido los ejemplos del sitio.
+
+
+## 2026-10-15 — Sustitución del catálogo de muestra
+
+Autorización: sustituir ahora y dejar diferencias documentales como pendientes. app/portal-content.ts contiene 13 familias / 17 presentaciones. Se exportaron 17 fotografías WebP desde los PDF originales a public/products; imágenes de ficha técnica en sus páginas iniciales y Hemp-C/Espresso/Macchiato desde las páginas 15/17/18 del catálogo. Las máscaras alfa del catálogo se aplican con PdfImage.get_bitmap(render=True). Los PDF completos y extracción permanecen ignorados en work/source-documents/2026-10-15.
+
+Cada registro conserva fuente y páginas, ingredientes resumidos sin afirmaciones terapéuticas y campos null cuando falta confirmación. Active Pro y HC-Fit no publican cantidades ni instrucciones por discrepancia entre fuentes; Complex, Hemp-C y cafés dejan preparación precisa pendiente. No hay horarios personalizados. No se importan certificaciones, promesas clínicas ni ganancias. El asistente usa estos registros, reconoce precauciones pendientes y no ofrece dosis como respuesta genérica. Se retira el video ficticio Prepara Fibras +; el resto de videos/historias siguen explícitamente identificados como muestras.
+
+Sin cambios en D1, autenticación, audiencia o enlaces. Verificación: 13 pruebas automatizadas, navegación paginada real y detalles pendientes en navegador; comprobación de tipos y build antes de empaquetar.
