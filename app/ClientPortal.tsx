@@ -33,7 +33,6 @@ export function ClientPortal({basePath,section='inicio',query='',page=1,recipien
     <header className="topbar">
       <a className="brand" href={portalHref(basePath,'inicio')} aria-label="Vita Guía inicio"><span className="brand-mark">V</span><span>Vita Guía</span></a>
       <div className={showAdminLogout?'topbar-actions admin-preview-actions':'topbar-actions'}>
-        <div className="access-status"><span className="status-dot"/>{workspaceLink?'Vista de cliente':'Acceso privado'}</div>
         {workspaceLink&&<a className="workspace-link workspace-link-outline" href={workspaceLink.href}><ArrowLeft size={18} aria-hidden="true"/>{workspaceLink.label}</a>}
         {showAdminLogout&&<LogoutButton/>}
       </div>
