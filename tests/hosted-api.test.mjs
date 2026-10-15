@@ -16,12 +16,15 @@ test('D1 preview persists advisors and client links with isolated permissions', 
   assert.equal(linkResponse.status,201);
   const {link}=await linkResponse.json();
   assert.equal((await (await fetch(new URL('/api/links',base),{headers:advisorHeaders})).json()).links[0].id,link.id);
-  const guide=await fetch(new URL('/guia/'+link.token,base));
+  const entry=await fetch(new URL('/guia/'+link.token,base),{redirect:'manual'});
+  assert.equal(entry.status,303);
+  const guideCookie=entry.headers.get('set-cookie').split(';')[0];
+  const guide=await fetch(new URL(entry.headers.get('location'),base),{headers:{cookie:guideCookie}});
   assert.equal(guide.status,200);
   const html=await guide.text();
   assert.ok(html.includes('Cliente de prueba local'));
   assert.ok(!html.includes('Panel administrativo'));
-  assert.ok((await (await fetch(new URL('/guia/'+link.token,base))).text()).includes('Este enlace alcanzo su limite'));
+  assert.ok((await (await fetch(new URL('/guia/'+link.token,base))).text()).includes('Este enlace alcanzó su límite'));
   assert.equal((await fetch(new URL('/api/advisors',base),{headers:advisorHeaders})).status,401);
   assert.equal((await fetch(new URL('/api/links/'+link.id,base),{method:'PATCH',headers})).status,200);
   const disabled=await fetch(new URL('/api/advisors/'+advisor.id,base),{method:'PATCH',headers});

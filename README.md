@@ -7,10 +7,13 @@ Copia para Sites de la versión local Next.js, con Vinext, Cloudflare Workers y 
 - Panel `/admin`: crear, copiar y revocar enlaces para clientes.
 - Usuarios `/admin/usuarios`: crear asesores y activar/desactivar sus accesos.
 - Biblioteca `/admin/biblioteca`: vista previa de cliente con regreso al panel y cierre de sesión.
+- Menús con páginas propias: `inicio`, `productos`, `videos` e `historias`, en las bibliotecas de administrador, asesor y cliente. Cada catálogo tiene búsqueda por URL y páginas de nueve resultados.
 - Accesos por token `/asesor/[token]` y `/guia/[token]`, con vigencia y límite de aperturas.
 - Acceso administrativo con correo propio, cookie firmada, contraseña protegida como secreto de runtime y pausa breve ante intentos repetidos.
 
-Productos, videos e historias son todavía contenido de demostración definido en `app/ClientPortal.tsx`; esta copia no incluye el editor de contenidos de la versión Laravel.
+Productos, videos e historias son todavía contenido de demostración definido en `app/portal-content.ts`; esta copia no incluye el editor de contenidos de la versión Laravel.
+
+La entrada `/guia/[token]` valida y contabiliza una visita, emite una cookie HttpOnly firmada y redirige a `/guia/[token]/inicio`. Durante esa visita (hasta ocho horas o el vencimiento del enlace), cambiar de sección no consume más aperturas. Cada página vuelve a comprobar la revocación y la vigencia. Una nueva visita sin cookie sigue sometida al límite de aperturas; no basta con conocer la ruta de un catálogo para omitirlo.
 
 ## Configuración privada
 

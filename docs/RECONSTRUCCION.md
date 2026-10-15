@@ -49,6 +49,8 @@ Implementado:
 - Creación, activación y desactivación de asesores; cada asesor tiene un acceso por token.
 - Panel de asesor limitado a sus propios enlaces.
 - Biblioteca de ejemplo con productos, indicaciones, videos e historias.
+- Inicio, Productos, Videos e Historias en páginas separadas, con menús HTML nativos y estado activo accesible.
+- Buscador GET y paginación de nueve resultados por catálogo, conservados en la URL.
 - Vista previa administrativa con regreso al panel y cierre de sesión.
 - Mensajes para enlace inexistente, vencido, revocado o agotado.
 - Asistente sencillo de respuestas locales definidas en código, sin API de IA.
@@ -56,7 +58,6 @@ Implementado:
 No implementado en esta copia:
 
 - Editor persistente de productos, videos, historias ni formatos por tema.
-- Catálogos paginados o páginas independientes para cada sección: la navegación de secciones todavía desplaza la página.
 - Carga de archivos o multimedia; R2 está deshabilitado.
 - Recuperación de contraseña por correo ni configuración de SMTP.
 - Cuentas individuales de asesores con correo y contraseña: su acceso actual es por token.
@@ -71,7 +72,11 @@ La interfaz React existente se adaptó al starter Vinext de Sites para ejecutar 
 
 | Archivo o carpeta | Responsabilidad |
 | --- | --- |
-| `app/ClientPortal.tsx` | Biblioteca, contenido demostrativo, indicaciones, secciones y asistente local. |
+| `app/ClientPortal.tsx` | Interfaz compartida de Inicio y catálogos, indicaciones y asistente local. |
+| `app/portal-content.ts` | Productos, videos e historia de demostración. |
+| `app/portal-navigation.ts` | Secciones permitidas, URLs, parámetros, búsqueda sin acentos y paginación. |
+| `app/library-pages.tsx` | Autorización de páginas según administrador, asesor o cliente. |
+| `app/guide-visit.ts` | Firma y validación de una visita del cliente, aislada de la sesión administrativa. |
 | `app/globals.css` | Identidad, diseño responsivo y estilos compartidos. |
 | `app/layout.tsx` | Documento HTML y metadatos. |
 | `app/page.tsx` | Entrada general que solicita enlace de asesor. |
@@ -103,7 +108,10 @@ Versiones observadas en el código de la publicación: Node >=22.13, React 19.2.
 | `/admin/biblioteca` | Biblioteca protegida, con controles administrativos. |
 | `/asesor/[token]` | Panel del asesor activo identificado por token. |
 | `/asesor/[token]/biblioteca` | Biblioteca del asesor, con regreso a su propio panel. |
-| `/guia/[token]` | Acceso del cliente; comprueba y contabiliza apertura. |
+| `/guia/[token]` | GET de entrada: comprueba cupo, firma cookie de visita y redirige al catálogo. |
+| `/admin/biblioteca/[section]` | Página administrativa de inicio, productos, videos o historias. |
+| `/asesor/[token]/biblioteca/[section]` | Mismas secciones, comprobando que el asesor siga activo. |
+| `/guia/[token]/[section]` | Secciones del cliente: validan visita, vigencia y revocación. |
 | `/api/auth/login` | POST de credenciales y creación de cookie. |
 | `/api/auth/logout` | POST: expira cookie y redirige con 303 a `/login`. |
 | `/api/advisors` | GET y POST administrativos. |
@@ -118,6 +126,10 @@ El control de intentos permite errores normales y activa una pausa de 30 segundo
 Los asesores se autentican ante la API con `x-advisor-token`. Sus enlaces de acceso son credenciales: evitar su difusión o inclusión en capturas y registros públicos.
 
 En `/guia/[token]` no se pasan los controles del administrador, incluso si el navegador tiene una sesión administrativa. Mantener esa separación al ampliar la interfaz.
+
+Desde la separación de menús, una apertura corresponde al inicio de una visita válida: cookie `vita_guide_visit` firmada con dominio HMAC propio, HttpOnly, SameSite=Lax, Secure en producción y path exclusivo `/guia/[token]`. Su vigencia es el menor plazo entre ocho horas y el vencimiento del enlace. Una cookie no sirve para otro enlace ni concede acceso administrativo. La entrada reutiliza la visita válida sin volver a incrementar el contador; sin ella, valida e incrementa atómicamente el cupo. Las páginas de sección no incrementan aperturas, pero vuelven a comprobar vigencia y revocación. Los parámetros `q` y `pagina` se conservan durante los saltos de inicio de visita.
+
+La búsqueda y paginación actuales trabajan sobre colecciones demostrativas en memoria: nueve resultados por página, búsqueda sin distinción de acentos o mayúsculas y límite de 120 caracteres. Una futura biblioteca persistente y de gran volumen debe aplicar búsqueda, conteo y paginación en la consulta de datos; no interpretar este filtro local como ese backend ya implementado.
 
 ## 7. Modelo de datos
 
@@ -272,7 +284,8 @@ Rotar un secreto de sesión invalida las sesiones firmadas con el anterior. Camb
 | 14 octubre 2026 | Se verificaron secretos runtime, cookie Secure, páginas administrativas, tablas remotas inicialmente vacías, cierre de sesión y API sin sesión. |
 | 14 octubre 2026 | Se corrigió el fallo de navegación de producción mediante enlaces nativos y se respaldó el cambio en GitHub. |
 | 15 octubre 2026 | Se inició esta documentación viva por petición del usuario, sin entrega final. |
+| 15 octubre 2026 | Se implementaron las cuatro páginas independientes, búsqueda y paginación; once pruebas locales cubrieron permisos, visita del cliente, conservación de búsquedas y límites de aperturas. Se revisaron menús y búsqueda en navegador y el ancho móvil. |
 
 Al continuar, actualizar esta bitácora con qué cambió, por qué, qué archivos lo implementan, cómo reconstruirlo y qué verificaciones se ejecutaron realmente. Separar solicitudes pendientes de funcionalidad entregada. No convertir la documentación en una promesa de implementar automáticamente todos los puntos pendientes.
 
-Decisiones todavía necesarias para ampliar el producto: editor de contenido y campos por formato, catálogos que soporten crecimiento, gestión de medios, recuperación de acceso, respaldo/restauración de D1 y audiencia para clientes externos. Implementarlas en su tarea correspondiente con alcance confirmado.
+Decisiones todavía necesarias para ampliar el producto: editor de contenido y campos por formato, consultas paginadas sobre contenido persistente, gestión de medios, recuperación de acceso, respaldo/restauración de D1 y audiencia para clientes externos. Implementarlas en su tarea correspondiente con alcance confirmado.
