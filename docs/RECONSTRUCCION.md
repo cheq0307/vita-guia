@@ -322,3 +322,12 @@ Autorización: sustituir ahora y dejar diferencias documentales como pendientes.
 Cada registro conserva fuente y páginas, ingredientes resumidos sin afirmaciones terapéuticas y campos null cuando falta confirmación. Active Pro y HC-Fit no publican cantidades ni instrucciones por discrepancia entre fuentes; Complex, Hemp-C y cafés dejan preparación precisa pendiente. No hay horarios personalizados. No se importan certificaciones, promesas clínicas ni ganancias. El asistente usa estos registros, reconoce precauciones pendientes y no ofrece dosis como respuesta genérica. Se retira el video ficticio Prepara Fibras +; el resto de videos/historias siguen explícitamente identificados como muestras.
 
 Sin cambios en D1, autenticación, audiencia o enlaces. Verificación: 13 pruebas automatizadas, navegación paginada real y detalles pendientes en navegador; comprobación de tipos y build antes de empaquetar.
+
+
+## 2026-10-15 — Catálogo y ficha de producto separados
+
+Se corrige la expansión de fichas dentro de la cuadrícula: cada tarjeta enlaza a /productos/[productId] dentro del ámbito administrativo, asesor o cliente. product-catalog.ts agrupa las 17 variantes en 13 familias, conserva la variante coincidente al buscar y construye rutas con q/pagina para regresar. ProductDetail.tsx presenta imagen grande, selección de sabor o presentación, uso, características e ingredientes. Pendientes y referencias quedan en desplegables propios al final, sin aparecer en las tarjetas. Se conservan todos los datos y null del inventario original.
+
+library-pages.tsx centraliza autorización previa a la ficha; la entrada /guia/[token] valida producto contra el catálogo y conserva su ID tras firmar la visita. Navegar o cambiar variante no consume otra apertura. No se usan next/link ni modal para sustituir la navegación. Pruebas nuevas cubren agrupación, retorno, rutas dedicadas, permisos, revocación, enlaces directos y límites de aperturas.
+
+Referencias analizadas: ficha de Mercado Libre https://www.mercadolibre.com.mx/proteina-en-polvo-suplemento-alimenticio-sabor-natural-1kg/up/MLMU700353881 (contenido indexado; acceso directo devolvió 403), y Amazon https://www.amazon.com.mx/Now-Foods-L-arginina-tabletas-unidades/dp/B07SXRPP21. Se adopta separación de listado y detalle con selector de variantes, sin precios, ventas, reseñas o carrito ficticios.
