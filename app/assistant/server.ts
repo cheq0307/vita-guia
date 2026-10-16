@@ -17,5 +17,8 @@ export function assistantApi(request:Request,index=false){return guarded(async()
  if(typeof body.question!=='string'||!body.question.trim()||body.question.length>600)throw new DocumentError('Escribe una pregunta de hasta 600 caracteres.');
  const context=typeof body.productId==='string'?body.productId:undefined;const plan=planQuestion(body.question.trim(),context);
  const pages=plan.search?await search.find(actor,plan.terms,plan.productIds):[];
- return Response.json(buildAnswer(plan,pages),{headers:{'Cache-Control':'private, no-store'}});
+ const answer=buildAnswer(plan,pages);
+ // Provenance stays behind administrator authorization, never in a visitor payload.
+ const visitorAnswer={kind:answer.kind,message:answer.message,sources:[],...(answer.productId?{productId:answer.productId}:{})};
+ return Response.json(actor==='admin'?answer:visitorAnswer,{headers:{'Cache-Control':'private, no-store'}});
 })}

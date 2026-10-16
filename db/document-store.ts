@@ -2,7 +2,7 @@ import {randomUUID} from 'node:crypto';
 export const LIBRARY_QUOTA=500_000_000;
 export const PART_SIZE=8*1024*1024;
 export type DocActor='admin'|'advisor'|'client';
-export type DocumentRecord={id:string;title:string;category:string;audience:string;status:string;current_version_id:string|null;created_at:string};
+export type DocumentRecord={id:string;title:string;category:string;audience:string;knowledge_audience:string;status:string;current_version_id:string|null;created_at:string};
 export type DocumentFile={id:string;sha256:string;size:number;mime:string;storage_key:string;state:string;upload_id:string|null};
 export type DocumentVersion={id:string;document_id:string;file_id:string;number:number;filename:string;page_count:number;text_status:string;approved:number;created_at:string;size:number;mime:string;state:string;sha256:string;storage_key:string;upload_id:string|null};
 export class DocumentStore {
@@ -38,13 +38,15 @@ export class DocumentStore {
   await this.db.prepare('UPDATE document_versions SET approved=1 WHERE id=?').bind(versionId).run();
   await this.db.prepare("UPDATE documents SET current_version_id=?,status='current' WHERE id=?").bind(versionId,documentId).run();
  }
- async updateDocument(id:string,p:{title:string;category:string;audience:string;status:string}){await this.db.prepare('UPDATE documents SET title=?,category=?,audience=?,status=? WHERE id=?').bind(p.title,p.category,p.audience,p.status,id).run()}
+ async updateDocument(id:string,p:{title:string;category:string;audience:string;status:string;knowledge_audience?:string}){await this.db.prepare('UPDATE documents SET title=?,category=?,audience=?,status=?,knowledge_audience=COALESCE(?,knowledge_audience) WHERE id=?').bind(p.title,p.category,p.audience,p.status,p.knowledge_audience??null,id).run()}
  async canRead(versionId:string,actor:DocActor){
+  if(actor==='client')return false;
   const v=await this.version(versionId);if(!v||v.state!=='ready')return false;if(actor==='admin')return true;
   const d=await this.document(v.document_id);return !!d&&d.status==='current'&&d.current_version_id===v.id&&v.approved===1&&(d.audience==='clients'||(actor==='advisor'&&d.audience==='advisors'));
  }
  async list(actor:DocActor,q='',category='',status='',page=1,productId=''){
   const clauses=['1=1'];const values:(string|number)[]=[];
+  if(actor==='client')clauses.push('0=1');
   if(actor!=='admin'){clauses.push("d.status='current' AND v.approved=1 AND f.state='ready'");clauses.push(actor==='advisor'?"d.audience IN ('advisors','clients')":"d.audience='clients'")}
   if(q){clauses.push('(d.title LIKE ? OR v.filename LIKE ?)');values.push('%'+q+'%','%'+q+'%')}
   if(category){clauses.push('d.category=?');values.push(category)}

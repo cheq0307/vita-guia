@@ -10,7 +10,11 @@ export class DocumentSearch {
   const match=tokens.map(t=>'"'+t+'"*').join(' AND ');
   const clauses=["d.status='current'","d.current_version_id=v.id","v.approved=1","v.text_status='extracted'","f.state='ready'"];
   const values:(string|number)[]=[match];
-  if(actor!=='admin')clauses.push(actor==='advisor'?"d.audience IN ('advisors','clients')":"d.audience='clients'");
+  if(actor!=='admin'){
+   clauses.push(actor==='advisor'?"d.knowledge_audience IN ('advisors','clients')":"d.knowledge_audience='clients'");
+   // Published answers use reviewed product ranges, never unrelated internal pages.
+   if(!productIds.length)clauses.push('EXISTS(SELECT 1 FROM document_product_links l WHERE l.version_id=v.id AND p.number BETWEEN l.page_from AND l.page_to)');
+  }
   if(productIds.length){clauses.push(`EXISTS(SELECT 1 FROM document_product_links l WHERE l.version_id=v.id AND l.product_id IN (${productIds.map(()=>'?').join(',')}) AND p.number BETWEEN l.page_from AND l.page_to)`);values.push(...productIds)}
   return (await this.db.prepare(`SELECT d.id AS documentId,d.title,v.id AS versionId,v.number AS version,p.number AS page,p.content FROM document_page_search JOIN document_pages p ON p.rowid=document_page_search.rowid JOIN document_versions v ON v.id=p.version_id JOIN documents d ON d.id=v.document_id JOIN document_files f ON f.id=v.file_id WHERE document_page_search MATCH ? AND ${clauses.join(' AND ')} ORDER BY bm25(document_page_search),d.id,p.number LIMIT 6`).bind(...values).all<SearchPage>()).results;
  }

@@ -3,6 +3,7 @@ import { sqliteTable, integer, text, index, check } from 'drizzle-orm/sqlite-cor
 import { uniqueIndex } from 'drizzle-orm/sqlite-core';
 
 export const documents=sqliteTable('documents',{
+  knowledgeAudience:text('knowledge_audience',{enum:['internal','advisors','clients']}).notNull().default('internal'),
   id:text('id').primaryKey(),title:text('title').notNull(),category:text('category').notNull(),audience:text('audience').notNull().default('internal'),status:text('status').notNull().default('pending'),currentVersionId:text('current_version_id'),createdAt:text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
 },t=>[index('documents_visibility').on(t.status,t.audience),check('documents_category',sql`${t.category} IN ('technical','catalog','training','business','other')`),check('documents_audience',sql`${t.audience} IN ('internal','advisors','clients')`),check('documents_status',sql`${t.status} IN ('pending','current','archived')`)]);
 export const documentFiles=sqliteTable('document_files',{

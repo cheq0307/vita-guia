@@ -1,0 +1,1 @@
+ALTER TABLE `documents` ADD `knowledge_audience` text DEFAULT 'internal' NOT NULL;

@@ -39,10 +39,10 @@ test('new versions remain private and preserve the approved version and historic
   const f=await store.reserveFile('d'.repeat(64),100,'application/pdf');await store.markReady(f.id);
   const v=await store.createVersion(d.id,f.id,'catalogo.pdf');
   assert.equal(await store.canRead(v.id,'client'),false);
-  await store.approve(d.id,v.id);assert.equal(await store.canRead(v.id,'client'),true);
+  await store.approve(d.id,v.id);assert.equal(await store.canRead(v.id,'client'),false);assert.equal(await store.canRead(v.id,'advisor'),true);
   const f2=await store.reserveFile('e'.repeat(64),200,'application/pdf');await store.markReady(f2.id);
   const v2=await store.createVersion(d.id,f2.id,'catalogo-nuevo.pdf');
-  assert.equal(await store.canRead(v2.id,'client'),false);assert.equal(await store.canRead(v.id,'client'),true);
+  assert.equal(await store.canRead(v2.id,'client'),false);assert.equal(await store.canRead(v.id,'advisor'),true);
   await store.approve(d.id,v2.id);assert.equal(await store.canRead(v.id,'client'),false);
   assert.equal(await store.canRead(v.id,'admin'),true);
   await store.updateDocument(d.id,{title:'Catálogo',category:'catalog',audience:'internal',status:'current'});

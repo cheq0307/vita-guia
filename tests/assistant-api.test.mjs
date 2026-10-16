@@ -24,11 +24,14 @@ test('assistant reads only permitted current text and denies revoked access',{sk
  assert.equal((await post('/api/assistant',{question:'a'.repeat(601)})).status,400);
  assert.equal((await post('/api/assistant/index',{cursor:0},{cookie:''})).status,401);
  const indexed=await post('/api/assistant/index',{cursor:0});assert.equal(indexed.status,200);
- await fetch(new URL('/api/documents/'+document.id,base),{method:'PATCH',headers,body:JSON.stringify({title:'Prueba asistente',category:'technical',audience:'clients',status:'current'})});
- assert.equal((await(await post('/api/assistant?advisor='+advisor.token,question,{cookie:''})).json()).sources[0].versionId,version.id);
+ await fetch(new URL('/api/documents/'+document.id,base),{method:'PATCH',headers,body:JSON.stringify({title:'Prueba asistente',category:'technical',audience:'internal',knowledge_audience:'clients',status:'current'})});
+ const advisorPublished=await(await post('/api/assistant?advisor='+advisor.token,question,{cookie:''})).json();assert.equal(advisorPublished.sources.length,0);assert.ok(advisorPublished.message.includes(unique),'Published knowledge answers without file access');
+ assert.equal((await fetch(new URL('/api/documents/files/'+version.id+'?advisor='+advisor.token,base))).status,404);
  const {link}=await(await post('/api/links',{recipientName:'Prueba asistente cliente',validDays:1,maxOpens:1})).json();
  const entry=await fetch(new URL('/guia/'+link.token,base),{redirect:'manual'});const visit=entry.headers.get('set-cookie').split(';')[0];assert.match(entry.headers.get('set-cookie'),new RegExp('Path=/guia/'+link.token));
- const client=await(await post('/guia/'+link.token+'/asistente',question,{cookie:visit})).json();assert.equal(client.sources[0].versionId,version.id);
+ const client=await(await post('/guia/'+link.token+'/asistente',question,{cookie:visit})).json();assert.equal(client.sources.length,0);assert.ok(client.message.includes(unique));assert.ok(!JSON.stringify(client).includes(version.id));assert.ok(!JSON.stringify(client).includes(document.id));
+ assert.equal((await fetch(new URL('/guia/'+link.token+'/documentos/files/'+version.id,base),{headers:{cookie:visit}})).status,404);
+ const files=await(await fetch(new URL('/guia/'+link.token+'/documentos',base),{headers:{cookie:visit}})).json();assert.deepEqual(files.documents,[]);
  await fetch(new URL('/api/links/'+link.id,base),{method:'PATCH',headers});assert.equal((await post('/guia/'+link.token+'/asistente',question,{cookie:visit})).status,401);
  await fetch(new URL('/api/advisors/'+advisor.id,base),{method:'PATCH',headers});assert.equal((await post('/api/assistant?advisor='+advisor.token,question,{cookie:''})).status,401);
  await fetch(new URL('/api/documents/'+document.id,base),{method:'PATCH',headers,body:JSON.stringify({title:'Prueba asistente',category:'technical',audience:'clients',status:'archived'})});
