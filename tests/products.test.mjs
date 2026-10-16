@@ -22,7 +22,7 @@ test('assistant does not invent quantities, schedules or answers for unknown pro
   assert.match(answerQuestion('Cómo preparo Active Pro'),/por confirmar/i);
   assert.match(answerQuestion('A qué hora tomo Support+'),/horario personalizado/i);
   assert.match(answerQuestion('Cómo preparo Fibras +'),/No encuentro/);
-  assert.match(answerQuestion('Qué precauciones tiene Support+'),/precauciones.*por confirmar/i);
+  assert.match(answerQuestion('Qué precauciones tiene Support+'),/leche|huevo|embarazo/i);
   assert.ok(!answerQuestion('Qué es Support+').includes('al día'));
   assert.ok(!answerQuestion('Puedo tomar Support+ embarazada').includes('3 cápsulas'));
   assert.ok(!/8:00|2:00|9:30/.test(products.map(p=>JSON.stringify(p)).join('')));

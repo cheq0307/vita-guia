@@ -176,3 +176,10 @@ footer { background:#fff; border-top:1px solid var(--line); padding:30px max(24p
 .product-catalog .catalog-search{margin:0 0 4px;max-width:none}
 .product-catalog .catalog-summary{margin:20px 0}
 @media(max-width:760px){.product-catalog .catalog-toolbar{grid-template-columns:1fr;gap:22px}.product-catalog .catalog-heading h1{font-size:28px}}
+
+.product-description{font-size:16px;line-height:1.8;color:var(--muted);margin:0 0 26px}
+.product-highlights,.product-warnings{font-size:16px;line-height:1.8;color:var(--muted);margin:0;padding-left:22px}
+.product-highlights li,.product-warnings li{padding-left:4px;margin-bottom:8px}
+.product-faqs details{border-bottom:1px solid var(--line);padding:8px 0}
+.product-faqs summary{cursor:pointer;font-size:16px;line-height:1.6;min-height:48px;padding-block:12px;color:var(--ink)}
+.product-faqs details p{padding:0 0 16px}

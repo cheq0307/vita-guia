@@ -331,3 +331,14 @@ Se corrige la expansión de fichas dentro de la cuadrícula: cada tarjeta enlaza
 library-pages.tsx centraliza autorización previa a la ficha; la entrada /guia/[token] valida producto contra el catálogo y conserva su ID tras firmar la visita. Navegar o cambiar variante no consume otra apertura. No se usan next/link ni modal para sustituir la navegación. Pruebas nuevas cubren agrupación, retorno, rutas dedicadas, permisos, revocación, enlaces directos y límites de aperturas.
 
 Referencias analizadas: ficha de Mercado Libre https://www.mercadolibre.com.mx/proteina-en-polvo-suplemento-alimenticio-sabor-natural-1kg/up/MLMU700353881 (contenido indexado; acceso directo devolvió 403), y Amazon https://www.amazon.com.mx/Now-Foods-L-arginina-tabletas-unidades/dp/B07SXRPP21. Se adopta separación de listado y detalle con selector de variantes, sin precios, ventas, reseñas o carrito ficticios.
+
+
+## 2026-10-15 — Completar las fichas desde los PDF
+
+Se corrige la extracción incompleta: todas las variantes reciben descripción neutral y características específicas; se incorporan línea, país de fabricación cuando figura, precauciones y preguntas frecuentes disponibles. Se revisan visualmente las etiquetas fotografiadas, no solo la capa de texto del PDF: Active Pro 770 g/14 porciones; Mocha y Green Leaves en frasco 280 g/28 porciones; Re-New Pro 208.49 ml; Espresso 84 g/28 porciones; Macchiato 280 g/28 porciones. Se añaden referencias a esas etiquetas. No se infiere una dosis dividiendo contenido entre porciones.
+
+Mocha/Green Leaves ya muestran la preparación común documentada: una medida en 200 ml de agua caliente según catálogo, con notas de la ficha; solo se deja pendiente la equivalencia en gramos y el contenido de bolsas de sticks no indicado. Se publican sus precauciones de embarazo/lactancia y las de los demás productos donde constan. El asistente consulta las precauciones reales y la descripción enriquecida.
+
+Active Pro y HC-Fit mantienen la cantidad sin resolver por conflicto entre documentos; se añade la preparación general conocida de Active Pro. Hemp-C conserva la concentración/cantidad como pendientes y describe únicamente la vía documentada. Espresso/Macchiato muestran preparación, contenido y la base de fórmula legible de sus etiquetas; faltan especies de hongos y composición completa. No se presentan porcentajes clínicos, garantías de curación ni compatibilidad universal como hechos verificados. Los pendientes se limitan a campos realmente ausentes o discrepantes.
+
+Validación final de esta ampliación: 19 pruebas, incluida selección natural de sabor (Active Pro de Fresa), advertencias comunes frente a advertencias específicas, ausencia de pendientes ficticios y atribución de ingredientes a la fuente correcta. Revisión independiente de concordancia documental completada; se corrigen los tres hallazgos del asistente.
