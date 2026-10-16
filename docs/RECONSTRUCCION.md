@@ -342,3 +342,10 @@ Mocha/Green Leaves ya muestran la preparación común documentada: una medida en
 Active Pro y HC-Fit mantienen la cantidad sin resolver por conflicto entre documentos; se añade la preparación general conocida de Active Pro. Hemp-C conserva la concentración/cantidad como pendientes y describe únicamente la vía documentada. Espresso/Macchiato muestran preparación, contenido y la base de fórmula legible de sus etiquetas; faltan especies de hongos y composición completa. No se presentan porcentajes clínicos, garantías de curación ni compatibilidad universal como hechos verificados. Los pendientes se limitan a campos realmente ausentes o discrepantes.
 
 Validación final de esta ampliación: 19 pruebas, incluida selección natural de sabor (Active Pro de Fresa), advertencias comunes frente a advertencias específicas, ausencia de pendientes ficticios y atribución de ingredientes a la fuente correcta. Revisión independiente de concordancia documental completada; se corrigen los tres hallazgos del asistente.
+
+
+## 2026-10-15 — Preguntas del asistente sobre ayuno y FAQs
+
+Bug reportado: la pregunta «el complex mocha se puede tomar en ayunas» devolvía descripción porque no coincidía con los patrones de uso. Se revalida la ficha técnica pp. 13/33: menciona preferentemente en ayunas o rutina matutina. Se conserva ese matiz en uso y FAQ de ambas presentaciones. Green Leaves pp. 17/37 y Stormix p. 40 también describen ayuno; no se extrapola a otros productos.
+
+El asistente consulta temas de las FAQs del propio producto (ayuno, fragancia, origen vegetal, sustitución de comida, endulzante), con prioridad para precauciones y condiciones personales. Una pregunta no resuelta devuelve ausencia de información, no la descripción genérica. Descripción se reserva para preguntas explícitas de identidad. No se añade servicio LLM ni claves externas. El contenido empresarial/capacitación de los PDF sigue sin importarse; no afirmar que todo el material ya está en el sistema.

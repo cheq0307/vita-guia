@@ -3,7 +3,7 @@ export type Product = {
   package:string|null; ingredients:string|null; usage:string|null;
   pending:string[]; image:string; source:string[];
   description:string; origin:string|null; line:string; features:string[];
-  warnings:string[]; faqs:{question:string;answer:string}[]; preparation:string|null;
+  warnings:string[]; faqs:{question:string;answer:string;keywords?:string[];source?:string}[]; preparation:string|null;
 };
 // Transcription of supplied documents. Missing or conflicting fields remain null.
 export const products:Product[] = [
@@ -40,7 +40,12 @@ export const products:Product[] = [
     "faqs": [
       {
         "question": "¿Qué endulzante se menciona en la ficha?",
-        "answer": "Hoja de estevia."
+        "answer": "Hoja de estevia.",
+        "keywords": [
+          "endulzante",
+          "edulcorante",
+          "endulza"
+        ]
       },
       {
         "question": "¿Todos los sabores tienen los mismos ingredientes?",
@@ -82,7 +87,12 @@ export const products:Product[] = [
     "faqs": [
       {
         "question": "¿Qué endulzante se menciona en la ficha?",
-        "answer": "Hoja de estevia."
+        "answer": "Hoja de estevia.",
+        "keywords": [
+          "endulzante",
+          "edulcorante",
+          "endulza"
+        ]
       },
       {
         "question": "¿Todos los sabores tienen los mismos ingredientes?",
@@ -124,7 +134,12 @@ export const products:Product[] = [
     "faqs": [
       {
         "question": "¿Qué endulzante se menciona en la ficha?",
-        "answer": "Hoja de estevia."
+        "answer": "Hoja de estevia.",
+        "keywords": [
+          "endulzante",
+          "edulcorante",
+          "endulza"
+        ]
       },
       {
         "question": "¿Todos los sabores tienen los mismos ingredientes?",
@@ -169,7 +184,23 @@ export const products:Product[] = [
       },
       {
         "question": "¿Es de origen vegetal?",
-        "answer": "La ficha técnica lo describe como vegano y con ingredientes de origen vegetal."
+        "answer": "La ficha técnica lo describe como vegano y con ingredientes de origen vegetal.",
+        "keywords": [
+          "vegano",
+          "vegana",
+          "origen vegetal"
+        ]
+      },
+      {
+        "question": "¿Se puede tomar en ayunas?",
+        "answer": "La sección de preguntas frecuentes de la ficha técnica indica que Stormix puede consumirse en ayunas.",
+        "keywords": [
+          "ayunas",
+          "antes de desayunar",
+          "antes del desayuno",
+          "estómago vacío"
+        ],
+        "source": "Ficha técnica, p. 40"
       }
     ],
     "preparation": null
@@ -182,7 +213,7 @@ export const products:Product[] = [
     "presentation": "Frasco",
     "package": "280 g · 28 porciones",
     "ingredients": "Extractos de cereza y camu camu, mangostán, goji, fibra de manzana, diente de león, canela, clavo, inulina de agave, schisandra, gymnema, guanábana, fucoidano, açaí, alcachofa, semilla de apio, verbascósido, cacao, ácido cafeico, té verde y cardo mariano.",
-    "usage": "Según el catálogo: agregar una medida en 200 ml de agua caliente y revolver hasta disolver. La ficha técnica también permite agua tibia y describe consumo una o dos veces al día, preferentemente por la mañana.",
+    "usage": "Según el catálogo: agregar una medida en 200 ml de agua caliente y revolver hasta disolver. La ficha técnica también permite agua tibia y describe consumo una o dos veces al día, preferentemente en ayunas o como parte de la rutina matutina.",
     "pending": [
       "Equivalencia en gramos de la medida indicada."
     ],
@@ -208,11 +239,28 @@ export const products:Product[] = [
     "faqs": [
       {
         "question": "¿Sustituye una comida?",
-        "answer": "No. La ficha lo presenta como complemento de una alimentación equilibrada."
+        "answer": "No. La ficha lo presenta como complemento de una alimentación equilibrada.",
+        "keywords": [
+          "sustituye una comida",
+          "sustituir una comida",
+          "reemplaza una comida",
+          "sustituye el desayuno"
+        ]
       },
       {
         "question": "¿Se puede preparar con agua tibia?",
         "answer": "Sí. La ficha técnica menciona agua tibia o caliente."
+      },
+      {
+        "question": "¿Se puede tomar en ayunas?",
+        "answer": "La ficha técnica menciona tomar Complex Mocha preferentemente en ayunas o como parte de la rutina matutina.",
+        "keywords": [
+          "ayunas",
+          "antes de desayunar",
+          "antes del desayuno",
+          "estómago vacío"
+        ],
+        "source": "Ficha técnica, p. 13"
       }
     ],
     "preparation": null
@@ -225,7 +273,7 @@ export const products:Product[] = [
     "presentation": "Stick",
     "package": null,
     "ingredients": "Extractos de cereza y camu camu, mangostán, goji, fibra de manzana, diente de león, canela, clavo, inulina de agave, schisandra, gymnema, guanábana, fucoidano, açaí, alcachofa, semilla de apio, verbascósido, cacao, ácido cafeico, té verde y cardo mariano.",
-    "usage": "Según el catálogo: agregar una medida en 200 ml de agua caliente y revolver hasta disolver. La ficha técnica también permite agua tibia y describe consumo una o dos veces al día, preferentemente por la mañana.",
+    "usage": "Según el catálogo: agregar una medida en 200 ml de agua caliente y revolver hasta disolver. La ficha técnica también permite agua tibia y describe consumo una o dos veces al día, preferentemente en ayunas o como parte de la rutina matutina.",
     "pending": [
       "Equivalencia en gramos de la medida indicada.",
       "Cantidad de sticks y contenido neto de la bolsa."
@@ -251,11 +299,28 @@ export const products:Product[] = [
     "faqs": [
       {
         "question": "¿Sustituye una comida?",
-        "answer": "No. La ficha lo presenta como complemento de una alimentación equilibrada."
+        "answer": "No. La ficha lo presenta como complemento de una alimentación equilibrada.",
+        "keywords": [
+          "sustituye una comida",
+          "sustituir una comida",
+          "reemplaza una comida",
+          "sustituye el desayuno"
+        ]
       },
       {
         "question": "¿Se puede preparar con agua tibia?",
         "answer": "Sí. La ficha técnica menciona agua tibia o caliente."
+      },
+      {
+        "question": "¿Se puede tomar en ayunas?",
+        "answer": "La ficha técnica menciona tomar Complex Mocha preferentemente en ayunas o como parte de la rutina matutina.",
+        "keywords": [
+          "ayunas",
+          "antes de desayunar",
+          "antes del desayuno",
+          "estómago vacío"
+        ],
+        "source": "Ficha técnica, p. 33"
       }
     ],
     "preparation": null
@@ -294,11 +359,27 @@ export const products:Product[] = [
     "faqs": [
       {
         "question": "¿Es vegano?",
-        "answer": "La ficha lo describe como vegano, con ingredientes de origen vegetal."
+        "answer": "La ficha lo describe como vegano, con ingredientes de origen vegetal.",
+        "keywords": [
+          "vegano",
+          "vegana",
+          "origen vegetal"
+        ]
       },
       {
         "question": "¿Qué presentaciones hay?",
         "answer": "Frasco y sticks. Selecciona la presentación para ver su información."
+      },
+      {
+        "question": "¿Se puede tomar en ayunas?",
+        "answer": "La sección de preguntas frecuentes de la ficha técnica indica que Complex Green Leaves puede consumirse en ayunas.",
+        "keywords": [
+          "ayunas",
+          "antes de desayunar",
+          "antes del desayuno",
+          "estómago vacío"
+        ],
+        "source": "Ficha técnica, p. 17"
       }
     ],
     "preparation": null
@@ -337,11 +418,27 @@ export const products:Product[] = [
     "faqs": [
       {
         "question": "¿Es vegano?",
-        "answer": "La ficha lo describe como vegano, con ingredientes de origen vegetal."
+        "answer": "La ficha lo describe como vegano, con ingredientes de origen vegetal.",
+        "keywords": [
+          "vegano",
+          "vegana",
+          "origen vegetal"
+        ]
       },
       {
         "question": "¿Qué presentaciones hay?",
         "answer": "Frasco y sticks. Selecciona la presentación para ver su información."
+      },
+      {
+        "question": "¿Se puede tomar en ayunas?",
+        "answer": "La sección de preguntas frecuentes de la ficha técnica indica que Complex Green Leaves puede consumirse en ayunas.",
+        "keywords": [
+          "ayunas",
+          "antes de desayunar",
+          "antes del desayuno",
+          "estómago vacío"
+        ],
+        "source": "Ficha técnica, p. 37"
       }
     ],
     "preparation": null
@@ -377,7 +474,12 @@ export const products:Product[] = [
     "faqs": [
       {
         "question": "¿Tiene fragancia?",
-        "answer": "La ficha indica que está formulado sin fragancias."
+        "answer": "La ficha indica que está formulado sin fragancias.",
+        "keywords": [
+          "fragancia",
+          "perfume",
+          "aroma"
+        ]
       },
       {
         "question": "¿Cuándo se aplica?",
@@ -669,10 +771,14 @@ export function answerQuestion(question:string):string {
   if(!matches.length)return 'No encuentro esa respuesta en la información de esta guía. Consulta con la persona que te compartió el enlace.';
   const namedVariants=matches.filter(p=>value.includes(normalize(p.presentation)));
   const product=namedVariants.length===1?namedVariants[0]:matches[0];
-  if(/precaucion|advertencia|contraindic|embaraz|lactancia|alerg|enfermedad|diabet|medicamento|segur|puedo|debo/.test(value)){
+  const fasting=/ayunas|antesdedesayunar|antesdeldesayuno|estomagovacio/.test(value);
+  const faq=product.faqs.find(faq=>faq.keywords?.some(keyword=>value.includes(normalize(keyword))));
+  if(/precaucion|advertencia|contraindic|embaraz|lactan|amamant|doypecho|dandopecho|alerg|enfermedad|diabet|hipertens|gastrit|padez|diagnost|tengo|medicamento|antibiotic|tratamiento|segur/.test(value)||(/puedo|debo/.test(value)&&!faq&&!fasting)){
     if(namedVariants.length!==1&&matches.some(p=>p.warnings.join('\n')!==product.warnings.join('\n')))return `Las precauciones dependen de la presentación de ${product.family}. Selecciona una: ${matches.map(p=>p.presentation).join(', ')}. Consulta también a tu profesional de salud.`;
     return `${product.name}. Precauciones indicadas: ${product.warnings.length?product.warnings.join(' '):'Las precauciones específicas están por confirmar.'} Esta guía no determina si es adecuado para ti; consulta la etiqueta vigente y a tu profesional de salud.`;
   }
+  if(faq)return `${faq.answer} Fuente: ${faq.source??product.source.join('; ')}.`;
+  if(fasting)return `El material recibido no especifica si ${product.family} puede tomarse en ayunas. Consulta la etiqueta vigente y a tu profesional de salud.`;
   if(/hora|horario/.test(value))return 'Esta biblioteca no establece un horario personalizado. Consulta las indicaciones del producto y la orientación de tu profesional de salud.';
   if(/presentacion|variante|sabor/.test(value))return `${matches[0].family}: ${matches.map(p=>p.presentation).join(', ')}.`;
   if(/ingrediente|composicion/.test(value)){
@@ -680,7 +786,8 @@ export function answerQuestion(question:string):string {
     return product.ingredients?`${product.name}. Ingredientes según el material recibido: ${product.ingredients} Fuente: ${product.source.join('; ')}.`:`La composición de ${product.name} está por confirmar.`;
   }
   if(/pendiente|confirmar/.test(value))return product.pending.length?`${product.family}: por confirmar. ${product.pending.join(' ')}`:`No hay campos marcados como pendientes en la ficha de ${product.family}.`;
-  if(!/prepar|como.*(tom|us|consum|aplic)|dosis|cantidad|indicacion/.test(value))return `${product.name}. ${product.description} Contenido: ${product.package??'por confirmar'}.`;
+  if(/quees|descripcion|cuentame/.test(value))return `${product.name}. ${product.description} Contenido: ${product.package??'por confirmar'}.`;
+  if(!/prepar|como.*(tom|us|consum|aplic)|dosis|cantidad|indicacion/.test(value))return `No encuentro esa respuesta en la información disponible de ${product.family}. Puedes consultar sus ingredientes, preparación y precauciones, o preguntar a la persona que te compartió la guía.`;
   if(!product.usage)return `Las indicaciones de ${product.family} están por confirmar. ${product.preparation??''} ${product.pending.join(' ')} Consulta la etiqueta vigente y a tu profesional de salud.`;
   return `${product.name}. ${product.usage} Fuente: ${product.source.join('; ')}. Consulta la etiqueta vigente y a tu profesional de salud.`;
 }
