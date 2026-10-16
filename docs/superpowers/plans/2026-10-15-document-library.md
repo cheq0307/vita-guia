@@ -17,7 +17,7 @@
 - [x] Biblioteca administrativa y ficha documental con versiones, carga progresiva, extracción local y recuperación de errores.
 - [x] Acceso de asesores y fuentes enlazadas en productos para clientes, respetando revocación y visita firmada.
 - [x] Pruebas de archivos reales, duplicados, cuotas, versiones/ACL; revisión independiente y QA móvil/escritorio.
-- [ ] Publicar, importar los dos PDF y páginas ya extraídas con relaciones reales; verificar descarga original por SHA256 y dejar respaldo/exportación accesible.
+- [x] Publicar, importar los dos PDF y páginas ya extraídas con relaciones reales; verificar descarga original por SHA256 y dejar respaldo/exportación accesible.
 
 ## Review Focus
 - Acceso directo al archivo nunca debe omitir audiencia/estado/versión aprobada.

@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import AssistantChat from "./assistant/AssistantChat";
 import { ArrowLeft, ArrowRight, Package, PlayCircle, MessageCircle, Search } from "lucide-react";
 import { ProductDetail } from "./ProductDetail";
 import { productFamilies, productHref } from "./product-catalog";
 import LogoutButton from "./LogoutButton";
-import { products, videos, stories, answerQuestion, type Product } from "./portal-content";
+import { products, videos, stories, type Product } from "./portal-content";
 import { catalogPage, portalHref, type PortalSection } from "./portal-navigation";
 
 type ClientPortalProps={basePath:string;section?:PortalSection;query?:string;page?:number;recipientName?:string;expiresAt?:string;workspaceLink?:{href:string;label:string};showAdminLogout?:boolean;selectedProduct?:Product};
@@ -13,16 +13,12 @@ const labels:Record<PortalSection,string>={inicio:'Inicio',productos:'Productos'
 const introductions={productos:['HC Wellness','Catálogo de productos','Encuentra cada producto y consulta sus indicaciones en un solo lugar.'],videos:['Paso a paso','Aprende a tu ritmo','Busca una explicación y vuelve a ella cuando la necesites.'],historias:['Experiencias','Historias que acompañan','Explora las historias de esta biblioteca.']} as const;
 
 export function ClientPortal({basePath,section='inicio',query='',page=1,recipientName='',expiresAt,workspaceLink,showAdminLogout=false,selectedProduct}:ClientPortalProps) {
-  const [chatOpen,setChatOpen]=useState(false);
-  const [question,setQuestion]=useState('');
-  const [messages,setMessages]=useState<string[]>([]);
   const expiryLabel=expiresAt?new Intl.DateTimeFormat('es-MX',{day:'numeric',month:'long'}).format(new Date(expiresAt)):'';
   const families=productFamilies(products,query);
   const productPage=catalogPage(families,'',page,p=>p.product.name);
   const videoPage=catalogPage(videos,query,page,v=>v.title+' '+v.description);
   const storyPage=catalogPage(stories,query,page,s=>s.name+' '+s.quote);
   const catalog=section==='productos'?productPage:section==='videos'?videoPage:storyPage;
-  function ask(value:string){const clean=value.trim();if(!clean)return;setMessages(current=>[...current,clean,answerQuestion(clean)]);setQuestion('');}
 
   return <main className="portal-shell">
     <header className="topbar">
@@ -71,8 +67,7 @@ export function ClientPortal({basePath,section='inicio',query='',page=1,recipien
       </>}
     </section>}
 
-    <button className="chat-trigger" onClick={()=>setChatOpen(!chatOpen)} aria-expanded={chatOpen} aria-label="Abrir asistente de preguntas"><span>?</span><b>Pregunta sobre tus productos</b></button>
-    {chatOpen&&<aside className="chat-panel"><header><div><strong>Asistente Vita</strong><small>Responde con la información de esta guía</small></div><button onClick={()=>setChatOpen(false)} aria-label="Cerrar">×</button></header><div className="chat-body"><p className="bot-message">Hola, puedo ayudarte a consultar las presentaciones e información del catálogo.</p>{messages.map((message,index)=><p key={`${message}-${index}`} className={index%2===0?'user-message':'bot-message'}>{message}</p>)}{messages.length===0&&<div className="quick-questions"><button onClick={()=>ask('¿Qué sabores tiene Active Pro?')}>¿Qué sabores tiene Active Pro?</button><button onClick={()=>ask('¿Qué falta confirmar de HC-Fit?')}>¿Qué falta confirmar de HC-Fit?</button></div>}</div><form onSubmit={e=>{e.preventDefault();ask(question);}}><input value={question} onChange={e=>setQuestion(e.target.value)} aria-label="Escribe tu pregunta" placeholder="Escribe tu pregunta..."/><button aria-label="Enviar pregunta">↑</button></form></aside>}
+    <AssistantChat basePath={basePath} productId={selectedProduct?.id}/>
     <footer><span>Vita Guía</span><p>La información de esta guía no sustituye la orientación de un profesional de la salud.</p></footer>
   </main>;
 }

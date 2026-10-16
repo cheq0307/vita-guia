@@ -1,0 +1,36 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {randomUUID,createHash} from 'node:crypto';
+test('assistant reads only permitted current text and denies revoked access',{skip:!process.env.VITA_TEST_URL},async()=>{
+ const base=new URL(process.env.VITA_TEST_URL);assert.ok(['127.0.0.1','localhost'].includes(base.hostname));
+ const login=await fetch(new URL('/api/auth/login',base),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({username:process.env.ADMIN_USERNAME,password:process.env.ADMIN_PASSWORD})});const cookie=login.headers.get('set-cookie').split(';')[0];
+ const headers={cookie,'content-type':'application/json'};
+ async function post(path,body,extra={}){return fetch(new URL(path,base),{method:'POST',headers:{...headers,...extra},body:JSON.stringify(body)})}
+ assert.equal((await fetch(new URL('/api/assistant',base),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({question:'Mocha inulina'})})).status,401);
+ const unique='sustancia'+randomUUID().replaceAll('-','');const bytes=Buffer.from('Ingredientes de prueba: '+unique+'.');
+ const uploaded=await(await post('/api/documents/uploads',{title:'Prueba asistente',category:'technical',audience:'internal',filename:'prueba.txt',size:bytes.length,sha256:createHash('sha256').update(bytes).digest('hex')})).json();
+ const {version,document,fileId}=uploaded;
+ const part=await fetch(new URL('/api/documents/uploads/'+fileId+'/1',base),{method:'PUT',headers:{cookie,'x-chunk-sha256':createHash('sha256').update(bytes).digest('hex')},body:bytes});assert.equal(part.status,200);
+ await post('/api/documents/uploads/'+fileId+'/complete',{});
+ await post('/api/documents/versions/'+version.id+'/text',{pageCount:1,pages:[{number:1,content:bytes.toString()}],finish:true,state:'extracted'});
+ await fetch(new URL('/api/documents/versions/'+version.id+'/links',base),{method:'PUT',headers,body:JSON.stringify({links:[{productId:'complex-mocha-frasco',pageFrom:1,pageTo:1}]})});
+ const question={question:'Complex Mocha Frasco '+unique};
+ assert.equal((await(await post('/api/assistant',question)).json()).sources.length,0,'Pending text is not searchable');
+ await post('/api/documents/'+document.id+'/approve',{versionId:version.id});
+ const admin=await(await post('/api/assistant',question)).json();assert.equal(admin.sources[0].versionId,version.id);assert.equal(admin.sources[0].page,1);
+ const {advisor}=await(await post('/api/advisors',{name:'Prueba asistente',contact:'qa@example.test'})).json();
+ const advisorAnswer=await(await post('/api/assistant?advisor='+advisor.token,question,{cookie:''})).json();assert.equal(advisorAnswer.sources.length,0);
+ const badOrigin=await post('/api/assistant',question,{origin:'https://evil.example'});assert.equal(badOrigin.status,403);
+ assert.equal((await post('/api/assistant',{question:'a'.repeat(601)})).status,400);
+ assert.equal((await post('/api/assistant/index',{cursor:0},{cookie:''})).status,401);
+ const indexed=await post('/api/assistant/index',{cursor:0});assert.equal(indexed.status,200);
+ await fetch(new URL('/api/documents/'+document.id,base),{method:'PATCH',headers,body:JSON.stringify({title:'Prueba asistente',category:'technical',audience:'clients',status:'current'})});
+ assert.equal((await(await post('/api/assistant?advisor='+advisor.token,question,{cookie:''})).json()).sources[0].versionId,version.id);
+ const {link}=await(await post('/api/links',{recipientName:'Prueba asistente cliente',validDays:1,maxOpens:1})).json();
+ const entry=await fetch(new URL('/guia/'+link.token,base),{redirect:'manual'});const visit=entry.headers.get('set-cookie').split(';')[0];assert.match(entry.headers.get('set-cookie'),new RegExp('Path=/guia/'+link.token));
+ const client=await(await post('/guia/'+link.token+'/asistente',question,{cookie:visit})).json();assert.equal(client.sources[0].versionId,version.id);
+ await fetch(new URL('/api/links/'+link.id,base),{method:'PATCH',headers});assert.equal((await post('/guia/'+link.token+'/asistente',question,{cookie:visit})).status,401);
+ await fetch(new URL('/api/advisors/'+advisor.id,base),{method:'PATCH',headers});assert.equal((await post('/api/assistant?advisor='+advisor.token,question,{cookie:''})).status,401);
+ await fetch(new URL('/api/documents/'+document.id,base),{method:'PATCH',headers,body:JSON.stringify({title:'Prueba asistente',category:'technical',audience:'clients',status:'archived'})});
+ assert.equal((await(await post('/api/assistant',question)).json()).sources.length,0,'Archived text is immediately excluded');
+});
