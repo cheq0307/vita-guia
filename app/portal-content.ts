@@ -2,7 +2,7 @@ export type Product = {
   id:string; family:string; name:string; category:string; presentation:string;
   package:string|null; ingredients:string|null; usage:string|null;
   pending:string[]; image:string; source:string[];
-  description:string; origin:string|null; line:string; features:string[];
+  description:string; purpose?:string; origin:string|null; line:string; features:string[];
   warnings:string[]; faqs:{question:string;answer:string;keywords?:string[];source?:string}[]; preparation:string|null;
 };
 // Transcription of supplied documents. Missing or conflicting fields remain null.
@@ -207,6 +207,7 @@ export const products:Product[] = [
   },
   {
     "id": "complex-mocha-frasco",
+    "purpose": "Complex Mocha está pensado como complemento de una alimentación equilibrada, con enfoque en el bienestar digestivo. Combina fibra, inulina de agave y extractos botánicos en una bebida a base de cacao. No sustituye una comida ni un tratamiento médico.",
     "family": "Complex Mocha",
     "name": "Complex Mocha · Frasco",
     "category": "Bebida en polvo",
@@ -267,6 +268,7 @@ export const products:Product[] = [
   },
   {
     "id": "complex-mocha-stick",
+    "purpose": "Complex Mocha está pensado como complemento de una alimentación equilibrada, con enfoque en el bienestar digestivo. Combina fibra, inulina de agave y extractos botánicos en una bebida a base de cacao. No sustituye una comida ni un tratamiento médico.",
     "family": "Complex Mocha",
     "name": "Complex Mocha · Stick",
     "category": "Bebida en polvo",
@@ -778,6 +780,7 @@ export function answerQuestion(question:string):string {
     return `${product.name}. Precauciones indicadas: ${product.warnings.length?product.warnings.join(' '):'Las precauciones específicas están por confirmar.'} Esta guía no determina si es adecuado para ti; consulta la etiqueta vigente y a tu profesional de salud.`;
   }
   if(faq)return `${faq.answer} Fuente: ${faq.source??product.source.join('; ')}.`;
+  if(/paraquesirv|benefici|cuales.*funcion|cuales.*utilidad/.test(value))return product.purpose??`${product.name}. ${product.description}`;
   if(fasting)return `El material recibido no especifica si ${product.family} puede tomarse en ayunas. Consulta la etiqueta vigente y a tu profesional de salud.`;
   if(/hora|horario/.test(value))return 'Esta biblioteca no establece un horario personalizado. Consulta las indicaciones del producto y la orientación de tu profesional de salud.';
   if(/presentacion|variante|sabor/.test(value))return `${matches[0].family}: ${matches.map(p=>p.presentation).join(', ')}.`;

@@ -2,6 +2,15 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {planQuestion,buildAnswer} from '../app/assistant/policy.ts';
 const page={documentId:'doc',title:'Ficha técnica',versionId:'v2',version:2,page:13,content:'Complex Mocha. Contiene inulina de agave y fibra. Preparación: mezclar una medida en agua caliente.'};
+test('purpose questions recognize familiar phrasing and a transposed family word',()=>{
+ for(const question of ['para que sirve el copmplex mocha','¿Para qué sirve Complex Mocha?','¿Qué beneficios tiene Mocha?','¿Para qué sirve?']){
+  const plan=planQuestion(question,'complex-mocha-frasco');const answer=buildAnswer(plan,[]);
+  assert.equal(answer.kind,'catalog',question);assert.match(answer.message,/complemento/i);assert.match(answer.message,/digestiv/i);assert.doesNotMatch(answer.message,/consultarlo con tu asesor|cura|regeneración|antitumoral|disminuye la resistencia/i);
+ }
+ const other=buildAnswer(planQuestion('¿Para qué sirve Ensure?','complex-mocha-frasco'),[]);assert.equal(other.kind,'missing');
+ const typoIngredient=planQuestion('copmplex mocha contiene inulina');assert.ok(!typoIngredient.terms.includes('copmplex'));assert.deepEqual(typoIngredient.terms,['inulina']);
+ const cautious=buildAnswer(planQuestion('¿Para qué sirve Complex Mocha si tengo diabetes?'),[]);assert.equal(cautious.kind,'precaution');
+});
 test('questions retain product context, resolve named variants and never mix unknown products',()=>{
  assert.deepEqual(planQuestion('¿Contiene inulina?','complex-mocha-frasco').productIds,['complex-mocha-frasco']);
  assert.deepEqual(planQuestion('Active Pro Fresa ingredientes').productIds,['active-pro-fresa']);

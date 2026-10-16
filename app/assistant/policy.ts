@@ -4,10 +4,18 @@ import type {AssistantAnswer,AnswerSource} from './types';
 import {naturalAnswer} from './natural-answer.ts';
 const normalize=(value:string)=>value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const compact=(value:string)=>normalize(value).replace(/[^a-z0-9]/g,'');
+const familyWords=[...new Set(products.flatMap(p=>normalize(p.family).match(/[a-z0-9]+/g)??[]))].filter(w=>w.length>=5);
+// Repair one extra letter or adjacent transposition only for an unambiguous known name.
+function repairProductNames(question:string){return normalize(question).replace(/[a-z0-9]+/g,word=>{
+ if(familyWords.includes(word))return word;
+ const candidates=familyWords.filter(name=>name.length===word.length&&[...word].some((_,i)=>i<word.length-1&&word.slice(0,i)+word[i+1]+word[i]+word.slice(i+2)===name)||word.length===name.length+1&&[...word].some((_,i)=>word.slice(0,i)+word.slice(i+1)===name));
+ return candidates.length===1?candidates[0]:word;
+})}
 const stop=new Set('a al algo antes acerca con como cual cuales cuando de del dice documento documentos el ella en es esta este ficha guia hay informacion la las lo los me mi para por producto productos puede puedo que se segun si sin sobre su sus tecnica tiene tienen tomar un una unos uso contiene saber quiero favor dime pdf catalogo'.split(' '));
 const stems=(word:string)=>word.replace(/^(ingredientes?|composicion|preparacion|preparar|beneficios?|vitaminas?|ayunas?|precauciones?|advertencias?)$/,(w)=>({ingredientes:'ingredien',ingrediente:'ingredien',composicion:'compos',preparacion:'prepar',preparar:'prepar',beneficios:'benefici',beneficio:'benefici',vitaminas:'vitamin',vitamina:'vitamin',ayunas:'ayuna',ayuna:'ayuna',precauciones:'precaucion',precaucion:'precaucion',advertencias:'advertencia',advertencia:'advertencia'}[w]??w));
 export type QuestionPlan={kind:AssistantAnswer['kind'];message:string;productIds:string[];terms:string[];required:string[];search:boolean;question?:string};
 export function planQuestion(question:string,contextId?:string):QuestionPlan{
+ question=repairProductNames(question);
  const value=compact(question);const context=products.find(p=>p.id===contextId);
  const explicit=products.filter(p=>{const family=compact(p.family);const alias=family.replace(/^complex/,'').replace(/plus$/,'');return value.includes(family)||(alias.length>=4&&value.includes(alias))});
  let matches=explicit.length?explicit:context?[context]:[];
@@ -19,7 +27,7 @@ export function planQuestion(question:string,contextId?:string):QuestionPlan{
  const productWords=new Set(matches.flatMap(p=>normalize(p.family+' '+p.presentation).match(/[a-z0-9]+/g)??[]));
  const words=(normalize(question).match(/[a-z0-9]+/g)??[]).filter(w=>w.length>2&&!stop.has(w)&&!productWords.has(w));
  // Residual names/topics must be searched, never silently answered as the previous product.
- const catalogOnly=words.every(w=>/^(ingredien|compos|prepar|benefici|precaucion|advertencia|contraindic|embaraz|lactan|amamant|alerg|enfermedad|diabet|hipertens|gastrit|padez|diagnost|medicamento|antibiotic|tratamiento|segur|ayuna|dosis|cantidad|indicacion|horario|hora|presentacion|variante|sabor|pendiente|confirmar|descripcion|cuentame|sustitu|comida|fragancia|vegetal|endulzan|origen)/.test(w));
+ const catalogOnly=words.every(w=>/^(sirve|sirven|funcion|utilidad|ingredien|compos|prepar|benefici|precaucion|advertencia|contraindic|embaraz|lactan|amamant|alerg|enfermedad|diabet|hipertens|gastrit|padez|diagnost|medicamento|antibiotic|tratamiento|segur|ayuna|dosis|cantidad|indicacion|horario|hora|presentacion|variante|sabor|pendiente|confirmar|descripcion|cuentame|sustitu|comida|fragancia|vegetal|endulzan|origen)/.test(w));
  const effective=product?product.family+(matches.length===1?' '+product.presentation:'')+' '+question+(/contien/.test(value)&&words.length===0?' ingredientes':''):question;
  const prepared=answerQuestion(effective);
  const result:QuestionPlan={kind:'missing',message:prepared,productIds:matches.map(p=>p.id),terms:[],required:[],search:true,question};
