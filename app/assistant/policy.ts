@@ -1,11 +1,12 @@
 import {products,answerQuestion} from '../portal-content.ts';
 import type {SearchPage} from '../../db/document-search';
 import type {AssistantAnswer,AnswerSource} from './types';
+import {naturalAnswer} from './natural-answer.ts';
 const normalize=(value:string)=>value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const compact=(value:string)=>normalize(value).replace(/[^a-z0-9]/g,'');
 const stop=new Set('a al algo antes acerca con como cual cuales cuando de del dice documento documentos el ella en es esta este ficha guia hay informacion la las lo los me mi para por producto productos puede puedo que se segun si sin sobre su sus tecnica tiene tienen tomar un una unos uso contiene saber quiero favor dime pdf catalogo'.split(' '));
 const stems=(word:string)=>word.replace(/^(ingredientes?|composicion|preparacion|preparar|beneficios?|vitaminas?|ayunas?|precauciones?|advertencias?)$/,(w)=>({ingredientes:'ingredien',ingrediente:'ingredien',composicion:'compos',preparacion:'prepar',preparar:'prepar',beneficios:'benefici',beneficio:'benefici',vitaminas:'vitamin',vitamina:'vitamin',ayunas:'ayuna',ayuna:'ayuna',precauciones:'precaucion',precaucion:'precaucion',advertencias:'advertencia',advertencia:'advertencia'}[w]??w));
-export type QuestionPlan={kind:AssistantAnswer['kind'];message:string;productIds:string[];terms:string[];required:string[];search:boolean};
+export type QuestionPlan={kind:AssistantAnswer['kind'];message:string;productIds:string[];terms:string[];required:string[];search:boolean;question?:string};
 export function planQuestion(question:string,contextId?:string):QuestionPlan{
  const value=compact(question);const context=products.find(p=>p.id===contextId);
  const explicit=products.filter(p=>{const family=compact(p.family);const alias=family.replace(/^complex/,'').replace(/plus$/,'');return value.includes(family)||(alias.length>=4&&value.includes(alias))});
@@ -21,7 +22,7 @@ export function planQuestion(question:string,contextId?:string):QuestionPlan{
  const catalogOnly=words.every(w=>/^(ingredien|compos|prepar|benefici|precaucion|advertencia|contraindic|embaraz|lactan|amamant|alerg|enfermedad|diabet|hipertens|gastrit|padez|diagnost|medicamento|antibiotic|tratamiento|segur|ayuna|dosis|cantidad|indicacion|horario|hora|presentacion|variante|sabor|pendiente|confirmar|descripcion|cuentame|sustitu|comida|fragancia|vegetal|endulzan|origen)/.test(w));
  const effective=product?product.family+(matches.length===1?' '+product.presentation:'')+' '+question+(/contien/.test(value)&&words.length===0?' ingredientes':''):question;
  const prepared=answerQuestion(effective);
- const result:QuestionPlan={kind:'missing',message:prepared,productIds:matches.map(p=>p.id),terms:[],required:[],search:true};
+ const result:QuestionPlan={kind:'missing',message:prepared,productIds:matches.map(p=>p.id),terms:[],required:[],search:true,question};
  if(/precaucion|advertencia|contraindic|embaraz|lactan|amamant|doypecho|dandopecho|alerg|enfermedad|diabet|hipertens|gastrit|padez|diagnost|tengo|medicamento|antibiotic|tratamiento|segur|cura|garantiz/.test(value))return {...result,kind:'precaution',message:product&&(explicit.length>0||catalogOnly)?prepared:'Esta guía no determina tratamientos ni si un producto es adecuado para ti. Consulta la etiqueta y a tu profesional de salud.',search:false};
  if(product&&catalogOnly&&/presentacion|variante|sabor|pendiente|confirmar|hora|horario/.test(value))return {...result,kind:'catalog',search:false};
  if(product&&matches.length>1&&/ingredien|compos|contien|prepar|dosis|cantidad/.test(value)&&matches.some(p=>p.ingredients!==product.ingredients||p.usage!==product.usage))return {...result,kind:'clarify',message:`Selecciona la presentación de ${product.family}: ${matches.map(p=>p.presentation).join(', ')}. La información puede variar.`,search:false};
@@ -41,6 +42,9 @@ function excerpt(content:string,terms:string[]){
  return (from?'…':'')+text.slice(from,to)+(to<text.length?'…':'');
 }
 export function buildAnswer(plan:QuestionPlan,pages:SearchPage[]):AssistantAnswer{
+ return naturalAnswer(buildRawAnswer(plan,pages),plan.question??'',products.find(p=>p.id===plan.productIds[0])?.family,plan.required);
+}
+function buildRawAnswer(plan:QuestionPlan,pages:SearchPage[]):AssistantAnswer{
  const result:AssistantAnswer={kind:plan.kind,message:plan.message,sources:[],...(plan.productIds.length===1?{productId:plan.productIds[0]}:{})};
  if(!plan.search||!plan.required.length)return result;
  const relevant=pages.filter(page=>plan.required.every(term=>normalize(page.content).includes(term))).slice(0,3);

@@ -20,7 +20,10 @@
 - [x] TDD de política/construcción: intención y producto, variantes ambiguas, extractos con origen exacto, advertencias y ausencia de respuesta. Añadir app/assistant/policy.ts y answer.ts.
 - [x] API POST /api/assistant y /guia/[token]/asistente; POST /api/assistant/index admin para backfill25páginas. PruebasHTTP de auth/revocación/origin/límites y actualización aprobada.
 - [x] Extraer UI a app/assistant/AssistantChat.tsx; integrar en ClientPortal con contexto, citas, carga y reintento; QA navegador/móvil.
-- [ ] Suite completa, TSC, build, diff y revisión independiente. Publicar mismaSite, backfill89páginas sin cambiar accesos, comprobar consulta real y conservar prueba visual.
+- [x] Suite completa, TSC, build, diff y revisión independiente. Publicar mismaSite, backfill89páginas sin cambiar accesos, comprobar consulta real y conservar prueba visual.
 
 ## Execution ledger
 - Source opened at7919c89c97b7e2d52537dc331de1dbddbf6af3b7. Existing documentation changes preserved.
+
+- Final: fixed contexto de producto desconocido y aliasMocha — tests document-assistant RED→GREEN, suite32/32; sin hallazgos diferidos.
+- Publicado9f8537e0081361c39cda4ab27ec1acafe42d99a2, deploymentappgdep_6ad1cb00166c8191b317038a31ed565f succeeded. Producción89páginas indexadas; consultaMocha-inulina y ayuno cita ficha v1p13, desconocido sinfuentes, precauciones/conflictos conservados y anónimo401.

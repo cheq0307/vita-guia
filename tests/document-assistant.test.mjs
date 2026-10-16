@@ -15,12 +15,12 @@ test('document answers cite exact stored origin and unknown questions do not gai
  const plan=planQuestion('Complex Mocha contiene inulina');const answer=buildAnswer(plan,[page]);
  assert.equal(answer.kind,'documents');assert.match(answer.sources[0].excerpt,/inulina de agave/);
  assert.deepEqual({...answer.sources[0],excerpt:undefined},{documentId:'doc',title:'Ficha técnica',versionId:'v2',version:2,page:13,excerpt:undefined});
- const missing=buildAnswer(planQuestion('Complex Mocha contiene plutonio'),[page]);assert.equal(missing.sources.length,0);assert.match(missing.message,/No encontr/);
+ const missing=buildAnswer(planQuestion('Complex Mocha contiene plutonio'),[page]);assert.equal(missing.sources.length,0);assert.match(missing.message,/No tengo ese dato confirmado/);
  assert.equal(buildAnswer(plan,[]).sources.length,0);
  const definition=buildAnswer(planQuestion('¿Qué es la inulina?','complex-mocha-frasco'),[page]);assert.equal(definition.kind,'documents');assert.ok(!definition.message.includes('Contenido:'));
 });
 test('medical precautions and unresolved doses cannot be overridden by retrieved PDF claims',()=>{
- const safety=buildAnswer(planQuestion('Estoy embarazada, puedo tomar Complex Mocha en ayunas'),[page]);assert.equal(safety.kind,'precaution');assert.match(safety.message,/no recomienda.*embarazo/);assert.equal(safety.sources.length,0);
+ const safety=buildAnswer(planQuestion('Estoy embarazada, puedo tomar Complex Mocha en ayunas'),[page]);assert.equal(safety.kind,'precaution');assert.match(safety.message,/no.*recomienda.*embarazo/i);assert.equal(safety.sources.length,0);
  const conflict=buildAnswer(planQuestion('¿Cuál es la dosis de HC-Fit?'),[{...page,content:'Tomar una cápsula antes del desayuno.'}]);assert.equal(conflict.kind,'catalog');assert.match(conflict.message,/confirmar/);assert.equal(conflict.sources.length,0);
  assert.equal(planQuestion('¿El Complex Mocha cura la diabetes?').kind,'precaution');
 });
