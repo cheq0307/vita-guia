@@ -4,6 +4,7 @@ import { cookies } from 'next/headers';
 import { openAccessLink, peekAccessLink } from '../../../db/access-links';
 import { GUIDE_COOKIE, GUIDE_VISIT_SECONDS, createGuideVisit, hasGuideVisit } from '../../guide-visit';
 import { catalogSearch, isPortalSection, portalHref } from '../../portal-navigation';
+import {videoHref,videoFilter} from '../../videos/policy';
 import { guideMessages } from '../../GuideUnavailable';
 export const dynamic='force-dynamic';
 
@@ -26,5 +27,5 @@ export async function GET(request:Request,{params}:{params:Promise<{token:string
   }
   if(!existingVisit)cookieStore.set(GUIDE_COOKIE,createGuideVisit(token,access.link.expiresAt,secret),{httpOnly:true,sameSite:'lax',secure:process.env.COOKIE_SECURE==='true',path:basePath,maxAge:Math.max(1,Math.min(GUIDE_VISIT_SECONDS,Math.floor((Date.parse(access.link.expiresAt)-Date.now())/1000)))});
   const product=section==='productos'?products.find(p=>p.id===requested.get('producto')):undefined;
-  return new Response(null,{status:303,headers:{Location:product?productHref(basePath,product.id,state.query,state.page):portalHref(basePath,section,state.query,state.page),'Cache-Control':'no-store'}});
+  return new Response(null,{status:303,headers:{Location:product?productHref(basePath,product.id,state.query,state.page):section==='videos'?videoHref(basePath,state.query,state.page,videoFilter(requested.get('tipo'))):portalHref(basePath,section,state.query,state.page),'Cache-Control':'no-store'}});
 }

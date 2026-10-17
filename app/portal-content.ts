@@ -801,10 +801,6 @@ export function answerQuestion(question:string):string {
   if(!product.usage)return `Las indicaciones de ${product.family} están por confirmar. ${product.preparation??''} ${product.pending.join(' ')} Consulta la etiqueta vigente y a tu profesional de salud.`;
   return `${product.name}. ${product.usage} Fuente: ${product.source.join('; ')}. Consulta la etiqueta vigente y a tu profesional de salud.`;
 }
-export const videos = [
-  {title:'Cómo organizar tu rutina diaria',description:'Una guía simple para integrar tus productos sin complicaciones.',duration:'04:18',tone:'mint'},
-  {title:'Preguntas frecuentes',description:'Respuestas antes de comenzar.',duration:'03:10',tone:'mint'},
-];
 export const stories = [
   {name:'Mariana',period:'8 semanas',quote:'Tener toda la información en un solo lugar me ayudó a ser constante.'},
 ];

@@ -35,6 +35,8 @@ export async function documentsApi(request:Request,path:string[]=[]){return guar
  if(request.method==='PUT'&&action==='uploads'&&/^\d+$/.test(operation??'')){
   const file=await store.file(id);if(!file||file.state!=='uploading'||!file.upload_id||/^(finalizing|cancelling):/.test(file.upload_id))reject('La carga no está disponible.',409);const number=Number(operation);const count=Math.ceil(file!.size/PART_SIZE);if(number<1||number>count)reject('Parte fuera de rango.');const expected=Math.min(PART_SIZE,file!.size-(number-1)*PART_SIZE);const bytes=await boundedBytes(request,expected);if(bytes.length!==expected)reject('La parte está incompleta.');
   if(number===1&&file!.mime==='application/pdf'&&new TextDecoder().decode(bytes.slice(0,5))!=='%PDF-')reject('El archivo no contiene un PDF válido.');
+  if(number===1&&file!.mime==='video/mp4'&&new TextDecoder().decode(bytes.slice(4,8))!=='ftyp')reject('El archivo no contiene un MP4 válido.');
+  if(number===1&&file!.mime==='video/webm'&&[0x1a,0x45,0xdf,0xa3].some((b,i)=>bytes[i]!==b))reject('El archivo no contiene un WebM válido.');
   const digest=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))).map(b=>b.toString(16).padStart(2,'0')).join('');if(request.headers.get('x-chunk-sha256')!==digest)reject('La parte llegó alterada. Vuelve a intentarlo.');
   const result=await documentBucket().resumeMultipartUpload(file!.storage_key,file!.upload_id!).uploadPart(number,bytes);await store.savePart(id,number,result.etag,bytes.length);return Response.json({number,received:bytes.length});
  }
