@@ -1,4 +1,5 @@
 'use client';
+import EditorDialog from '../ui/EditorDialog';
 import {useRef,useState} from 'react';
 import {categories,fileAudiences,bytesLabel} from './policy';
 import {documentRequest,extractDocumentText,fileHash} from './client';
@@ -18,10 +19,10 @@ export default function DocumentUploader({document,onComplete,onClose}:{document
   let extraction='El archivo ya estaba registrado.';if(!start.version.approved)extraction=await extractDocumentText(file,start.version.id,setMessage);
   localStorage.removeItem('vita-pending-upload');setProgress(100);setMessage(extraction);onComplete(start.document.id);
  }catch(e){setError((e instanceof Error?e.message:'No se pudo cargar el archivo.')+' Puedes volver a intentarlo: se conservarán las partes recibidas.');setPaused(true)}finally{setBusy(false)}}
- return <section className="document-upload" aria-labelledby="upload-title"><header><div><h2 id="upload-title">{document?'Agregar nueva versión':'Subir documento'}</h2><p>Se conserva el original. Una nueva versión requiere revisión antes de reemplazar a la vigente.</p></div><button type="button" className="document-secondary" onClick={onClose} disabled={busy}>Cerrar</button></header><form onSubmit={upload}>
+ return <EditorDialog title={document?'Nueva versión':'Subir documento'} busy={busy} onClose={onClose}><section className="document-upload" aria-labelledby="upload-title"><header><div><h2 id="upload-title">{document?'Agregar nueva versión':'Subir documento'}</h2><p>Se conserva el original. Una nueva versión requiere revisión antes de reemplazar a la vigente.</p></div><button type="button" className="document-secondary" onClick={onClose} disabled={busy}>Cerrar</button></header><form onSubmit={upload}>
   <label className="document-file-picker">Seleccionar archivo<input type="file" required accept=".pdf,.png,.jpg,.jpeg,.webp,.txt,.docx,.pptx,.xlsx" disabled={busy} onChange={e=>{const next=e.target.files?.[0]??null;setFile(next);if(next&&!title)setTitle(next.name.replace(/\.[^.]+$/,''))}}/><span>{file?`${file.name} · ${bytesLabel(file.size)}`:'PDF, imágenes, texto u Office. Hasta 200 MB por archivo.'}</span></label>
   <div className="document-form-grid"><label>Título<input required maxLength={180} value={title} disabled={busy||!!document} onChange={e=>setTitle(e.target.value)}/></label><label>Categoría<select value={category} disabled={busy||!!document} onChange={e=>setCategory(e.target.value)}>{Object.entries(categories).map(([id,label])=><option key={id} value={id}>{label}</option>)}</select></label><label>Quién podrá abrir el archivo<select value={audience} disabled={busy||!!document} onChange={e=>setAudience(e.target.value)}>{Object.entries(fileAudiences).map(([id,label])=><option key={id} value={id}>{label}</option>)}</select></label></div>
   {(busy||message)&&<div className="document-progress"><progress value={progress} max={100} aria-label="Progreso de carga"/><p role="status">{message}</p></div>}{error&&<p role="alert" className="form-error">{error}</p>}
   <div className="document-actions"><button className="primary-button" disabled={busy||!file}>{busy?'Guardando…':paused?'Continuar carga':'Guardar archivo'}</button>{busy&&progress<90&&<button type="button" className="document-secondary" onClick={()=>{pause.current=true;setMessage('Pausando al terminar la parte actual…')}}>Pausar carga</button>}</div>
- </form></section>;
+ </form></section></EditorDialog>;
 }

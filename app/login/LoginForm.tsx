@@ -60,7 +60,7 @@ export default function LoginForm({returnTo}:{returnTo:string}) {
   }
   return <main className="signin-screen admin-login">
     <div className="brand-mark"><LockKeyhole size={22} aria-hidden="true" /></div>
-    <p className="eyebrow">Acceso privado</p>
+    <p className="eyebrow">Acceso privado <span className="version-badge">v2</span></p>
     <h1>Panel de Vita Guía</h1>
     <p>Entra con tu correo y contraseña para administrar tu equipo y tus enlaces.</p>
     <form onSubmit={submit} aria-busy={loading}>

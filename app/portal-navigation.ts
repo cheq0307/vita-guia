@@ -1,4 +1,4 @@
-export const portalSections = ['inicio','productos','videos','historias'] as const;
+export const portalSections = ['inicio','productos','videos','historias','chat'] as const;
 export type PortalSection = typeof portalSections[number];
 export function isPortalSection(value:string):value is PortalSection { return (portalSections as readonly string[]).includes(value); }
 export function catalogSearch(search:{q?:unknown;pagina?:unknown}) {

@@ -1,7 +1,7 @@
 "use client";
 
 import AssistantChat from "./assistant/AssistantChat";
-import { ArrowLeft, ArrowRight, Package, PlayCircle, MessageCircle, Search } from "lucide-react";
+import { ArrowLeft, ArrowRight, Package, PlayCircle, MessageCircle, Search, Home, Sparkles } from "lucide-react";
 import { ProductDetail } from "./ProductDetail";
 import { productFamilies, productHref } from "./product-catalog";
 import LogoutButton from "./LogoutButton";
@@ -12,32 +12,34 @@ import VideoCatalog from './videos/VideoCatalog';
 import type {VideoPage,VideoFilter} from './videos/policy';
 import { catalogPage, portalHref, type PortalSection } from "./portal-navigation";
 
-type ClientPortalProps={basePath:string;section?:PortalSection;query?:string;page?:number;recipientName?:string;expiresAt?:string;workspaceLink?:{href:string;label:string};showAdminLogout?:boolean;selectedProduct?:Product;videoCatalog?:VideoPage;videoType?:VideoFilter;storyCatalog?:StoryPage};
-const labels:Record<PortalSection,string>={inicio:'Inicio',productos:'Productos',videos:'Videos',historias:'Historias'};
+type ClientPortalProps={basePath:string;section?:PortalSection;query?:string;page?:number;recipientName?:string;expiresAt?:string;workspaceLink?:{href:string;label:string};showAdminLogout?:boolean;selectedProduct?:Product;videoCatalog?:VideoPage;videoType?:VideoFilter;storyCatalog?:StoryPage;chatProductId?:string};
+const labels:Record<PortalSection,string>={inicio:'Inicio',productos:'Productos',videos:'Videos',historias:'Historias',chat:'Chat'};
+const navIcons={inicio:Home,productos:Package,videos:PlayCircle,historias:MessageCircle,chat:Sparkles};
 const introductions={productos:['HC Wellness','Catálogo de productos','Encuentra cada producto y consulta sus indicaciones en un solo lugar.'],videos:['Paso a paso','Aprende a tu ritmo','Busca una explicación y vuelve a ella cuando la necesites.'],historias:['Experiencias con los productos','Historias de éxito','Conoce qué han compartido otras personas sobre su experiencia con los nutracéuticos.']} as const;
 
-export function ClientPortal({basePath,section='inicio',query='',page=1,recipientName='',expiresAt,workspaceLink,showAdminLogout=false,selectedProduct,videoCatalog={items:[],total:0,page:1,pages:1},videoType='all',storyCatalog={items:[],total:0,page:1,pages:1}}:ClientPortalProps) {
+export function ClientPortal({basePath,section='inicio',query='',page=1,recipientName='',expiresAt,workspaceLink,showAdminLogout=false,selectedProduct,videoCatalog={items:[],total:0,page:1,pages:1},videoType='all',storyCatalog={items:[],total:0,page:1,pages:1},chatProductId}:ClientPortalProps) {
   const expiryLabel=expiresAt?new Intl.DateTimeFormat('es-MX',{day:'numeric',month:'long'}).format(new Date(expiresAt)):'';
   const families=productFamilies(products,query);
   const productPage=catalogPage(families,'',page,p=>p.product.name);
   const catalog=productPage;
 
-  return <main className="portal-shell">
+  return <main className={`portal-shell portal-v2 ${section==='chat'?'chat-page':''}`} data-version="2.0.0"><a className="skip-link" href="#portal-content">Ir al contenido</a>
     <header className="topbar">
-      <a className="brand" href={portalHref(basePath,'inicio')} aria-label="Vita Guía inicio"><span className="brand-mark">V</span><span>Vita Guía</span></a>
+      <a className="brand" href={portalHref(basePath,'inicio')} aria-label="Vita Guía inicio"><span className="brand-mark">V</span><span>Vita Guía <small className="version-badge">v2</small></span></a>
       <div className={showAdminLogout?'topbar-actions admin-preview-actions':'topbar-actions'}>
         {workspaceLink&&<a className="workspace-link workspace-link-outline" href={workspaceLink.href}><ArrowLeft size={18} aria-hidden="true"/>{workspaceLink.label}</a>}
         {showAdminLogout&&<LogoutButton/>}
       </div>
     </header>
     <nav className="section-nav" aria-label="Secciones principales">
-      {(Object.keys(labels) as PortalSection[]).map(id=><a key={id} href={portalHref(basePath,id)} className={section===id?'active':''} aria-current={section===id?'page':undefined}>{labels[id]}</a>)}
+      {(Object.keys(labels) as PortalSection[]).map(id=>{const Icon=navIcons[id];return <a key={id} href={portalHref(basePath,id)} className={section===id?'active':''} aria-current={section===id?'page':undefined}><Icon size={21} aria-hidden="true"/><span>{labels[id]}</span></a>})}
     </nav>
-
-    {selectedProduct?<ProductDetail product={selectedProduct} basePath={basePath} query={query} page={page}/>:section==='inicio'?<>
+    <div id="portal-content" className="portal-content">
+    {selectedProduct?<ProductDetail product={selectedProduct} basePath={basePath} query={query} page={page} showSources={showAdminLogout}/>:section==='inicio'?<>
       <section className="welcome-band">
-        <div><p className="eyebrow">{recipientName?`Hola, ${recipientName}`:'Tu guía personal'}</p><h1>Todo lo que necesitas para comenzar con confianza.</h1><p className="intro">Elige qué quieres consultar. Tu biblioteca, a tu ritmo.</p></div>
-        <div className="access-note"><span>{workspaceLink?'Vista previa':'Enlace activo'}</span><strong>{workspaceLink?'Así verán la página tus clientes':`Disponible hasta el ${expiryLabel}`}</strong><small>{workspaceLink?'La vigencia depende del enlace que compartas':'Puedes volver mientras el enlace siga activo'}</small></div>
+        <div><p className="eyebrow">{recipientName?`Hola, ${recipientName}`:'Tu guía personal'}</p><h1>Tu guía de bienestar.</h1><p className="intro">Encuentra tus productos y resuelve tus dudas a tu ritmo.</p></div>
+        {!workspaceLink&&expiryLabel&&<p className="guide-validity">Tu acceso está disponible hasta el {expiryLabel}.</p>}
+        <form className="home-search" action={portalHref(basePath,'productos')} method="get" role="search"><label htmlFor="home-product-search">Buscar un producto</label><div><Search size={19} aria-hidden="true"/><input id="home-product-search" name="q" type="search" maxLength={120} placeholder="Nombre del producto"/><button className="primary-button">Buscar</button></div></form>
       </section>
       <section className="content-wrap portal-overview" aria-labelledby="overview-heading">
         <div className="section-heading"><div><p className="eyebrow">Tu biblioteca</p><h2 id="overview-heading">¿Por dónde empezamos?</h2></div></div>
@@ -47,7 +49,7 @@ export function ClientPortal({basePath,section='inicio',query='',page=1,recipien
           <a className="portal-category-card" href={portalHref(basePath,'historias')}><MessageCircle size={26} aria-hidden="true"/><span className="category-count">{storyCatalog.total} {storyCatalog.total===1?'historia':'historias'}</span><h3>Historias de éxito</h3><p>Experiencias de personas que integraron los productos a su vida.</p><span className="category-action">Explorar historias <ArrowRight size={17} aria-hidden="true"/></span></a>
         </div>
       </section>
-    </>:<section className={`content-wrap catalog-page ${section==='productos'?'product-catalog':''}`} aria-labelledby="catalog-title">
+    </>:section==='chat'?<section className="chat-route"><AssistantChat basePath={basePath} productId={chatProductId} fullPage/></section>:<section className={`content-wrap catalog-page ${section==='productos'?'product-catalog':''}`} aria-labelledby="catalog-title">
       <div className="catalog-toolbar">
       <header className="catalog-heading"><p className="eyebrow">{introductions[section][0]}</p><h1 id="catalog-title">{introductions[section][1]}</h1><p>{introductions[section][2]}</p></header>
       <form className="catalog-search" action={portalHref(basePath,section)} method="get" role="search">
@@ -70,7 +72,9 @@ export function ClientPortal({basePath,section='inicio',query='',page=1,recipien
       </>}
     </section>}
 
-    <AssistantChat basePath={basePath} productId={selectedProduct?.id}/>
+    </div>
+    {section!=='chat'&&<AssistantChat basePath={basePath} productId={selectedProduct?.id}/>}
+
     <footer><span>Vita Guía</span><p>La información de esta guía no sustituye la orientación de un profesional de la salud.</p></footer>
   </main>;
 }

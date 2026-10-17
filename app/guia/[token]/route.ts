@@ -26,6 +26,7 @@ export async function GET(request:Request,{params}:{params:Promise<{token:string
     return new Response(`<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>${title} | Vita Guía</title><body style="margin:0;background:#f7f8f4;color:#18211d;font:18px/1.6 Arial,sans-serif"><main style="max-width:560px;margin:18vh auto;padding:24px;text-align:center"><p style="color:#1c6b52;font-weight:bold">Vita Guía</p><h1>${title}</h1><p>${detail}</p></main></body></html>`,{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','X-Robots-Tag':'noindex, nofollow'}});
   }
   if(!existingVisit)cookieStore.set(GUIDE_COOKIE,createGuideVisit(token,access.link.expiresAt,secret),{httpOnly:true,sameSite:'lax',secure:process.env.COOKIE_SECURE==='true',path:basePath,maxAge:Math.max(1,Math.min(GUIDE_VISIT_SECONDS,Math.floor((Date.parse(access.link.expiresAt)-Date.now())/1000)))});
-  const product=section==='productos'?products.find(p=>p.id===requested.get('producto')):undefined;
-  return new Response(null,{status:303,headers:{Location:product?productHref(basePath,product.id,state.query,state.page):section==='videos'?videoHref(basePath,state.query,state.page,videoFilter(requested.get('tipo'))):portalHref(basePath,section,state.query,state.page),'Cache-Control':'no-store'}});
+  const product=products.find(p=>p.id===requested.get('producto'));
+  const target=section==='productos'&&product?productHref(basePath,product.id,state.query,state.page):section==='chat'?portalHref(basePath,'chat')+(product?'?producto='+encodeURIComponent(product.id):''):section==='videos'?videoHref(basePath,state.query,state.page,videoFilter(requested.get('tipo'))):portalHref(basePath,section,state.query,state.page);
+  return new Response(null,{status:303,headers:{Location:target,'Cache-Control':'no-store'}});
 }

@@ -1,7 +1,6 @@
-'use client';
-import {Link2,UserRound,Files,Eye,ClipboardCheck} from 'lucide-react';
-import LogoutButton from '../LogoutButton';
-export default function DocumentLayout({children,advisorToken,title,actions,active='documents'}:{children:React.ReactNode;advisorToken?:string;title:string;actions?:React.ReactNode;active?:'documents'|'stories'|'contributions'}){
- const base=advisorToken?'/asesor/'+encodeURIComponent(advisorToken):'/admin';
- return <main className="admin-shell"><aside className="admin-sidebar"><a className="brand admin-brand" href={base}><span className="brand-mark">V</span><span>Vita Guía</span></a><nav><a href={base}><Link2 size={18}/>Enlaces</a>{!advisorToken&&<a href="/admin/usuarios"><UserRound size={18}/>Usuarios</a>}{!advisorToken&&<a href="/admin/videos">Videos y enlaces</a>}{!advisorToken&&<a className={active==='stories'?'selected':undefined} aria-current={active==='stories'?'page':undefined} href="/admin/historias">Historias de éxito</a>}<a className={active==='contributions'?'selected':undefined} aria-current={active==='contributions'?'page':undefined} href={base+'/aportaciones'}><ClipboardCheck size={18}/>{advisorToken?'Mis aportaciones':'Revisar aportaciones'}</a><a className={active==='documents'?'selected':undefined} href={base+'/documentos'} aria-current={active==='documents'?'page':undefined}><Files size={18}/>Documentos</a><a href={base+'/biblioteca'}><Eye size={18}/>Ver página</a></nav><p>Tu biblioteca de contenido</p></aside><section className="admin-main document-main"><header className="admin-top"><div><p className="eyebrow">{active==='stories'?'Experiencias con los productos':'Biblioteca virtual'}</p><h1>{title}</h1></div><div className="workspace-actions">{actions}{!advisorToken&&<LogoutButton/>}</div></header>{children}</section></main>;
+import type {ReactNode} from 'react';
+import WorkspaceShell from '../ui/WorkspaceShell';
+import {workspaceBase} from '../ui/navigation';
+export default function DocumentLayout({children,advisorToken,title,actions,back,pageHref}:{children:ReactNode;advisorToken?:string;title:string;actions?:ReactNode;active?:'documents'|'stories'|'contributions';back?:string;pageHref?:string}){
+ return <WorkspaceShell title={title} advisorToken={advisorToken} actions={actions} pageHref={pageHref} back={back??workspaceBase(advisorToken)}>{children}</WorkspaceShell>;
 }

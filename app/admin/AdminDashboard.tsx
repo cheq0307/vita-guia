@@ -1,89 +1,32 @@
-"use client";
-
-import { useEffect, useMemo, useState } from "react";
-
-import { Check, Copy, Eye, Link2, Plus, RefreshCw, Search, ShieldCheck, Trash2, Files, ClipboardCheck } from "lucide-react";
-import LogoutButton from "../LogoutButton";
-
-type LinkRecord = {
-  id:number; token:string; recipientName:string; recipientContact:string; expiresAt:string;
-  maxOpens:number|null; openCount:number; firstOpenedAt:string|null; lastOpenedAt:string|null; revoked:boolean; createdAt:string;
-};
-
-export default function AdminDashboard({ advisorToken, advisorName }: { advisorToken?:string; advisorName?:string } = {}) {
-  const [links, setLinks] = useState<LinkRecord[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [creating, setCreating] = useState(false);
-  const [copied, setCopied] = useState<number | null>(null);
-  const [query, setQuery] = useState("");
-  const [error, setError] = useState("");
-  const [form, setForm] = useState({ recipientName:"", recipientContact:"", validDays:7, maxOpens:"" });
-  const advisorHeaders: Record<string,string> = advisorToken ? { "x-advisor-token":advisorToken } : {};
-  const workspaceHref = advisorToken ? `/asesor/${advisorToken}` : "/admin";
-  const libraryHref = `${workspaceHref}/biblioteca`;
-
-  const loadLinks = async () => {
-    setLoading(true); setError("");
-    try { const response = await fetch("/api/links", { cache:"no-store", headers:advisorHeaders }); const data = await response.json() as { error:string; links:LinkRecord[] }; if (!response.ok) throw new Error(data.error); setLinks(data.links); }
-    catch (e) { setError(e instanceof Error ? e.message : "No fue posible cargar los enlaces."); }
-    finally { setLoading(false); }
-  };
-
-  useEffect(() => { void loadLinks(); }, []);
-
-  const visible = useMemo(() => links.filter((link) => `${link.recipientName} ${link.recipientContact}`.toLowerCase().includes(query.toLowerCase())), [links, query]);
-
-  async function createLink(event: React.FormEvent) {
-    event.preventDefault(); setCreating(true); setError("");
-    try {
-      const response = await fetch("/api/links", { method:"POST", headers:{ "content-type":"application/json", ...advisorHeaders }, body:JSON.stringify({ ...form, maxOpens:form.maxOpens ? Number(form.maxOpens) : null }) });
-      const data = await response.json() as { error:string; link:LinkRecord }; if (!response.ok) throw new Error(data.error);
-      setLinks((current) => [data.link, ...current]); setForm({ recipientName:"", recipientContact:"", validDays:7, maxOpens:"" });
-    } catch (e) { setError(e instanceof Error ? e.message : "No fue posible crear el enlace."); }
-    finally { setCreating(false); }
-  }
-
-  async function copyLink(link: LinkRecord) {
-    await navigator.clipboard.writeText(`${window.location.origin}/guia/${link.token}`); setCopied(link.id); window.setTimeout(() => setCopied(null), 1600);
-  }
-
-  async function revoke(id:number) {
-    const response = await fetch(`/api/links/${id}`, { method:"PATCH", headers:advisorHeaders });
-    if (response.ok) setLinks((current) => current.map((link) => link.id === id ? { ...link, revoked:true } : link));
-  }
-
-  function status(link: LinkRecord) {
-    if (link.revoked) return ["Revocado", "revoked"];
-    if (new Date(link.expiresAt).getTime() < Date.now()) return ["Vencido", "expired"];
-    return ["Activo", "active"];
-  }
-
-  return (
-    <main className="admin-shell">
-      <aside className="admin-sidebar">
-        <a className="brand admin-brand" href={workspaceHref}><span className="brand-mark">V</span><span>Vita Guia</span></a>
-        <nav><a className="selected" href={workspaceHref}><Link2 size={18}/> Enlaces</a>{!advisorToken && <a href="/admin/usuarios"><ShieldCheck size={18}/> Usuarios</a>}{!advisorToken&&<a href="/admin/videos">Videos y enlaces</a>}{!advisorToken&&<a href="/admin/historias">Historias de éxito</a>}<a href={workspaceHref+"/documentos"}><Files size={18} aria-hidden="true"/>Documentos</a><a href={workspaceHref+"/aportaciones"}><ClipboardCheck size={18} aria-hidden="true"/>{advisorToken?"Mis aportaciones":"Revisar aportaciones"}</a><a href={libraryHref}><Eye size={18} aria-hidden="true"/> Ver página</a></nav>
-        <p>Panel de distribucion</p>
-      </aside>
-      <section className="admin-main">
-        <header className="admin-top"><div><p className="eyebrow">{advisorName ? `Usuario · ${advisorName}` : "Administracion"}</p><h1>Enlaces de clientes</h1></div><div className="workspace-actions"><a className="workspace-link" href={libraryHref}><Eye size={18} aria-hidden="true"/>Ver página</a>{!advisorToken && <LogoutButton />}</div></header>
-
-        <div className="admin-stats"><article><span>Enlaces activos</span><strong>{links.filter((x) => status(x)[1] === "active").length}</strong></article><article><span>Personas que ingresaron</span><strong>{links.filter((x) => x.firstOpenedAt).length}</strong></article><article><span>Aperturas totales</span><strong>{links.reduce((sum, x) => sum + x.openCount, 0)}</strong></article></div>
-
-        <div className="admin-layout">
-          <section className="create-panel"><div><h2>Crear un enlace</h2><p>Compártelo por WhatsApp, correo o el medio que prefieras.</p></div><form onSubmit={createLink}>
-            <label>Nombre de la persona<input required value={form.recipientName} onChange={(e) => setForm({ ...form, recipientName:e.target.value })} placeholder="Ej. Andrea Martinez" /></label>
-            <label>Telefono o correo <span>Opcional</span><input value={form.recipientContact} onChange={(e) => setForm({ ...form, recipientContact:e.target.value })} placeholder="Para identificar el enlace" /></label>
-            <div className="form-row"><label>Vigencia<select value={form.validDays} onChange={(e) => setForm({ ...form, validDays:Number(e.target.value) })}><option value={1}>1 dia</option><option value={3}>3 dias</option><option value={7}>7 dias</option><option value={14}>14 dias</option><option value={30}>30 dias</option></select></label><label>Limite de aperturas <span>Opcional</span><input type="number" min="1" max="100" value={form.maxOpens} onChange={(e) => setForm({ ...form, maxOpens:e.target.value })} placeholder="Sin limite" /></label></div>
-            <button className="primary-button" disabled={creating}><Plus size={18}/>{creating ? "Creando..." : "Crear enlace"}</button>
-            {error && <p className="form-error">{error}</p>}
-          </form></section>
-
-          <section className="links-panel"><header><div><h2>Enlaces recientes</h2><p>Solo registramos aperturas, no las secciones consultadas.</p></div><button className="icon-button" onClick={loadLinks} title="Actualizar"><RefreshCw size={17}/></button></header><div className="search-box"><Search size={16}/><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Buscar por nombre o contacto" /></div>
-            <div className="link-list">{loading ? <p className="empty-state">Cargando enlaces...</p> : visible.length === 0 ? <p className="empty-state">Aun no hay enlaces. Crea el primero desde el formulario.</p> : visible.map((link) => { const [label, kind] = status(link); return <article className="link-row" key={link.id}><div className="person-avatar">{link.recipientName.slice(0,1).toUpperCase()}</div><div className="link-person"><strong>{link.recipientName}</strong><span>{link.recipientContact || "Sin dato de contacto"}</span></div><div className="link-activity"><span className={`link-status ${kind}`}>{label}</span><small>{link.openCount === 0 ? "Sin aperturas" : `${link.openCount} ${link.openCount === 1 ? "apertura" : "aperturas"}`}</small></div><div className="row-actions"><button className="icon-button" onClick={() => copyLink(link)} title="Copiar enlace" disabled={kind !== "active"}>{copied === link.id ? <Check size={17}/> : <Copy size={17}/>}</button><button className="icon-button danger" onClick={() => revoke(link.id)} title="Revocar enlace" disabled={kind !== "active"}><Trash2 size={17}/></button></div></article>; })}</div>
-          </section>
-        </div>
-      </section>
-    </main>
-  );
+'use client';
+import {useEffect,useMemo,useState} from 'react';
+import {ArrowUpRight,ClipboardCheck,Copy,Eye,Files,Link2,Plus,RefreshCw,Search,Users} from 'lucide-react';
+import WorkspaceShell from '../ui/WorkspaceShell';
+import EditorDialog from '../ui/EditorDialog';
+import {catalogPage} from '../portal-navigation';
+import {workspaceBase} from '../ui/navigation';
+type LinkRecord={id:number;token:string;recipientName:string;recipientContact:string;expiresAt:string;maxOpens:number|null;openCount:number;firstOpenedAt:string|null;lastOpenedAt:string|null;revoked:boolean;createdAt:string};
+const empty={recipientName:'',recipientContact:'',validDays:7,maxOpens:''};
+function status(x:LinkRecord){return x.revoked?'Desactivado':Date.parse(x.expiresAt)<=Date.now()?'Vencido':x.maxOpens!==null&&x.openCount>=x.maxOpens?'Límite alcanzado':'Activo'}
+export default function AdminDashboard({advisorToken,advisorName,view='home'}:{advisorToken?:string;advisorName?:string;view?:'home'|'links'}={}){
+ const base=workspaceBase(advisorToken),admin=!advisorToken;
+ const [links,setLinks]=useState<LinkRecord[]>([]),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState(''),[query,setQuery]=useState('');
+ const [page,setPage]=useState(1);
+ const [creating,setCreating]=useState(false),[form,setForm]=useState(empty),[selected,setSelected]=useState<LinkRecord|null>(null),[confirm,setConfirm]=useState(false);
+ const headers:Record<string,string>=advisorToken?{'x-advisor-token':advisorToken}:{};
+ async function load(){setLoading(true);setError('');try{const r=await fetch('/api/links',{headers,cache:'no-store'});const p=await r.json() as {error:string;links:LinkRecord[];link:LinkRecord};if(!r.ok)throw Error(p.error??'No se pudieron cargar los enlaces.');setLinks(p.links)}catch(e){setError(message(e))}finally{setLoading(false)}}
+ useEffect(()=>{void load()},[advisorToken]);
+ const visible=useMemo(()=>links.filter(x=>(x.recipientName+' '+x.recipientContact).toLocaleLowerCase('es').includes(query.toLocaleLowerCase('es'))),[links,query]);
+ const paged=catalogPage(visible,'',page,x=>x.recipientName);
+ async function create(e:React.FormEvent){e.preventDefault();setBusy(true);setError('');try{const r=await fetch('/api/links',{method:'POST',headers:{...headers,'content-type':'application/json'},body:JSON.stringify({...form,maxOpens:form.maxOpens?Number(form.maxOpens):null})});const p=await r.json() as {error:string;links:LinkRecord[];link:LinkRecord};if(!r.ok)throw Error(p.error??'No se pudo crear el enlace.');setLinks(v=>[p.link,...v]);setForm(empty);setCreating(false);setSelected(p.link);setNotice('Enlace creado. Ya puedes copiarlo para compartirlo.')}catch(e){setError(message(e))}finally{setBusy(false)}}
+ async function copy(x:LinkRecord){try{await navigator.clipboard.writeText(window.location.origin+'/guia/'+x.token);setNotice('Enlace copiado. Compártelo con tu cliente.')}catch{setError('No se pudo copiar. Selecciona el enlace para copiarlo manualmente.')}}
+ async function revoke(){if(!selected)return;setBusy(true);setError('');try{const r=await fetch('/api/links/'+selected.id,{method:'PATCH',headers});if(!r.ok){const p=await r.json() as {error:string;links:LinkRecord[];link:LinkRecord};throw Error(p.error??'No se pudo desactivar el enlace.')}setLinks(v=>v.map(x=>x.id===selected.id?{...x,revoked:true}:x));setSelected({...selected,revoked:true});setConfirm(false);setNotice('Enlace desactivado.')}catch(e){setError(message(e))}finally{setBusy(false)}}
+ const tasks=admin?[{title:'Revisar aportaciones',copy:'Historias y documentos propuestos por los usuarios.',href:base+'/aportaciones',Icon:ClipboardCheck},{title:'Enlaces de clientes',copy:'Crear y administrar los accesos que compartes.',href:base+'/enlaces',Icon:Link2},{title:'Usuarios',copy:'Crear y administrar accesos personales.',href:base+'/usuarios',Icon:Users},{title:'Contenido',copy:'Documentos, videos e historias de la comunidad.',href:base+'/contenido',Icon:Files}]:[{title:'Mis enlaces',copy:'Vigencia y aperturas de tus clientes.',href:base+'/enlaces',Icon:Link2},{title:'Mis aportaciones',copy:'Comparte una experiencia o propone un documento.',href:base+'/aportaciones',Icon:ClipboardCheck},{title:'Documentos',copy:'Consulta los archivos compartidos contigo.',href:base+'/documentos',Icon:Files},{title:'Ver página',copy:'Explora productos, videos e historias.',href:base+'/biblioteca',Icon:Eye}];
+ return <WorkspaceShell title={view==='home'?(admin?'Panel administrativo':advisorName?'Hola, '+advisorName:'Mi espacio'):'Enlaces de clientes'} advisorToken={advisorToken} back={view==='links'?base:undefined} actions={<button className="primary-button" onClick={()=>{setError('');setNotice('');setCreating(true)}}><Plus size={19} aria-hidden="true"/>Crear enlace</button>}>
+ {error&&!creating&&!selected&&<p role="alert" className="form-error">{error}<button type="button" className="document-secondary" onClick={load}>Reintentar</button></p>}{notice&&<p className="video-success" role="status">{notice}</p>}
+ {view==='home'?<><p className="workspace-intro">{admin?'Gestiona tu comunidad, revisa los envíos y prepara lo que vas a compartir.':'Comparte una guía con tus clientes y propón contenido para la comunidad.'}</p><div className="task-grid">{tasks.map(({title,copy,href,Icon})=><a className="task-card" href={href} key={href}><Icon size={26} aria-hidden="true"/><div><h2>{title}</h2><p>{copy}</p></div><ArrowUpRight size={20} aria-hidden="true"/></a>)}</div>{loading?<p role="status" className="document-count">Cargando resumen…</p>:!error&&<div className="workspace-summary"><span><strong>{links.filter(x=>status(x)==='Activo').length}</strong> enlaces activos</span><span><strong>{links.reduce((n,x)=>n+x.openCount,0)}</strong> aperturas</span></div>}</>:<section className="links-panel"><header><div><h2>{admin?'Tus enlaces':'Mis enlaces'}</h2><p>Solo registramos aperturas, no las secciones consultadas.</p></div><button className="icon-button" aria-label="Actualizar enlaces" onClick={load}><RefreshCw size={19}/></button></header><label className="search-box"><Search size={18} aria-hidden="true"/><span className="sr-only">Buscar enlace</span><input value={query} onChange={e=>{setQuery(e.target.value);setPage(1)}} placeholder="Buscar por nombre o contacto"/></label><div className="link-list">{loading?<p className="empty-state" role="status">Cargando enlaces…</p>:visible.length===0?<div className="empty-state"><h3>{query?'No encontramos coincidencias':'Tu primer enlace comienza aquí'}</h3><p>{query?'Prueba con otro nombre o contacto.':'Crea un enlace y compártelo con tu cliente.'}</p>{!query&&<button className="primary-button" onClick={()=>setCreating(true)}>Crear enlace</button>}</div>:paged.items.map(x=><article className="link-row" key={x.id}><div className="person-avatar" aria-hidden="true">{x.recipientName.slice(0,1).toUpperCase()}</div><div className="link-person"><strong>{x.recipientName}</strong><span>{x.recipientContact||'Sin dato de contacto'}</span><span className="link-inline-status">{status(x)} · {x.openCount} aperturas</span></div><span className={'link-status '+(status(x)==='Activo'?'active':'expired')}>{status(x)}</span><button className="document-secondary" onClick={()=>{setError('');setNotice('');setConfirm(false);setSelected(x)}}>Abrir</button></article>)}</div>{paged.pages>1&&<nav className="catalog-pagination" aria-label="Páginas de enlaces"><button className="document-secondary" disabled={paged.page<=1} onClick={()=>setPage(paged.page-1)}>Anterior</button><span>Página {paged.page} de {paged.pages}</span><button className="document-secondary" disabled={paged.page>=paged.pages} onClick={()=>setPage(paged.page+1)}>Siguiente</button></nav>}</section>}
+ {creating&&<EditorDialog title="Crear enlace" onClose={()=>setCreating(false)} busy={busy}><p>Compártelo por WhatsApp, correo o el medio que prefieras.</p><form className="v2-form" onSubmit={create}><label>Nombre de la persona<input required maxLength={120} value={form.recipientName} onChange={e=>setForm({...form,recipientName:e.target.value})}/></label><label>Teléfono o correo <small>Opcional</small><input value={form.recipientContact} onChange={e=>setForm({...form,recipientContact:e.target.value})}/></label><label>Vigencia<select value={form.validDays} onChange={e=>setForm({...form,validDays:Number(e.target.value)})}>{[1,3,7,14,30].map(n=><option key={n} value={n}>{n} {n===1?'día':'días'}</option>)}</select></label><label>Límite de aperturas <small>Opcional</small><input type="number" min={1} max={100} placeholder="Sin límite" value={form.maxOpens} onChange={e=>setForm({...form,maxOpens:e.target.value})}/></label>{error&&<p role="alert" className="form-error">{error}</p>}<button className="primary-button" disabled={busy}>{busy?'Creando…':'Crear enlace'}</button></form></EditorDialog>}
+ {selected&&<EditorDialog title={confirm?'Desactivar enlace':selected.recipientName} onClose={()=>{if(confirm)setConfirm(false);else setSelected(null)}} busy={busy}>{error&&<p role="alert" className="form-error">{error}</p>}{notice&&<p role="status" className="video-success">{notice}</p>}{confirm?<><p>Tu cliente dejará de poder abrir la guía con este enlace.</p><button className="primary-button" disabled={busy} onClick={revoke}>Sí, desactivar enlace</button><button className="document-secondary" disabled={busy} onClick={()=>setConfirm(false)}>Conservar enlace</button></>:<><span className="document-status">{status(selected)}</span><dl className="v2-details"><dt>Vigencia</dt><dd>{new Date(selected.expiresAt).toLocaleString('es-MX')}</dd><dt>Aperturas</dt><dd>{selected.openCount}{selected.maxOpens?' de '+selected.maxOpens:''}</dd><dt>Primera apertura</dt><dd>{selected.firstOpenedAt?new Date(selected.firstOpenedAt).toLocaleString('es-MX'):'Aún no ha ingresado'}</dd><dt>Última apertura</dt><dd>{selected.lastOpenedAt?new Date(selected.lastOpenedAt).toLocaleString('es-MX'):'Sin aperturas'}</dd></dl><label className="v2-field">Enlace del cliente<input readOnly value={typeof window==='undefined'?'':window.location.origin+'/guia/'+selected.token} onFocus={e=>e.target.select()}/></label><button className="primary-button" onClick={()=>copy(selected)}><Copy size={18} aria-hidden="true"/>Copiar enlace</button>{!selected.revoked&&<button className="document-secondary" onClick={()=>setConfirm(true)}>Desactivar enlace</button>}</>}</EditorDialog>}
+ </WorkspaceShell>;
 }
+function message(e:unknown){return e instanceof Error?e.message:'No se pudo completar la operación.'}

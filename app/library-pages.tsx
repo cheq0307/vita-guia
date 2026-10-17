@@ -13,7 +13,7 @@ import {videoStore} from './videos/server';
 import {videoFilter} from './videos/policy';
 import {storyStore} from './stories/server';
 
-export type LibrarySearch={q?:string|string[];pagina?:string|string[];tipo?:string|string[]};
+export type LibrarySearch={q?:string|string[];pagina?:string|string[];tipo?:string|string[];producto?:string|string[]};
 async function videoProps(section:string,search:LibrarySearch){const state=catalogSearch(search);const filter=videoFilter(search.tipo);if(section!=='videos'&&section!=='inicio')return {};const result=await videoStore().list(false,section==='videos'?state.query:'',section==='videos'?filter:'all',state.page);return {videoCatalog:result,videoType:filter}}
 async function storyProps(section:string,search:LibrarySearch){if(section!=='historias'&&section!=='inicio')return {};const {query,page}=catalogSearch(search);return{storyCatalog:await storyStore().list(false,section==='historias'?query:'',page)}}
 export async function adminLibrary(section:string,search:LibrarySearch={},productId?:string) {
@@ -22,7 +22,7 @@ export async function adminLibrary(section:string,search:LibrarySearch={},produc
   const state=catalogSearch(search);
   await requireAdminPage(productId?productHref(basePath,productId,state.query,state.page):portalHref(basePath,section));
   const selectedProduct=selectedProductOr404(productId);
-  return <ClientPortal basePath={basePath} section={section} selectedProduct={selectedProduct} {...state} {...await videoProps(section,search)} {...await storyProps(section,search)} recipientName="Administrador" workspaceLink={{href:'/admin',label:'Panel administrativo'}} showAdminLogout/>;
+  return <ClientPortal basePath={basePath} section={section} selectedProduct={selectedProduct} {...state} {...await libraryContent(section,search)} chatProductId={chatProduct(search)} recipientName="Administrador" workspaceLink={{href:'/admin',label:'Panel administrativo'}} showAdminLogout/>;
 }
 export async function advisorLibrary(token:string,section:string,search:LibrarySearch={},productId?:string) {
   if(!isPortalSection(section))notFound();
@@ -30,7 +30,7 @@ export async function advisorLibrary(token:string,section:string,search:LibraryS
   if(!advisor)return <main className="access-screen"><div className="brand-mark">V</div><h1>Acceso no disponible</h1><p>Solicita un acceso nuevo al administrador.</p></main>;
   const selectedProduct=selectedProductOr404(productId);
   const workspace='/asesor/'+encodeURIComponent(token);
-  return <ClientPortal basePath={workspace+'/biblioteca'} section={section} selectedProduct={selectedProduct} {...catalogSearch(search)} {...await videoProps(section,search)} {...await storyProps(section,search)} recipientName={advisor.name} workspaceLink={{href:workspace,label:'Mi panel'}}/>;
+  return <ClientPortal basePath={workspace+'/biblioteca'} section={section} selectedProduct={selectedProduct} {...catalogSearch(search)} {...await libraryContent(section,search)} chatProductId={chatProduct(search)} recipientName={advisor.name} workspaceLink={{href:workspace,label:'Mi panel'}}/>;
 }
 export async function customerLibrary(token:string,section:string,search:LibrarySearch={},productId?:string) {
   if(!isPortalSection(section))notFound();
@@ -44,13 +44,13 @@ export async function customerLibrary(token:string,section:string,search:Library
   const state=catalogSearch(search);
   if(!hasGuideVisit(visit,token,process.env.ADMIN_SESSION_SECRET??'')) {
     const entry=new URLSearchParams({seccion:section});
-    if(selectedProduct)entry.set('producto',selectedProduct.id);
+    if(selectedProduct)entry.set('producto',selectedProduct.id);else if(section==='chat'&&chatProduct(search))entry.set('producto',chatProduct(search)!);
     if(state.query)entry.set('q',state.query);
     if(state.page>1)entry.set('pagina',String(state.page));
     if(search.tipo==='file'||search.tipo==='link')entry.set('tipo',search.tipo);
     redirect(basePath+'?'+entry.toString());
   }
-  return <ClientPortal basePath={basePath} section={section} selectedProduct={selectedProduct} {...state} {...await videoProps(section,search)} {...await storyProps(section,search)} recipientName={link.recipientName} expiresAt={link.expiresAt}/>;
+  return <ClientPortal basePath={basePath} section={section} selectedProduct={selectedProduct} {...state} {...await libraryContent(section,search)} chatProductId={chatProduct(search)} recipientName={link.recipientName} expiresAt={link.expiresAt}/>;
 }
 
 function selectedProductOr404(id?:string) {
@@ -59,3 +59,6 @@ function selectedProductOr404(id?:string) {
   if(!product)notFound();
   return product;
 }
+
+async function libraryContent(section:string,search:LibrarySearch){const [videos,stories]=await Promise.all([videoProps(section,search),storyProps(section,search)]);return{...videos,...stories}}
+function chatProduct(search:LibrarySearch){return typeof search.producto==='string'&&products.some(p=>p.id===search.producto)?search.producto:undefined}
