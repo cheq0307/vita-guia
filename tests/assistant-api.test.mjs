@@ -30,6 +30,10 @@ test('assistant reads only permitted current text and denies revoked access',{sk
  const {link}=await(await post('/api/links',{recipientName:'Prueba asistente cliente',validDays:1,maxOpens:1})).json();
  const entry=await fetch(new URL('/guia/'+link.token,base),{redirect:'manual'});const visit=entry.headers.get('set-cookie').split(';')[0];assert.match(entry.headers.get('set-cookie'),new RegExp('Path=/guia/'+link.token));
  const client=await(await post('/guia/'+link.token+'/asistente',question,{cookie:visit})).json();assert.equal(client.sources.length,0);assert.ok(client.message.includes(unique));assert.ok(!JSON.stringify(client).includes(version.id));assert.ok(!JSON.stringify(client).includes(document.id));
+ const clarify=await(await post('/guia/'+link.token+'/asistente',{question:'q ingredientes tiene active pro'},{cookie:visit})).json();assert.equal(clarify.kind,'clarify');assert.equal(clarify.choices.length,3);assert.equal(clarify.contextProductIds.length,3);assert.deepEqual(clarify.sources,[]);
+ const fresa=await(await post('/guia/'+link.token+'/asistente',{question:'fresa',contextProductIds:clarify.contextProductIds,previousQuestion:'q ingredientes tiene active pro'},{cookie:visit})).json();assert.equal(fresa.kind,'catalog');assert.equal(fresa.productId,'active-pro-fresa');assert.match(fresa.message,/inulina|proteína/i);assert.deepEqual(fresa.sources,[]);
+ assert.equal((await post('/api/assistant',{question:'hola',contextProductIds:['a'.repeat(101)]})).status,400);
+ assert.equal((await post('/api/assistant',{question:'hola',previousQuestion:'a'.repeat(601)})).status,400);
  assert.equal((await fetch(new URL('/guia/'+link.token+'/documentos/files/'+version.id,base),{headers:{cookie:visit}})).status,404);
  const files=await(await fetch(new URL('/guia/'+link.token+'/documentos',base),{headers:{cookie:visit}})).json();assert.deepEqual(files.documents,[]);
  await fetch(new URL('/api/links/'+link.id,base),{method:'PATCH',headers});assert.equal((await post('/guia/'+link.token+'/asistente',question,{cookie:visit})).status,401);

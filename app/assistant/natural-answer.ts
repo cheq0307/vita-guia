@@ -8,18 +8,19 @@ function conversational(text:string){
   .replace(/Según (?:el catálogo|la ficha técnica|el material recibido)\s*:?\s*/gi,'')
   .replace(/La ficha(?: técnica)? menciona tomar ([^.]+)\./gi,'$1 se toma preferentemente.').replace(/ (preferentemente[^.]+) se toma preferentemente\./gi,' se toma $1.')
   .replace(/La ficha(?: técnica)? también permite/gi,'También puedes usar')
+  .replace(/ y describe consumo /gi,'. Se toma ')
   .replace(/La ficha(?: técnica)? (?:también )?(?:menciona|indica|señala|describe) /gi,'')
   .replace(/La ficha no recomienda su consumo/gi,'No se recomienda su consumo')
   .replace(/La ficha lo presenta como complemento de/gi,'Es un complemento de')
   .replace(/La ficha pide consultar con un pediatra antes de administrarlo/gi,'Consulta con un pediatra antes de dárselo a un niño')
   .replace(/El material recibido no especifica si /gi,'No tengo confirmado si ')
   .replace(/Esta guía no determina si es adecuado para ti; /gi,'Para saber si es adecuado para ti, ')
-  .replace(/\s+/g,' ').trim().replace(/^\p{Ll}/u,c=>c.toUpperCase());
+  .replace(/\s+/g,' ').trim().replace(/^\p{Ll}/u,c=>c.toUpperCase()).replace(/([.!?]\s+)(\p{Ll})/gu,(_,space,letter)=>space+letter.toUpperCase());
 }
 export function naturalAnswer(answer:AssistantAnswer,question:string,family:string|undefined,terms:string[]):AssistantAnswer{
  let message=conversational(answer.message);
  if(answer.kind==='precaution')message=message.replace(/^[^.]+\. Precauciones indicadas:\s*/,'');
- if(answer.kind==='missing')message='No tengo ese dato confirmado. Puedes consultarlo con tu asesor.';
+ if(answer.kind==='missing')message='No tengo ese dato confirmado.';
  if(answer.kind==='documents'&&answer.sources.length){
   const passages=answer.sources.map(source=>clean(source.excerpt));const first=passages[0];
   const term=terms.length===1?terms[0]:undefined;
@@ -36,5 +37,6 @@ export function naturalAnswer(answer:AssistantAnswer,question:string,family:stri
   }else if(/^(?:Complejo[^:]*|Ingredientes|Composición):/i.test(first))message='Entre sus ingredientes están '+first.slice(first.indexOf(':')+1).trim();
   else message=conversational(first.replace(/^(?:Modo de uso|Preparación|Indicaciones de uso)\s*:\s*/i,''));
  }
+ if(answer.kind==='catalog')message=message.replace(/\. Ingredientes: /,'.\n\nIngredientes: ').replace(/\. No sustituye /,'.\n\nNo sustituye ');
  return {...answer,message};
 }

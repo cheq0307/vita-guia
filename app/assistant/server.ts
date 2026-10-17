@@ -15,10 +15,12 @@ export function assistantApi(request:Request,index=false){return guarded(async()
  if(!env.DB)throw new Error('Document search unavailable');const search=new DocumentSearch(env.DB);const body=await input(request);
  if(index){const cursor=Number(body.cursor??0);if(!Number.isSafeInteger(cursor)||cursor<0)throw new DocumentError('Posición no válida.');return Response.json(await search.indexBatch(cursor),{headers:{'Cache-Control':'no-store'}})}
  if(typeof body.question!=='string'||!body.question.trim()||body.question.length>600)throw new DocumentError('Escribe una pregunta de hasta 600 caracteres.');
- const context=typeof body.productId==='string'?body.productId:undefined;const plan=planQuestion(body.question.trim(),context);
+ if(body.contextProductIds!==undefined&&(!Array.isArray(body.contextProductIds)||body.contextProductIds.length>20||body.contextProductIds.some(id=>typeof id!=='string'||id.length>100)))throw new DocumentError('El contexto de productos no es válido.');
+ if(body.previousQuestion!==undefined&&(typeof body.previousQuestion!=='string'||body.previousQuestion.length>600))throw new DocumentError('La pregunta anterior no es válida.');
+ const context=typeof body.productId==='string'?body.productId:undefined;const plan=planQuestion(body.question.trim(),context,body.contextProductIds as string[]|undefined,body.previousQuestion as string|undefined);
  const pages=plan.search?await search.find(actor,plan.terms,plan.productIds):[];
  const answer=buildAnswer(plan,pages);
  // Provenance stays behind administrator authorization, never in a visitor payload.
- const visitorAnswer={kind:answer.kind,message:answer.message,sources:[],...(answer.productId?{productId:answer.productId}:{})};
+ const visitorAnswer={kind:answer.kind,message:answer.message,sources:[],contextProductIds:answer.contextProductIds,choices:answer.choices,...(answer.productId?{productId:answer.productId}:{})};
  return Response.json(actor==='admin'?answer:visitorAnswer,{headers:{'Cache-Control':'private, no-store'}});
 })}
