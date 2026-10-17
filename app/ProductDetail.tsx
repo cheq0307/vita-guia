@@ -17,6 +17,7 @@ export function ProductDetail({product,basePath,query,page}:{product:Product;bas
       </div>
     </div>
     <div id="product-information" className="product-detail-information">
+      {!!product.benefits?.length&&<section aria-labelledby="benefits-title"><h2 id="benefits-title">Beneficios nutricionales</h2><ul className="product-highlights">{product.benefits.map(benefit=><li key={benefit}>{benefit}</li>)}</ul></section>}
       <section aria-labelledby="highlights-title"><h2 id="highlights-title">Qué incluye</h2><ul className="product-highlights">{product.features.map(feature=><li key={feature}>{feature}</li>)}</ul></section>
       <section aria-labelledby="characteristics-title"><h2 id="characteristics-title">Características</h2><dl className="product-characteristics"><div><dt>Marca</dt><dd>HC Wellness</dd></div><div><dt>Línea</dt><dd>{product.line}</dd></div><div><dt>Tipo</dt><dd>{product.category}</dd></div><div><dt>Presentación</dt><dd>{product.presentation}</dd></div>{product.package&&<div><dt>Contenido</dt><dd>{product.package}</dd></div>}{product.origin&&<div><dt>País de fabricación</dt><dd>{product.origin}</dd></div>}</dl></section>
       <section aria-labelledby="ingredients-title"><h2 id="ingredients-title">Ingredientes mencionados</h2><p>{product.ingredients??'La composición completa está pendiente de confirmar.'}</p><p className="product-detail-caption">Resumen del material recibido. Consulta la lista completa en la etiqueta vigente.</p></section>

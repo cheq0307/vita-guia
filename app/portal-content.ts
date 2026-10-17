@@ -2,13 +2,15 @@ export type Product = {
   id:string; family:string; name:string; category:string; presentation:string;
   package:string|null; ingredients:string|null; usage:string|null;
   pending:string[]; image:string; source:string[];
-  description:string; purpose?:string; origin:string|null; line:string; features:string[];
+  description:string; purpose?:string; benefits?:string[]; origin:string|null; line:string; features:string[];
   warnings:string[]; faqs:{question:string;answer:string;keywords?:string[];source?:string}[]; preparation:string|null;
 };
 // Transcription of supplied documents. Missing or conflicting fields remain null.
 export const products:Product[] = [
   {
     "id": "active-pro-chocolate",
+    "purpose": "Active Pro sirve para complementar la alimentación con un batido que aporta energía, proteína, fibra, omegas, vitaminas y minerales.",
+    "benefits": ["Aporte de proteína para el mantenimiento de los músculos.","Aporte de energía a través de sus macronutrientes.","Fibra para favorecer la sensación de saciedad.","Vitaminas, minerales y omegas para complementar la alimentación."],
     "family": "Active Pro",
     "name": "Active Pro · Chocolate",
     "category": "Batido en polvo",
@@ -56,6 +58,8 @@ export const products:Product[] = [
   },
   {
     "id": "active-pro-fresa",
+    "purpose": "Active Pro sirve para complementar la alimentación con un batido que aporta energía, proteína, fibra, omegas, vitaminas y minerales.",
+    "benefits": ["Aporte de proteína para el mantenimiento de los músculos.","Aporte de energía a través de sus macronutrientes.","Fibra para favorecer la sensación de saciedad.","Vitaminas, minerales y omegas para complementar la alimentación."],
     "family": "Active Pro",
     "name": "Active Pro · Fresa",
     "category": "Batido en polvo",
@@ -103,6 +107,8 @@ export const products:Product[] = [
   },
   {
     "id": "active-pro-tropical",
+    "purpose": "Active Pro sirve para complementar la alimentación con un batido que aporta energía, proteína, fibra, omegas, vitaminas y minerales.",
+    "benefits": ["Aporte de proteína para el mantenimiento de los músculos.","Aporte de energía a través de sus macronutrientes.","Fibra para favorecer la sensación de saciedad.","Vitaminas, minerales y omegas para complementar la alimentación."],
     "family": "Active Pro",
     "name": "Active Pro · Tropical",
     "category": "Batido en polvo",
@@ -775,11 +781,18 @@ export function answerQuestion(question:string):string {
   const product=namedVariants.length===1?namedVariants[0]:matches[0];
   const fasting=/ayunas|antesdedesayunar|antesdeldesayuno|estomagovacio/.test(value);
   const faq=product.faqs.find(faq=>faq.keywords?.some(keyword=>value.includes(normalize(keyword))));
+  if(product.family==='Active Pro'&&/diabet/.test(value)&&!/embaraz|lactan|amamant|doypecho|dandopecho/.test(value)){
+    const diabetes=`No puedo confirmar que ${namedVariants.length===1?product.name:product.family} sea adecuado para una persona con diabetes solo con la información disponible. Para valorarlo, hay que revisar los carbohidratos totales por porción y la cantidad que se consumiría con su profesional de salud. No es un tratamiento para la diabetes.`;
+    if(!/alerg|intoleran|lactosa|soya|leche/.test(value))return diabetes;
+    if(namedVariants.length!==1)return diabetes+' Para revisar la alergia o intolerancia, selecciona el sabor: Chocolate, Fresa o Tropical.';
+    return diabetes+' '+product.warnings.filter(w=>/alerg|intoleran|lactosa|soya|leche/i.test(w)).join(' ');
+  }
   if(/precaucion|advertencia|contraindic|embaraz|lactan|amamant|doypecho|dandopecho|alerg|enfermedad|diabet|hipertens|gastrit|padez|diagnost|tengo|medicamento|antibiotic|tratamiento|segur/.test(value)||(/puedo|debo/.test(value)&&!faq&&!fasting)){
     if(namedVariants.length!==1&&matches.some(p=>p.warnings.join('\n')!==product.warnings.join('\n')))return `Las precauciones dependen de la presentación de ${product.family}. Selecciona una: ${matches.map(p=>p.presentation).join(', ')}. Consulta también a tu profesional de salud.`;
     return `${product.name}. Precauciones indicadas: ${product.warnings.length?product.warnings.join(' '):'Las precauciones específicas están por confirmar.'} Esta guía no determina si es adecuado para ti; consulta la etiqueta vigente y a tu profesional de salud.`;
   }
   if(faq)return `${faq.answer} Fuente: ${faq.source??product.source.join('; ')}.`;
+  if(/benefici/.test(value)&&product.benefits?.length)return `${product.family} tiene este enfoque nutricional:\n\n${product.benefits.map(benefit=>'• '+benefit).join('\n')}`;
   if(/paraquesirv|benefici|cuales.*funcion|cuales.*utilidad/.test(value))return product.purpose??`${product.name}. ${product.description}`;
   if(fasting)return `El material recibido no especifica si ${product.family} puede tomarse en ayunas. Consulta la etiqueta vigente y a tu profesional de salud.`;
   if(/hora|horario/.test(value))return 'Esta biblioteca no establece un horario personalizado. Consulta las indicaciones del producto y la orientación de tu profesional de salud.';

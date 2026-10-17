@@ -25,10 +25,10 @@ export function planQuestion(question:string,contextId?:string,contextIds:string
  if(!product&&words.every(w=>/^(sirve|benefici|ingredien|compos|prepar|precaucion|advertencia|ayuna|dosis|cantidad|sabor|presentacion|funcion|utilidad)/.test(w)))return {kind:'clarify',message:'¿Sobre qué producto quieres saber? Escribe su nombre y, si tiene varias presentaciones, cuál usas.',productIds:[],terms:[],required:[],search:false,question};
  if(!explicit.length&&variants.length===1&&words.length===0&&previousQuestion){
   const previous=planQuestion(previousQuestion,contextId,contextIds);
-  if(previous.kind==='clarify'&&previous.productIds.includes(product.id))return planQuestion(previousQuestion,product.id,[product.id]);
+  if((previous.kind==='clarify'||previous.kind==='precaution')&&previous.productIds.includes(product.id))return planQuestion(previousQuestion,product.id,[product.id]);
  }
  // Residual names/topics must be searched, never silently answered as the previous product.
- const catalogOnly=words.every(w=>/^(sirve|sirven|funcion|utilidad|ingredien|compos|prepar|benefici|precaucion|advertencia|contraindic|embaraz|lactan|amamant|alerg|enfermedad|diabet|hipertens|gastrit|padez|diagnost|medicamento|antibiotic|tratamiento|segur|ayuna|dosis|cantidad|indicacion|horario|hora|presentacion|variante|sabor|pendiente|confirmar|descripcion|cuentame|sustitu|comida|fragancia|vegetal|endulzan|origen)/.test(w));
+ const catalogOnly=words.every(w=>/^(persona|alguien|sirve|sirven|funcion|utilidad|ingredien|compos|prepar|benefici|precaucion|advertencia|contraindic|embaraz|lactan|amamant|alerg|enfermedad|diabet|hipertens|gastrit|padez|diagnost|medicamento|antibiotic|tratamiento|segur|ayuna|dosis|cantidad|indicacion|horario|hora|presentacion|variante|sabor|pendiente|confirmar|descripcion|cuentame|sustitu|comida|fragancia|vegetal|endulzan|origen)/.test(w));
  const effective=product?product.family+(matches.length===1?' '+product.presentation:'')+' '+question+(/contien/.test(value)&&words.length===0?' ingredientes':''):question;
  const prepared=answerQuestion(effective);
  const result:QuestionPlan={kind:'missing',message:prepared,productIds:matches.map(p=>p.id),terms:[],required:[],search:true,question};

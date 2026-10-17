@@ -18,7 +18,7 @@ function conversational(text:string){
   .replace(/\s+/g,' ').trim().replace(/^\p{Ll}/u,c=>c.toUpperCase()).replace(/([.!?]\s+)(\p{Ll})/gu,(_,space,letter)=>space+letter.toUpperCase());
 }
 export function naturalAnswer(answer:AssistantAnswer,question:string,family:string|undefined,terms:string[]):AssistantAnswer{
- let message=conversational(answer.message);
+ let message=answer.kind==='catalog'?answer.message.split('\n').map(line=>line?conversational(line):'').join('\n'):conversational(answer.message);
  if(answer.kind==='precaution')message=message.replace(/^[^.]+\. Precauciones indicadas:\s*/,'');
  if(answer.kind==='missing')message='No tengo ese dato confirmado.';
  if(answer.kind==='documents'&&answer.sources.length){
