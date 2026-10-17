@@ -35,7 +35,7 @@ export class StoryStore{
   // New attaches reject the cancelling marker until abort is confirmed.
   const result=await this.db.batch([
    this.db.prepare("UPDATE story_media SET removed=1 WHERE id=? AND story_id=? AND EXISTS(SELECT 1 FROM stories s WHERE s.id=? AND (s.status!='published' OR length(trim(s.body))>0 OR (SELECT COUNT(*) FROM story_media WHERE story_id=s.id AND removed=0)>1))").bind(id,storyId,storyId),
-   this.db.prepare("UPDATE document_files SET upload_id='cancelling:'||upload_id WHERE id=(SELECT file_id FROM story_media WHERE id=? AND story_id=? AND removed=1) AND state='uploading' AND upload_id IS NOT NULL AND upload_id NOT LIKE 'finalizing:%' AND upload_id NOT LIKE 'cancelling:%' AND NOT EXISTS(SELECT 1 FROM story_media m WHERE m.file_id=document_files.id AND m.removed=0) AND NOT EXISTS(SELECT 1 FROM document_versions v WHERE v.file_id=document_files.id) AND NOT EXISTS(SELECT 1 FROM videos v WHERE v.file_id=document_files.id)").bind(id,storyId)
+   this.db.prepare("UPDATE document_files SET upload_id='cancelling:'||upload_id WHERE id=(SELECT file_id FROM story_media WHERE id=? AND story_id=? AND removed=1) AND state='uploading' AND upload_id IS NOT NULL AND upload_id NOT LIKE 'finalizing:%' AND upload_id NOT LIKE 'cancelling:%' AND NOT EXISTS(SELECT 1 FROM story_media m WHERE m.file_id=document_files.id AND m.removed=0) AND NOT EXISTS(SELECT 1 FROM document_versions v WHERE v.file_id=document_files.id) AND NOT EXISTS(SELECT 1 FROM videos v WHERE v.file_id=document_files.id) AND NOT EXISTS(SELECT 1 FROM contribution_files x WHERE x.file_id=document_files.id AND x.removed=0)").bind(id,storyId)
   ]);return result[0].meta.changes===1;
  }
 }

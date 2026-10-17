@@ -1,0 +1,34 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {randomUUID,createHash} from 'node:crypto';
+test('advisor contributions remain private and immutable while pending; only admin decisions publish canonical content',{skip:!process.env.VITA_TEST_URL},async()=>{
+ const base=new URL(process.env.VITA_TEST_URL);assert.ok(['localhost','127.0.0.1'].includes(base.hostname));const login=await fetch(new URL('/api/auth/login',base),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({username:process.env.ADMIN_USERNAME,password:process.env.ADMIN_PASSWORD})});const cookie=login.headers.get('set-cookie').split(';')[0];const admin={cookie,'content-type':'application/json'};
+ async function actor(name){const r=await fetch(new URL('/api/advisors',base),{method:'POST',headers:admin,body:JSON.stringify({name,contact:'prueba@example.test'})});return(await r.json()).advisor}
+ const a=await actor('Aportes A'),b=await actor('Aportes B');const ha={'content-type':'application/json','x-advisor-token':a.token},hb={'content-type':'application/json','x-advisor-token':b.token};
+ async function req(path,body,headers=ha,method=body===undefined?'GET':'POST'){return fetch(new URL('/api/contributions'+path,base),{method,headers,...(body===undefined?{}:{body:JSON.stringify(body)})})}
+ const marker=randomUUID();const story={kind:'story',title:'Historia '+marker,author:'Prueba',body:'Mi experiencia incorporando el producto a la rutina.',period:'',products:['Active Pro'],category:'other',permission:true};let sid,docId;
+ try{
+  assert.equal((await fetch(new URL('/api/contributions',base))).status,401);assert.equal((await req('',story,{...ha,origin:'https://evil.example'})).status,403);
+  const created=await req('',story);assert.equal(created.status,201);sid=(await created.json()).item.id;
+  assert.equal((await req('/'+sid,undefined,hb)).status,404);assert.equal((await req('/'+sid,story,hb,'PATCH')).status,404);
+  const mine=await(await req('')).json();assert.ok(mine.items.some(v=>v.id===sid));assert.ok(!(await(await req('',undefined,hb)).json()).items.some(v=>v.id===sid));
+  assert.equal((await req('/'+sid+'/review',{decision:'approved'},ha)).status,403);
+  assert.equal((await req('/'+sid+'/submit',{})).status,200);assert.equal((await req('/'+sid,story,ha,'PATCH')).status,409);assert.equal((await req('/'+sid+'/links',{url:'https://example.com'})).status,409);
+  assert.equal((await req('/'+sid+'/review',{decision:'changes_requested',note:'Aclara el producto.'},admin)).status,200);
+  assert.equal((await req('/'+sid,{...story,period:'Dos meses'},ha,'PATCH')).status,200);assert.equal((await req('/'+sid+'/submit',{})).status,200);
+  const approved=await req('/'+sid+'/review',{decision:'approved',note:'Revisado.'},admin);assert.equal(approved.status,200,await approved.clone().text());const published=(await approved.json()).item;assert.ok(published.output_id);assert.equal((await req('/'+sid,story,ha,'PATCH')).status,409);assert.equal((await req('/'+sid+'/review',{decision:'approved'},admin)).status,409);
+  const canonical=await(await fetch(new URL('/api/stories?q='+marker,base),{headers:admin})).json();assert.equal(canonical.total,1);assert.equal(canonical.items[0].id,published.output_id);
+  await fetch(new URL('/api/stories/'+published.output_id,base),{method:'PATCH',headers:admin,body:JSON.stringify({...canonical.items[0],status:'archived'})});
+  const doc=await req('',{...story,kind:'document',title:'Documento '+marker,body:'Útil para la comunidad.',products:[]});docId=(await doc.json()).item.id;const bytes=Buffer.from('Contenido documental '+marker);const hash=createHash('sha256').update(bytes).digest('hex');
+  const startResponse=await req('/'+docId+'/uploads',{filename:'aporte.txt',sha256:hash,size:bytes.length});assert.equal(startResponse.status,201,await startResponse.clone().text());const start=await startResponse.json();
+  const fileURL='/api/contributions/files/'+start.attachment.id+'?advisor='+a.token;
+  assert.equal((await fetch(new URL(fileURL.replace(a.token,b.token),base))).status,404);
+  assert.equal((await req('/uploads/'+start.fileId+'/complete',{},hb)).status,404);
+  const part=await fetch(new URL('/api/contributions/uploads/'+start.fileId+'/1',base),{method:'PUT',headers:{...ha,'content-type':'application/octet-stream','x-chunk-sha256':hash},body:bytes});assert.equal(part.status,200,await part.clone().text());assert.equal((await req('/uploads/'+start.fileId+'/complete',{})).status,200);
+  const adminReservation=await fetch(new URL('/api/documents/uploads',base),{method:'POST',headers:admin,body:JSON.stringify({filename:'original.txt',sha256:hash,size:bytes.length,title:'Dedup isolation '+marker,category:'other',audience:'internal'})});assert.equal(adminReservation.status,201,await adminReservation.clone().text());const reserved=await adminReservation.json();assert.notEqual(reserved.fileId,start.fileId,'Admin uploads must never reuse advisor-declared hashes');await fetch(new URL('/api/documents/uploads/'+reserved.fileId+'/cancel',base),{method:'POST',headers:admin});
+  assert.equal((await req('/'+docId+'/submit',{})).status,409,'Text preparation is required before submission');
+  assert.equal((await req('/'+docId+'/text',{sourceFileId:start.fileId,pages:[{number:1,content:bytes.toString()}],pageCount:1,finish:true,state:'extracted'})).status,200);assert.equal((await req('/'+docId+'/submit',{})).status,200);assert.equal((await req('/'+docId+'/text',{sourceFileId:start.fileId,pages:[],pageCount:0,finish:true,state:'unavailable'})).status,409);
+  assert.equal((await fetch(new URL(fileURL,base))).status,200);assert.equal((await fetch(new URL('/api/documents?advisor='+b.token+'&q='+marker,base))).status,200);assert.equal((await(await fetch(new URL('/api/documents?advisor='+b.token+'&q='+marker,base))).json()).total,0);
+  const result=await req('/'+docId+'/review',{decision:'approved'},admin);assert.equal(result.status,200,await result.clone().text());const output=(await result.json()).item.output_id;const approvedDoc=await(await fetch(new URL('/api/documents/'+output,base),{headers:admin})).json();assert.equal(approvedDoc.document.audience,'advisors');assert.equal(approvedDoc.document.knowledge_audience,'internal');assert.equal(approvedDoc.versions[0].text_status,'extracted');assert.equal((await(await fetch(new URL('/api/documents/versions/'+approvedDoc.versions[0].id+'/text',base),{headers:admin})).json()).pages[0].content,bytes.toString());assert.equal((await(await fetch(new URL('/api/documents?advisor='+b.token+'&q='+marker,base))).json()).total,1);
+  await fetch(new URL('/api/documents/'+output,base),{method:'PATCH',headers:admin,body:JSON.stringify({...approvedDoc.document,status:'archived'})});
+ }finally{for(const user of[a,b])await fetch(new URL('/api/advisors/'+user.id,base),{method:'PATCH',headers:admin})}
+});
+

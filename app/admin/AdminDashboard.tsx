@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-import { Check, Copy, Eye, Link2, Plus, RefreshCw, Search, ShieldCheck, Trash2 } from "lucide-react";
+import { Check, Copy, Eye, Link2, Plus, RefreshCw, Search, ShieldCheck, Trash2, Files, ClipboardCheck } from "lucide-react";
 import LogoutButton from "../LogoutButton";
 
 type LinkRecord = {
@@ -62,7 +62,7 @@ export default function AdminDashboard({ advisorToken, advisorName }: { advisorT
     <main className="admin-shell">
       <aside className="admin-sidebar">
         <a className="brand admin-brand" href={workspaceHref}><span className="brand-mark">V</span><span>Vita Guia</span></a>
-        <nav><a className="selected" href={workspaceHref}><Link2 size={18}/> Enlaces</a>{!advisorToken && <a href="/admin/usuarios"><ShieldCheck size={18}/> Usuarios</a>}{!advisorToken&&<a href="/admin/videos">Videos y enlaces</a>}{!advisorToken&&<a href="/admin/historias">Historias de éxito</a>}<a href={workspaceHref+"/documentos"}>Documentos</a><a href={libraryHref}><Eye size={18} aria-hidden="true"/> Ver página</a></nav>
+        <nav><a className="selected" href={workspaceHref}><Link2 size={18}/> Enlaces</a>{!advisorToken && <a href="/admin/usuarios"><ShieldCheck size={18}/> Usuarios</a>}{!advisorToken&&<a href="/admin/videos">Videos y enlaces</a>}{!advisorToken&&<a href="/admin/historias">Historias de éxito</a>}<a href={workspaceHref+"/documentos"}><Files size={18} aria-hidden="true"/>Documentos</a><a href={workspaceHref+"/aportaciones"}><ClipboardCheck size={18} aria-hidden="true"/>{advisorToken?"Mis aportaciones":"Revisar aportaciones"}</a><a href={libraryHref}><Eye size={18} aria-hidden="true"/> Ver página</a></nav>
         <p>Panel de distribucion</p>
       </aside>
       <section className="admin-main">
