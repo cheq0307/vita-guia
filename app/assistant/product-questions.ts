@@ -1,6 +1,6 @@
 import type {Product} from '../portal-content';
 import {knowledgeByFamily} from '../product-knowledge.ts';
-import {normalizeQuestion} from './question-language.ts';
+import {normalizeQuestion,productAliases} from './question-language.ts';
 export const productQuestions=[
  {id:'purpose',question:'¿Qué es este producto y para qué sirve?'},
  {id:'benefits',question:'¿Qué beneficios ofrece?'},
@@ -38,7 +38,7 @@ const familiarWords='para que sirve que beneficios tiene que contiene como se to
 const allowedWords=new Set([...productQuestions.flatMap(q=>words(normalizeQuestion(q.question,[]))),...familiarWords]);
 export function detectProductQuestion(question:string,products:Product[]):ProductQuestionId|undefined{
  const text=normalizeQuestion(question,products.map(p=>p.family+' '+p.presentation));
- const nameWords=new Set(products.flatMap(p=>words(p.family+' '+p.presentation)));
+ const nameWords=new Set(products.flatMap(p=>words(p.family+' '+p.presentation+' '+(productAliases[p.family]??[]).join(' '))));
  // A new ingredient, competitor, disease or other qualifier must not be silently discarded.
  if(words(text).some(word=>!allowedWords.has(word)&&!nameWords.has(word)))return;
  // Mixed personal safety conditions stay with the existing full precaution policy.

@@ -1,4 +1,5 @@
 const normalize=(value:string)=>value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+export const productAliases:Record<string,string[]>={'Complex Green Leaves':['Complex Green','Green Leaves','Green'],'Complex Mocha':['Mocha'],'Re-New Pro':['Re-New','Renew'],'AHCC+':['AHCC Plus'],'Support+':['Support Plus'],'NAD Shield+':['NAD Shield Plus'],'Connect Plus':['Connect']};
 function oneEdit(a:string,b:string){
  if(a===b)return true;
  if(Math.abs(a.length-b.length)>1)return false;

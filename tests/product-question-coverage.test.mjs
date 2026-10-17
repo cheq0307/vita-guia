@@ -43,3 +43,8 @@ test('medical qualifiers take precedence over dosage, preparation and classifica
  const literal=buildAnswer(planQuestion('es un suplemento alimenticio o un medicamento','support-plus'),[]);assert.equal(literal.kind,'catalog');assert.match(literal.message,/complemento|suplemento/);
  const mixed=buildAnswer(planQuestion('como se toma Mocha en embarazo con alergia'),[]);assert.equal(mixed.kind,'precaution');assert.match(mixed.message,/no.*recomienda.*embarazo/i);assert.doesNotMatch(mixed.message,/200 ml|una medida/i);
 });
+test('a partial name of another product cannot borrow the previous product facts',()=>{
+ for(const q of ['beneficios de active','para que sirve complex green','beneficios de re-new']){const result=buildAnswer(planQuestion(q,'complex-mocha-frasco'),[]);assert.ok(!result.message.includes('cacao'),q);assert.ok(!result.message.includes('bienestar digestivo')||/Green/.test(result.message),q)}
+ assert.equal(buildAnswer(planQuestion('beneficios de active','complex-mocha-frasco'),[]).kind,'missing');
+ assert.ok(planQuestion('para que sirve complex green','complex-mocha-frasco').productIds.every(id=>id.startsWith('complex-green-leaves')));
+});

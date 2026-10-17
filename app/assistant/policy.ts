@@ -2,7 +2,7 @@ import {products,answerQuestion} from '../portal-content.ts';
 import type {SearchPage} from '../../db/document-search';
 import type {AssistantAnswer,AnswerSource} from './types';
 import {naturalAnswer} from './natural-answer.ts';
-import {normalizeQuestion} from './question-language.ts';
+import {normalizeQuestion,productAliases} from './question-language.ts';
 import {detectProductQuestion,productQuestionAnswer,type ProductQuestionId} from './product-questions.ts';
 const normalize=(value:string)=>value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const compact=(value:string)=>normalize(value).replace(/[^a-z0-9]/g,'');
@@ -12,7 +12,7 @@ export type QuestionPlan={kind:AssistantAnswer['kind'];message:string;productIds
 export function planQuestion(question:string,contextId?:string,contextIds:string[]=[],previousQuestion?:string):QuestionPlan{
  question=normalizeQuestion(question,products.map(p=>p.family+' '+p.presentation));
  const value=compact(question);const context=products.find(p=>p.id===contextId);
- const explicit=products.filter(p=>{const family=compact(p.family);const alias=family.replace(/^complex/,'').replace(/plus$/,'');return value.includes(family)||(alias.length>=4&&value.includes(alias))});
+ const explicit=products.filter(p=>{const family=compact(p.family);const alias=family.replace(/^complex/,'').replace(/plus$/,'');return value.includes(family)||(alias.length>=4&&value.includes(alias))||(productAliases[p.family]??[]).some(name=>value.includes(compact(name)))});
  const previousProducts=products.filter(p=>contextIds.includes(p.id));
  let matches=explicit.length?explicit:previousProducts.length?previousProducts:context?[context]:[];
  const families=[...new Set(matches.map(p=>p.family))];
@@ -20,7 +20,7 @@ export function planQuestion(question:string,contextId?:string,contextIds:string
  const variants=matches.filter(p=>value.includes(compact(p.presentation))||p.presentation==='Stick'&&/sticks/.test(value));
  if(variants.length===1)matches=variants;else if(context&&matches.some(p=>p.id===context.id))matches=[context];
  const product=matches[0];
- const productWords=new Set(matches.flatMap(p=>normalize(p.family+' '+p.presentation).match(/[a-z0-9]+/g)??[]));
+ const productWords=new Set(matches.flatMap(p=>normalize(p.family+' '+p.presentation+' '+(productAliases[p.family]??[]).join(' ')).match(/[a-z0-9]+/g)??[]));
  const words=(normalize(question).match(/[a-z0-9]+/g)??[]).filter(w=>w.length>2&&!stop.has(w)&&!productWords.has(w));
  if(/^(hola|buenas|buenos dias|buenas tardes|buenas noches|gracias|muchas gracias)[!.?\s]*$/.test(question))return {kind:'catalog',message:/gracias/.test(question)?'¡Con gusto! Puedes hacerme otra pregunta sobre tus productos.':'¡Hola! ¿Sobre qué producto te gustaría preguntar?',productIds:matches.map(p=>p.id),terms:[],required:[],search:false,question};
  if(!product&&words.every(w=>/^(sirve|benefici|ingredien|compos|prepar|precaucion|advertencia|ayuna|dosis|cantidad|sabor|presentacion|funcion|utilidad)/.test(w)))return {kind:'clarify',message:'¿Sobre qué producto quieres saber? Escribe su nombre y, si tiene varias presentaciones, cuál usas.',productIds:[],terms:[],required:[],search:false,question};
@@ -28,7 +28,7 @@ export function planQuestion(question:string,contextId?:string,contextIds:string
   const previous=planQuestion(previousQuestion,contextId,contextIds);
   if((previous.kind==='clarify'||previous.kind==='precaution'||previous.topic)&&previous.productIds.includes(product.id))return planQuestion(previousQuestion,product.id,[product.id]);
  }
- const topic=detectProductQuestion(question,products);
+ const topic=detectProductQuestion(question,matches);
  if(topic){
   const base={productIds:matches.map(p=>p.id),terms:[],required:[],search:false,question,topic};
   if(!product)return {...base,kind:'clarify',message:'¿Sobre qué producto quieres saber? Escribe su nombre y presentación.'};
