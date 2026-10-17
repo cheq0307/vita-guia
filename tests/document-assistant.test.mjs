@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {planQuestion,buildAnswer} from '../app/assistant/policy.ts';
 const page={documentId:'doc',title:'Ficha técnica',versionId:'v2',version:2,page:13,content:'Complex Mocha. Contiene inulina de agave y fibra. Preparación: mezclar una medida en agua caliente.'};
 test('purpose questions recognize familiar phrasing and a transposed family word',()=>{
- for(const question of ['para que sirve el copmplex mocha','¿Para qué sirve Complex Mocha?','¿Qué beneficios tiene Mocha?','¿Para qué sirve?']){
+ for(const question of ['para que sirve el copmplex mocha','¿Para qué sirve Complex Mocha?','¿Para qué sirve?']){
   const plan=planQuestion(question,'complex-mocha-frasco');const answer=buildAnswer(plan,[]);
   assert.equal(answer.kind,'catalog',question);assert.match(answer.message,/complemento/i);assert.match(answer.message,/digestiv/i);assert.doesNotMatch(answer.message,/consultarlo con tu asesor|cura|regeneración|antitumoral|disminuye la resistencia/i);
  }
@@ -19,7 +19,7 @@ test('questions retain product context, resolve named variants and never mix unk
  assert.equal(planQuestion('¿Qué sabores tiene Active Pro?').kind,'catalog');
  for(const other of ['Ensure','Herbalife']){const answer=buildAnswer(planQuestion('¿Qué ingredientes tiene '+other+'?','complex-mocha-frasco'),[]);assert.equal(answer.kind,'missing');assert.ok(!answer.message.includes('Extractos de cereza'));}
 });
-test('recognized product aliases reach the existing catalog answer',()=>{const alias=buildAnswer(planQuestion('¿Qué es Mocha?'),[]);assert.equal(alias.kind,'catalog');assert.match(alias.message,/Complemento alimenticio/)});
+test('recognized product aliases reach the reviewed product purpose',()=>{const alias=buildAnswer(planQuestion('¿Qué es Mocha?'),[]);assert.equal(alias.kind,'catalog');assert.match(alias.message,/complemento.*alimentación/i)});
 test('document answers cite exact stored origin and unknown questions do not gain unrelated citations',()=>{
  const plan=planQuestion('Complex Mocha contiene inulina');const answer=buildAnswer(plan,[page]);
  assert.equal(answer.kind,'documents');assert.match(answer.sources[0].excerpt,/inulina de agave/);

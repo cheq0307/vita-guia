@@ -1,3 +1,4 @@
+import {knowledgeByFamily} from './product-knowledge.ts';
 export type Product = {
   id:string; family:string; name:string; category:string; presentation:string;
   package:string|null; ingredients:string|null; usage:string|null;
@@ -6,11 +7,9 @@ export type Product = {
   warnings:string[]; faqs:{question:string;answer:string;keywords?:string[];source?:string}[]; preparation:string|null;
 };
 // Transcription of supplied documents. Missing or conflicting fields remain null.
-export const products:Product[] = [
+const catalogProducts:Product[] = [
   {
     "id": "active-pro-chocolate",
-    "purpose": "Active Pro sirve para complementar la alimentación con un batido que aporta energía, proteína, fibra, omegas, vitaminas y minerales.",
-    "benefits": ["Aporte de proteína para el mantenimiento de los músculos.","Aporte de energía a través de sus macronutrientes.","Fibra para favorecer la sensación de saciedad.","Vitaminas, minerales y omegas para complementar la alimentación."],
     "family": "Active Pro",
     "name": "Active Pro · Chocolate",
     "category": "Batido en polvo",
@@ -58,8 +57,6 @@ export const products:Product[] = [
   },
   {
     "id": "active-pro-fresa",
-    "purpose": "Active Pro sirve para complementar la alimentación con un batido que aporta energía, proteína, fibra, omegas, vitaminas y minerales.",
-    "benefits": ["Aporte de proteína para el mantenimiento de los músculos.","Aporte de energía a través de sus macronutrientes.","Fibra para favorecer la sensación de saciedad.","Vitaminas, minerales y omegas para complementar la alimentación."],
     "family": "Active Pro",
     "name": "Active Pro · Fresa",
     "category": "Batido en polvo",
@@ -107,8 +104,6 @@ export const products:Product[] = [
   },
   {
     "id": "active-pro-tropical",
-    "purpose": "Active Pro sirve para complementar la alimentación con un batido que aporta energía, proteína, fibra, omegas, vitaminas y minerales.",
-    "benefits": ["Aporte de proteína para el mantenimiento de los músculos.","Aporte de energía a través de sus macronutrientes.","Fibra para favorecer la sensación de saciedad.","Vitaminas, minerales y omegas para complementar la alimentación."],
     "family": "Active Pro",
     "name": "Active Pro · Tropical",
     "category": "Batido en polvo",
@@ -213,7 +208,6 @@ export const products:Product[] = [
   },
   {
     "id": "complex-mocha-frasco",
-    "purpose": "Complex Mocha está pensado como complemento de una alimentación equilibrada, con enfoque en el bienestar digestivo. Combina fibra, inulina de agave y extractos botánicos en una bebida a base de cacao. No sustituye una comida ni un tratamiento médico.",
     "family": "Complex Mocha",
     "name": "Complex Mocha · Frasco",
     "category": "Bebida en polvo",
@@ -274,7 +268,6 @@ export const products:Product[] = [
   },
   {
     "id": "complex-mocha-stick",
-    "purpose": "Complex Mocha está pensado como complemento de una alimentación equilibrada, con enfoque en el bienestar digestivo. Combina fibra, inulina de agave y extractos botánicos en una bebida a base de cacao. No sustituye una comida ni un tratamiento médico.",
     "family": "Complex Mocha",
     "name": "Complex Mocha · Stick",
     "category": "Bebida en polvo",
@@ -772,6 +765,7 @@ export const products:Product[] = [
   }
 ];
 
+export const products:Product[]=catalogProducts.map(product=>({...product,...knowledgeByFamily[product.family]}));
 const normalize=(value:string)=>value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
 export function answerQuestion(question:string):string {
   const value=normalize(question);

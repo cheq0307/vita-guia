@@ -1,6 +1,8 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {randomUUID,createHash} from 'node:crypto';
+import {products} from '../app/portal-content.ts';
+import {productQuestions} from '../app/assistant/product-questions.ts';
 test('assistant reads only permitted current text and denies revoked access',{skip:!process.env.VITA_TEST_URL},async()=>{
  const base=new URL(process.env.VITA_TEST_URL);assert.ok(['127.0.0.1','localhost'].includes(base.hostname));
  const login=await fetch(new URL('/api/auth/login',base),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({username:process.env.ADMIN_USERNAME,password:process.env.ADMIN_PASSWORD})});const cookie=login.headers.get('set-cookie').split(';')[0];
@@ -36,6 +38,8 @@ test('assistant reads only permitted current text and denies revoked access',{sk
  assert.equal((await post('/api/assistant',{question:'hola',previousQuestion:'a'.repeat(601)})).status,400);
  const diabetic=await(await post('/guia/'+link.token+'/asistente',{question:'sirve para alguien con diabetes?',contextProductIds:clarify.contextProductIds},{cookie:visit})).json();assert.equal(diabetic.kind,'precaution');assert.match(diabetic.message,/diabetes/i);assert.match(diabetic.message,/carbohidratos/i);
  const chocolate=await(await post('/guia/'+link.token+'/asistente',{question:'chocolate',contextProductIds:diabetic.contextProductIds,previousQuestion:'sirve para alguien con diabetes?'},{cookie:visit})).json();assert.equal(chocolate.kind,'precaution');assert.equal(chocolate.productId,'active-pro-chocolate');assert.match(chocolate.message,/diabetes/i);assert.deepEqual(chocolate.sources,[]);
+ const cells=products.flatMap(product=>productQuestions.map(item=>({question:item.question,productId:product.id})));
+ for(let start=0;start<cells.length;start+=4)await Promise.all(cells.slice(start,start+4).map(async body=>{const response=await post('/guia/'+link.token+'/asistente',body,{cookie:visit});assert.equal(response.status,200);const answer=await response.json();assert.notEqual(answer.kind,'missing',body.productId+' '+body.question);assert.deepEqual(answer.sources,[]);assert.ok(!JSON.stringify(answer).includes(document.id));assert.ok(!JSON.stringify(answer).includes(version.id))}));
  assert.equal((await fetch(new URL('/guia/'+link.token+'/documentos/files/'+version.id,base),{headers:{cookie:visit}})).status,404);
  const files=await(await fetch(new URL('/guia/'+link.token+'/documentos',base),{headers:{cookie:visit}})).json();assert.deepEqual(files.documents,[]);
  await fetch(new URL('/api/links/'+link.id,base),{method:'PATCH',headers});assert.equal((await post('/guia/'+link.token+'/asistente',question,{cookie:visit})).status,401);

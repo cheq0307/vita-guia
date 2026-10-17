@@ -3,11 +3,12 @@ import type {SearchPage} from '../../db/document-search';
 import type {AssistantAnswer,AnswerSource} from './types';
 import {naturalAnswer} from './natural-answer.ts';
 import {normalizeQuestion} from './question-language.ts';
+import {detectProductQuestion,productQuestionAnswer,type ProductQuestionId} from './product-questions.ts';
 const normalize=(value:string)=>value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const compact=(value:string)=>normalize(value).replace(/[^a-z0-9]/g,'');
 const stop=new Set('a al algo antes acerca con como cual cuales cuando de del dice documento documentos el ella en es esta este ficha guia hay informacion la las lo los me mi para por producto productos puede puedo que se segun si sin sobre su sus tecnica tiene tienen tomar un una unos uso contiene saber quiero favor dime pdf catalogo y sus son lleva incluye puedo lo le el'.split(' '));
 const stems=(word:string)=>word.replace(/^(ingredientes?|composicion|preparacion|preparar|beneficios?|vitaminas?|ayunas?|precauciones?|advertencias?)$/,(w)=>({ingredientes:'ingredien',ingrediente:'ingredien',composicion:'compos',preparacion:'prepar',preparar:'prepar',beneficios:'benefici',beneficio:'benefici',vitaminas:'vitamin',vitamina:'vitamin',ayunas:'ayuna',ayuna:'ayuna',precauciones:'precaucion',precaucion:'precaucion',advertencias:'advertencia',advertencia:'advertencia'}[w]??w));
-export type QuestionPlan={kind:AssistantAnswer['kind'];message:string;productIds:string[];terms:string[];required:string[];search:boolean;question?:string};
+export type QuestionPlan={kind:AssistantAnswer['kind'];message:string;productIds:string[];terms:string[];required:string[];search:boolean;question?:string;topic?:ProductQuestionId};
 export function planQuestion(question:string,contextId?:string,contextIds:string[]=[],previousQuestion?:string):QuestionPlan{
  question=normalizeQuestion(question,products.map(p=>p.family+' '+p.presentation));
  const value=compact(question);const context=products.find(p=>p.id===contextId);
@@ -25,7 +26,16 @@ export function planQuestion(question:string,contextId?:string,contextIds:string
  if(!product&&words.every(w=>/^(sirve|benefici|ingredien|compos|prepar|precaucion|advertencia|ayuna|dosis|cantidad|sabor|presentacion|funcion|utilidad)/.test(w)))return {kind:'clarify',message:'¿Sobre qué producto quieres saber? Escribe su nombre y, si tiene varias presentaciones, cuál usas.',productIds:[],terms:[],required:[],search:false,question};
  if(!explicit.length&&variants.length===1&&words.length===0&&previousQuestion){
   const previous=planQuestion(previousQuestion,contextId,contextIds);
-  if((previous.kind==='clarify'||previous.kind==='precaution')&&previous.productIds.includes(product.id))return planQuestion(previousQuestion,product.id,[product.id]);
+  if((previous.kind==='clarify'||previous.kind==='precaution'||previous.topic)&&previous.productIds.includes(product.id))return planQuestion(previousQuestion,product.id,[product.id]);
+ }
+ const topic=detectProductQuestion(question,products);
+ if(topic){
+  const base={productIds:matches.map(p=>p.id),terms:[],required:[],search:false,question,topic};
+  if(!product)return {...base,kind:'clarify',message:'¿Sobre qué producto quieres saber? Escribe su nombre y presentación.'};
+  const answers=matches.map(p=>productQuestionAnswer(p,topic));const first=answers[0];
+  const needsVariant=matches.length>1&&(answers.some(a=>a.message!==first.message)||['portion','usage'].includes(topic)&&matches.some(p=>p.ingredients!==product.ingredients));
+  if(needsVariant)return {...base,kind:'clarify',message:`Selecciona la presentación de ${product.family}: ${matches.map(p=>p.presentation).join(', ')}. La información puede variar.`};
+  return {...base,kind:first.kind,message:first.message};
  }
  // Residual names/topics must be searched, never silently answered as the previous product.
  const catalogOnly=words.every(w=>/^(persona|alguien|sirve|sirven|funcion|utilidad|ingredien|compos|prepar|benefici|precaucion|advertencia|contraindic|embaraz|lactan|amamant|alerg|enfermedad|diabet|hipertens|gastrit|padez|diagnost|medicamento|antibiotic|tratamiento|segur|ayuna|dosis|cantidad|indicacion|horario|hora|presentacion|variante|sabor|pendiente|confirmar|descripcion|cuentame|sustitu|comida|fragancia|vegetal|endulzan|origen)/.test(w));
