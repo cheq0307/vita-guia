@@ -19,7 +19,7 @@ test('separate catalog pages, searches and guide navigation preserve permissions
     if(section==='inicio') assert.ok(!html.includes('product-grid'));
     if(section==='productos'){assert.ok(html.includes('Active Pro'));assert.ok(!html.includes('video-catalog-card'));}
     if(section==='videos'){assert.ok(html.includes('Tipo de contenido'));assert.ok(html.includes('Enlaces'));assert.ok(!html.includes('product-card'));assert.ok(!html.includes('Material de muestra'));}
-    if(section==='historias'){assert.ok(html.includes('Mariana'));assert.ok(!html.includes('product-card'));}
+    if(section==='historias'){assert.ok(html.includes('Historias de éxito'));assert.ok(!html.includes('Tener toda la información en un solo lugar me ayudó'));assert.ok(!html.includes('product-card'));}
   }
   const filtered=await(await fetch(new URL('/admin/biblioteca/productos?q=chocolate&pagina=999',base),{headers})).text();
   assert.ok(filtered.includes('Active Pro · Chocolate'));assert.ok(!filtered.includes('Active Pro · Fresa'));

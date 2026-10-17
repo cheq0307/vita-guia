@@ -37,6 +37,9 @@ export async function documentsApi(request:Request,path:string[]=[]){return guar
   if(number===1&&file!.mime==='application/pdf'&&new TextDecoder().decode(bytes.slice(0,5))!=='%PDF-')reject('El archivo no contiene un PDF válido.');
   if(number===1&&file!.mime==='video/mp4'&&new TextDecoder().decode(bytes.slice(4,8))!=='ftyp')reject('El archivo no contiene un MP4 válido.');
   if(number===1&&file!.mime==='video/webm'&&[0x1a,0x45,0xdf,0xa3].some((b,i)=>bytes[i]!==b))reject('El archivo no contiene un WebM válido.');
+  if(number===1&&file!.mime==='image/jpeg'&&(bytes[0]!==0xff||bytes[1]!==0xd8||bytes[2]!==0xff))reject('El archivo no contiene un JPG válido.');
+  if(number===1&&file!.mime==='image/png'&&[137,80,78,71,13,10,26,10].some((b,i)=>bytes[i]!==b))reject('El archivo no contiene un PNG válido.');
+  if(number===1&&file!.mime==='image/webp'&&(new TextDecoder().decode(bytes.slice(0,4))!=='RIFF'||new TextDecoder().decode(bytes.slice(8,12))!=='WEBP'))reject('El archivo no contiene un WebP válido.');
   const digest=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))).map(b=>b.toString(16).padStart(2,'0')).join('');if(request.headers.get('x-chunk-sha256')!==digest)reject('La parte llegó alterada. Vuelve a intentarlo.');
   const result=await documentBucket().resumeMultipartUpload(file!.storage_key,file!.upload_id!).uploadPart(number,bytes);await store.savePart(id,number,result.etag,bytes.length);return Response.json({number,received:bytes.length});
  }

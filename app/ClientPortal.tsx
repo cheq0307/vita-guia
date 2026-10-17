@@ -5,21 +5,22 @@ import { ArrowLeft, ArrowRight, Package, PlayCircle, MessageCircle, Search } fro
 import { ProductDetail } from "./ProductDetail";
 import { productFamilies, productHref } from "./product-catalog";
 import LogoutButton from "./LogoutButton";
-import { products, stories, type Product } from "./portal-content";
+import { products, type Product } from "./portal-content";
+import StoryCatalog from './stories/StoryCatalog';
+import type {StoryPage} from './stories/policy';
 import VideoCatalog from './videos/VideoCatalog';
 import type {VideoPage,VideoFilter} from './videos/policy';
 import { catalogPage, portalHref, type PortalSection } from "./portal-navigation";
 
-type ClientPortalProps={basePath:string;section?:PortalSection;query?:string;page?:number;recipientName?:string;expiresAt?:string;workspaceLink?:{href:string;label:string};showAdminLogout?:boolean;selectedProduct?:Product;videoCatalog?:VideoPage;videoType?:VideoFilter};
+type ClientPortalProps={basePath:string;section?:PortalSection;query?:string;page?:number;recipientName?:string;expiresAt?:string;workspaceLink?:{href:string;label:string};showAdminLogout?:boolean;selectedProduct?:Product;videoCatalog?:VideoPage;videoType?:VideoFilter;storyCatalog?:StoryPage};
 const labels:Record<PortalSection,string>={inicio:'Inicio',productos:'Productos',videos:'Videos',historias:'Historias'};
-const introductions={productos:['HC Wellness','Catálogo de productos','Encuentra cada producto y consulta sus indicaciones en un solo lugar.'],videos:['Paso a paso','Aprende a tu ritmo','Busca una explicación y vuelve a ella cuando la necesites.'],historias:['Experiencias','Historias que acompañan','Explora las historias de esta biblioteca.']} as const;
+const introductions={productos:['HC Wellness','Catálogo de productos','Encuentra cada producto y consulta sus indicaciones en un solo lugar.'],videos:['Paso a paso','Aprende a tu ritmo','Busca una explicación y vuelve a ella cuando la necesites.'],historias:['Experiencias con los productos','Historias de éxito','Conoce qué han compartido otras personas sobre su experiencia con los nutracéuticos.']} as const;
 
-export function ClientPortal({basePath,section='inicio',query='',page=1,recipientName='',expiresAt,workspaceLink,showAdminLogout=false,selectedProduct,videoCatalog={items:[],total:0,page:1,pages:1},videoType='all'}:ClientPortalProps) {
+export function ClientPortal({basePath,section='inicio',query='',page=1,recipientName='',expiresAt,workspaceLink,showAdminLogout=false,selectedProduct,videoCatalog={items:[],total:0,page:1,pages:1},videoType='all',storyCatalog={items:[],total:0,page:1,pages:1}}:ClientPortalProps) {
   const expiryLabel=expiresAt?new Intl.DateTimeFormat('es-MX',{day:'numeric',month:'long'}).format(new Date(expiresAt)):'';
   const families=productFamilies(products,query);
   const productPage=catalogPage(families,'',page,p=>p.product.name);
-  const storyPage=catalogPage(stories,query,page,s=>s.name+' '+s.quote);
-  const catalog=section==='productos'?productPage:storyPage;
+  const catalog=productPage;
 
   return <main className="portal-shell">
     <header className="topbar">
@@ -43,7 +44,7 @@ export function ClientPortal({basePath,section='inicio',query='',page=1,recipien
         <div className="portal-category-grid">
           <a className="portal-category-card" href={portalHref(basePath,'productos')}><Package size={26} aria-hidden="true"/><span className="category-count">{productFamilies(products,'').length} productos</span><h3>Productos</h3><p>Explora las presentaciones y consulta la información de cada producto.</p><span className="category-action">Explorar productos <ArrowRight size={17} aria-hidden="true"/></span></a>
           <a className="portal-category-card" href={portalHref(basePath,'videos')}><PlayCircle size={26} aria-hidden="true"/><span className="category-count">{videoCatalog.total} contenidos</span><h3>Videos y enlaces</h3><p>Explicaciones y recursos para acompañarte paso a paso.</p><span className="category-action">Explorar videos <ArrowRight size={17} aria-hidden="true"/></span></a>
-          <a className="portal-category-card" href={portalHref(basePath,'historias')}><MessageCircle size={26} aria-hidden="true"/><span className="category-count">{stories.length} historia</span><h3>Historias</h3><p>Encuentra experiencias para leer con calma.</p><span className="category-action">Explorar historias <ArrowRight size={17} aria-hidden="true"/></span></a>
+          <a className="portal-category-card" href={portalHref(basePath,'historias')}><MessageCircle size={26} aria-hidden="true"/><span className="category-count">{storyCatalog.total} {storyCatalog.total===1?'historia':'historias'}</span><h3>Historias de éxito</h3><p>Experiencias de personas que integraron los productos a su vida.</p><span className="category-action">Explorar historias <ArrowRight size={17} aria-hidden="true"/></span></a>
         </div>
       </section>
     </>:<section className={`content-wrap catalog-page ${section==='productos'?'product-catalog':''}`} aria-labelledby="catalog-title">
@@ -55,7 +56,7 @@ export function ClientPortal({basePath,section='inicio',query='',page=1,recipien
         <div><Search size={18} aria-hidden="true"/><input id="catalog-query" name="q" type="search" defaultValue={query} maxLength={120} placeholder={section==='productos'?'Nombre o categoría':'Escribe lo que buscas'}/><button type="submit" className="primary-button">Buscar</button></div>
       </form>
       </div>
-      {section==='videos'?<VideoCatalog basePath={basePath} query={query} filter={videoType} catalog={videoCatalog} canManage={showAdminLogout}/>:<>
+      {section==='videos'?<VideoCatalog basePath={basePath} query={query} filter={videoType} catalog={videoCatalog} canManage={showAdminLogout}/>:section==='historias'?<StoryCatalog catalog={storyCatalog} basePath={basePath} query={query} canManage={showAdminLogout}/>:<>
       <div className="catalog-summary"><p role="status">{catalog.total} {catalog.total===1?'resultado':'resultados'}{query?` para “${query}”`:''}</p>{query&&<a href={portalHref(basePath,section)}>Limpiar búsqueda</a>}</div>
       {catalog.total===0?<div className="catalog-empty"><h2>No encontramos coincidencias</h2><p>Prueba con otra palabra o vuelve a ver todo el contenido.</p><a className="workspace-link" href={portalHref(basePath,section)}>Ver todo</a></div>:<>
         {section==='productos'&&<div className="product-grid">{productPage.items.map(({product,variants})=><article className="product-card" key={product.family}>
@@ -64,7 +65,6 @@ export function ClientPortal({basePath,section='inicio',query='',page=1,recipien
             <div className="product-copy"><p>{product.category}</p><h2>{product.family}</h2><p className="product-card-meta">{variants.length>1?`${variants.length} ${product.family==='Active Pro'?'sabores':'presentaciones'}`:product.package??product.presentation}</p><span className="product-card-action">Ver producto <ArrowRight size={16} aria-hidden="true"/></span></div>
           </a>
         </article>)}</div>}
-        {section==='historias'&&<><p className="sample-note">Historia de muestra de la biblioteca.</p><div className="story-catalog-grid">{storyPage.items.map(story=><article className="story-card" key={story.name}><div className="portrait-placeholder" aria-hidden="true">{story.name.slice(0,1)}</div><div><blockquote>“{story.quote}”</blockquote><p>{story.name} · {story.period}</p></div></article>)}</div></>}
         {catalog.pages>1&&<nav className="catalog-pagination" aria-label="Páginas del catálogo">{catalog.page>1?<a href={portalHref(basePath,section,query,catalog.page-1)}>← Anterior</a>:<span aria-disabled="true">← Anterior</span>}<span>Página {catalog.page} de {catalog.pages}</span>{catalog.page<catalog.pages?<a href={portalHref(basePath,section,query,catalog.page+1)}>Siguiente →</a>:<span aria-disabled="true">Siguiente →</span>}</nav>}
       </>}
       </>}

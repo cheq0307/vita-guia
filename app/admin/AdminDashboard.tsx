@@ -62,7 +62,7 @@ export default function AdminDashboard({ advisorToken, advisorName }: { advisorT
     <main className="admin-shell">
       <aside className="admin-sidebar">
         <a className="brand admin-brand" href={workspaceHref}><span className="brand-mark">V</span><span>Vita Guia</span></a>
-        <nav><a className="selected" href={workspaceHref}><Link2 size={18}/> Enlaces</a>{!advisorToken && <a href="/admin/usuarios"><ShieldCheck size={18}/> Usuarios</a>}{!advisorToken&&<a href="/admin/videos">Videos y enlaces</a>}<a href={workspaceHref+"/documentos"}>Documentos</a><a href={libraryHref}><Eye size={18} aria-hidden="true"/> Ver página</a></nav>
+        <nav><a className="selected" href={workspaceHref}><Link2 size={18}/> Enlaces</a>{!advisorToken && <a href="/admin/usuarios"><ShieldCheck size={18}/> Usuarios</a>}{!advisorToken&&<a href="/admin/videos">Videos y enlaces</a>}{!advisorToken&&<a href="/admin/historias">Historias de éxito</a>}<a href={workspaceHref+"/documentos"}>Documentos</a><a href={libraryHref}><Eye size={18} aria-hidden="true"/> Ver página</a></nav>
         <p>Panel de distribucion</p>
       </aside>
       <section className="admin-main">

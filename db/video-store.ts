@@ -5,7 +5,7 @@ export class VideoStore {
  private db:D1Database;
  constructor(db:D1Database){this.db=db}
  async create(input:{title:string;description:string;kind:VideoKind;url:string|null;fileId:string|null}){
-  const id=randomUUID();await this.db.prepare('INSERT INTO videos(id,title,description,search_text,kind,url,file_id) VALUES(?,?,?,?,?,?,?) ON CONFLICT(file_id) DO NOTHING').bind(id,input.title,input.description,normalize(input.title+' '+input.description),input.kind,input.url,input.fileId).run();return input.fileId?(await this.forFile(input.fileId))!:(await this.get(id))!;
+  const id=randomUUID();await this.db.prepare("INSERT INTO videos(id,title,description,search_text,kind,url,file_id) SELECT ?,?,?,?,?,?,? WHERE (? IS NULL OR EXISTS(SELECT 1 FROM document_files WHERE id=? AND state!='cancelled' AND COALESCE(upload_id,'') NOT LIKE 'cancelling:%')) ON CONFLICT(file_id) DO NOTHING").bind(id,input.title,input.description,normalize(input.title+' '+input.description),input.kind,input.url,input.fileId,input.fileId,input.fileId).run();return input.fileId?this.forFile(input.fileId):this.get(id);
  }
  async get(id:string){return this.db.prepare(select+' WHERE v.id=?').bind(id).first<VideoItem>()}
  async forFile(id:string){return this.db.prepare(select+' WHERE v.file_id=? ORDER BY v.created_at LIMIT 1').bind(id).first<VideoItem>()}

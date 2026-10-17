@@ -1,6 +1,7 @@
 import {randomUUID} from 'node:crypto';
 export const LIBRARY_QUOTA=500_000_000;
 export const PART_SIZE=8*1024*1024;
+export class FileUnavailableError extends Error{constructor(){super('La carga anterior se está cancelando. Vuelve a seleccionar el archivo para intentarlo de nuevo.')}}
 export type DocActor='admin'|'advisor'|'client';
 export type DocumentRecord={id:string;title:string;category:string;audience:string;knowledge_audience:string;status:string;current_version_id:string|null;created_at:string};
 export type DocumentFile={id:string;sha256:string;size:number;mime:string;storage_key:string;state:string;upload_id:string|null};
@@ -28,7 +29,8 @@ export class DocumentStore {
  async createVersion(documentId:string,fileId:string,filename:string){
   const existing=await this.db.prepare('SELECT id FROM document_versions WHERE document_id=? AND file_id=?').bind(documentId,fileId).first<{id:string}>();
   if(existing)return (await this.version(existing.id))!;
-  const id=randomUUID();await this.db.prepare('INSERT INTO document_versions(id,document_id,file_id,number,filename) SELECT ?,?,?,COALESCE(MAX(number),0)+1,? FROM document_versions WHERE document_id=?').bind(id,documentId,fileId,filename,documentId).run();return (await this.version(id))!;
+  const id=randomUUID();await this.db.prepare("INSERT INTO document_versions(id,document_id,file_id,number,filename) SELECT ?,?,?,COALESCE(MAX(number),0)+1,? FROM document_versions WHERE document_id=? HAVING EXISTS(SELECT 1 FROM document_files WHERE id=? AND state!='cancelled' AND COALESCE(upload_id,'') NOT LIKE 'cancelling:%') ON CONFLICT(document_id,file_id) DO NOTHING").bind(id,documentId,fileId,filename,documentId,fileId).run();
+  const saved=await this.db.prepare('SELECT id FROM document_versions WHERE document_id=? AND file_id=?').bind(documentId,fileId).first<{id:string}>();if(!saved)throw new FileUnavailableError();return (await this.version(saved.id))!;
  }
  async version(id:string){return this.db.prepare('SELECT v.*,f.size,f.mime,f.state,f.sha256,f.storage_key,f.upload_id FROM document_versions v JOIN document_files f ON f.id=v.file_id WHERE v.id=?').bind(id).first<DocumentVersion>()}
  async versions(documentId:string){return (await this.db.prepare('SELECT v.*,f.size,f.mime,f.state,f.sha256,f.storage_key,f.upload_id FROM document_versions v JOIN document_files f ON f.id=v.file_id WHERE v.document_id=? ORDER BY v.number DESC').bind(documentId).all<DocumentVersion>()).results}

@@ -801,6 +801,3 @@ export function answerQuestion(question:string):string {
   if(!product.usage)return `Las indicaciones de ${product.family} están por confirmar. ${product.preparation??''} ${product.pending.join(' ')} Consulta la etiqueta vigente y a tu profesional de salud.`;
   return `${product.name}. ${product.usage} Fuente: ${product.source.join('; ')}. Consulta la etiqueta vigente y a tu profesional de salud.`;
 }
-export const stories = [
-  {name:'Mariana',period:'8 semanas',quote:'Tener toda la información en un solo lugar me ayudó a ser constante.'},
-];

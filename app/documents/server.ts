@@ -1,5 +1,5 @@
 import {env} from 'cloudflare:workers';
-import {DocumentStore,type DocActor} from '../../db/document-store';
+import {DocumentStore,FileUnavailableError,type DocActor} from '../../db/document-store';
 import {requireAdminRequest} from '../api/admin-auth';
 import {findAdvisorByToken} from '../../db/advisors';
 import {peekAccessLink} from '../../db/access-links';
@@ -15,5 +15,5 @@ export async function documentActor(request:Request):Promise<DocActor|null>{
 export class DocumentError extends Error{constructor(message:string,public status=400){super(message)}}
 export async function adminMutation(request:Request){if(!await requireAdminRequest(request))throw new DocumentError('Acceso no autorizado.',401);const origin=request.headers.get('origin');if(origin&&origin!==new URL(request.url).origin)throw new DocumentError('Solicitud no autorizada.',403)}
 export async function payload(request:Request){if(Number(request.headers.get('content-length'))>1_000_000)throw new DocumentError('La solicitud es demasiado grande.',413);try{const data=await request.json();if(!data||typeof data!=='object'||Array.isArray(data))throw new Error();return data as Record<string,unknown>}catch{throw new DocumentError('La solicitud no es válida.')}}
-export async function guarded(fn:()=>Promise<Response>){try{return await fn()}catch(e){if(e instanceof DocumentError)return Response.json({error:e.message},{status:e.status});console.error('Document library operation failed',e instanceof Error?e.message:'unknown');return Response.json({error:'No fue posible completar la operación. Inténtalo de nuevo.'},{status:500})}}
+export async function guarded(fn:()=>Promise<Response>){try{return await fn()}catch(e){if(e instanceof DocumentError)return Response.json({error:e.message},{status:e.status});if(e instanceof FileUnavailableError)return Response.json({error:e.message},{status:409});console.error('Document library operation failed',e instanceof Error?e.message:'unknown');return Response.json({error:'No fue posible completar la operación. Inténtalo de nuevo.'},{status:500})}}
 export function publicVersion(v:Awaited<ReturnType<DocumentStore['version']>>){if(!v)return null;const {storage_key,upload_id,...rest}=v;return rest}
