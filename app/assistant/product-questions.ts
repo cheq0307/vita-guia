@@ -77,7 +77,12 @@ export function productQuestionAnswer(p:Product,id:ProductQuestionId):ProductQue
  const answer=(message:string,status:CoverageStatus='available',gaps:string[]=[],kind:'catalog'|'precaution'='catalog'):ProductQuestionAnswer=>({message,status,gaps,kind});
  const missing=(message:string,gap:string)=>answer(message,'missing',[gap]);
  switch(id){
-  case 'purpose':return answer(profile.purpose,profile.classification==='unconfirmed'?'partial':'available',profile.classification==='unconfirmed'?['Composición, concentración y clasificación de Hemp-C']:[]);
+  case 'purpose':{
+   // Reuse the reviewed benefits; a purpose answer must explain their role, not stop at the ingredient list.
+   const benefits=p.benefits??[];
+   const detail=benefits.length?`\n\n${profile.benefitsReview==='nutritional'?'En concreto:':profile.benefitsReview==='cosmetic'?'En el cuidado de la piel, ofrece:':'Su enfoque es:'}\n${benefits.map(b=>'• '+b).join('\n')}`:'';
+   return answer(profile.purpose+detail,profile.classification==='unconfirmed'||profile.benefitsReview==='described'?'partial':'available',profile.classification==='unconfirmed'?['Composición, concentración y clasificación de Hemp-C']:profile.benefitsReview==='described'?['Eficacia clínica de los beneficios descritos']:[]);
+  }
   case 'benefits':return p.benefits?.length?answer(`${p.family} tiene este enfoque${profile.benefitsReview==='nutritional'?' nutricional':''}:\n\n${p.benefits.map(b=>'• '+b).join('\n')}`,profile.benefitsReview==='described'?'partial':'available',profile.benefitsReview==='described'?['Eficacia clínica de los beneficios descritos']:[]):missing(`No tengo beneficios confirmados para ${p.family}. Faltan su composición, concentración y evidencia del producto.`,'Beneficios verificables');
   case 'ingredients':return answer(p.ingredients?`${p.name}. Ingredientes: ${plain(p.ingredients)}\n\nNo tengo confirmadas las cantidades de cada ingrediente por porción.`:`No tengo la composición completa ni las cantidades de ingredientes de ${p.name}.`,'partial',p.ingredients?['Cantidades de ingredientes por porción',...(['espresso','macchiato'].includes(p.id)?['Lista completa y especies de hongos']:[])]:['Composición completa','Cantidades por ingrediente']);
   case 'comparison':return answer(`De ${p.name} puedo comparar su ${p.presentation.toLowerCase()} y su fórmula: ${p.features.slice(0,2).map(plain).join('; ')}. No tengo una comparación clínica que demuestre que sea mejor que otro producto. ¿Con cuál quieres compararlo?`,'partial',['Comparación independiente con el producto elegido']);

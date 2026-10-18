@@ -423,3 +423,6 @@ Verificación: generador valida destinos/IDs; JavaScript pasa node --check; clie
 
 ## Interfaz v2.0.0
 Referencia de implementación: docs/releases/v2.md y docs/superpowers/plans/2026-10-17-mobile-v2.md. Sin migraciones; shell por rol, navegación móvil y editores progresivos reutilizan servicios existentes. Base recuperable en vita-guia-v1-pre-mobile.
+
+### Ajuste v2: propósito e imagen móvil
+La respuesta de propósito combina el perfil con los beneficios revisados del catálogo para todas las presentaciones. Conserva incertidumbre y prioridad de precauciones; no extrae afirmaciones nuevas ni integra un modelo. La imagen del detalle usa un contenedor flex de altura definida, límites al elemento y recorte de desbordes. Reproducción previa a390px: imagen470px en caja270px invadía el texto; después232px dentro de270px. Prueba de regresión en active-pro-conversation.test.mjs.

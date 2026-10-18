@@ -15,6 +15,20 @@ test('the reported conversation distinguishes purpose, benefits and diabetes and
 test('each Active Pro presentation exposes reviewed benefits as structured product content',()=>{
  for(const product of products.filter(p=>p.family==='Active Pro')){assert.ok(product.purpose);assert.ok(product.benefits.length>=3);assert.ok(product.benefits.some(b=>/saciedad/i.test(b)));assert.ok(product.benefits.some(b=>/energía/i.test(b)))}
 });
+
+test('purpose explains the reviewed benefits instead of only listing nutrients, for every presentation',()=>{
+ for(const product of products){
+  const result=buildAnswer(planQuestion('¿Para qué sirve?',product.id),[]);
+  assert.equal(result.kind,'catalog',product.id);
+  for(const benefit of product.benefits)assert.ok(result.message.includes(benefit),`${product.id}: ${benefit}`);
+  if(product.id==='hemp-c')assert.doesNotMatch(result.message,/•|analgésico|cura/i);
+ }
+ for(const id of ['active-pro-chocolate','active-pro-fresa','active-pro-tropical']){
+  const result=buildAnswer(planQuestion('¿Para qué sirve?',id),[]);
+  assert.match(result.message,/músculos/);assert.match(result.message,/saciedad/);
+  assert.doesNotMatch(result.message,/cura|30 g|50%|regula.*glucosa/i);
+ }
+});
 test('diabetes context cannot suppress pregnancy or invent glucose control',()=>{
  const answer=buildAnswer(planQuestion('Estoy embarazada y tengo diabetes, puedo tomar Mocha'),[]);assert.equal(answer.kind,'precaution');assert.match(answer.message,/no.*recomienda.*embarazo/i);
  const unknown=buildAnswer(planQuestion('Ensure sirve para personas con diabetes','active-pro-chocolate'),[]);assert.ok(!unknown.message.includes('Active Pro'));
