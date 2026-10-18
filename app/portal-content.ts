@@ -18,7 +18,7 @@ const catalogProducts:Product[] = [
     "ingredients": "Proteína de suero de leche, cacao, omega 3 y 6, aceite de canola, fibra de soya, estevia, vitaminas, minerales y cloruro de cromo.",
     "usage": null,
     "pending": [
-      "Cantidad e indicaciones de uso: el catálogo y la ficha técnica difieren."
+      "Cantidad e indicaciones de uso: las medidas registradas difieren y están pendientes de unificar."
     ],
     "image": "/products/active-pro-chocolate.webp",
     "source": [
@@ -32,15 +32,15 @@ const catalogProducts:Product[] = [
     "features": [
       "Proteína de suero de leche",
       "Omegas 3 y 6, fibra, vitaminas y minerales",
-      "Endulzado con estevia, según la ficha técnica"
+      "Endulzado con estevia"
     ],
     "warnings": [
       "Contiene proteína de suero de leche. Incluye fibra de soya; consulta la etiqueta si tienes sensibilidad a estos ingredientes.",
-      "La ficha indica supervisión de un pediatra para el consumo infantil."
+      "Se requiere supervisión de un pediatra para el consumo infantil."
     ],
     "faqs": [
       {
-        "question": "¿Qué endulzante se menciona en la ficha?",
+        "question": "¿Qué endulzante contiene?",
         "answer": "Hoja de estevia.",
         "keywords": [
           "endulzante",
@@ -53,7 +53,7 @@ const catalogProducts:Product[] = [
         "answer": "No. Chocolate menciona cacao y fibra de soya; Fresa, fresas; Tropical, piña y coco. Consulta la composición del sabor seleccionado."
       }
     ],
-    "preparation": "Preparación en agua o leche. La cantidad de polvo y la proporción de líquido requieren confirmación porque el catálogo y la ficha técnica indican medidas diferentes."
+    "preparation": "Preparación en agua o leche. La cantidad de polvo y la proporción de líquido requieren confirmación porque hay medidas distintas registradas."
   },
   {
     "id": "active-pro-fresa",
@@ -65,7 +65,7 @@ const catalogProducts:Product[] = [
     "ingredients": "Proteína de suero de leche, fresas, omega 3 y 6, fibra de avena, chía y guar, aceite de canola, vitaminas, minerales, estevia, folato y cloruro de cromo.",
     "usage": null,
     "pending": [
-      "Cantidad e indicaciones de uso: el catálogo y la ficha técnica difieren."
+      "Cantidad e indicaciones de uso: las medidas registradas difieren y están pendientes de unificar."
     ],
     "image": "/products/active-pro-fresa.webp",
     "source": [
@@ -79,15 +79,15 @@ const catalogProducts:Product[] = [
     "features": [
       "Proteína de suero de leche",
       "Omegas 3 y 6, fibra, vitaminas y minerales",
-      "Endulzado con estevia, según la ficha técnica"
+      "Endulzado con estevia"
     ],
     "warnings": [
-      "Contiene proteína de suero de leche. La ficha de este sabor indica que no es apto para personas con intolerancia a la lactosa.",
-      "La ficha señala que la cantidad debe ajustarse a las necesidades de cada edad; no incluye una pauta infantil específica."
+      "Contiene proteína de suero de leche. Este sabor no es apto para personas con intolerancia a la lactosa.",
+      "La cantidad debe ajustarse a las necesidades de cada edad; no hay una pauta infantil específica confirmada."
     ],
     "faqs": [
       {
-        "question": "¿Qué endulzante se menciona en la ficha?",
+        "question": "¿Qué endulzante contiene?",
         "answer": "Hoja de estevia.",
         "keywords": [
           "endulzante",
@@ -100,7 +100,7 @@ const catalogProducts:Product[] = [
         "answer": "No. Chocolate menciona cacao y fibra de soya; Fresa, fresas; Tropical, piña y coco. Consulta la composición del sabor seleccionado."
       }
     ],
-    "preparation": "Preparación en agua o leche. La cantidad de polvo y la proporción de líquido requieren confirmación porque el catálogo y la ficha técnica indican medidas diferentes."
+    "preparation": "Preparación en agua o leche. La cantidad de polvo y la proporción de líquido requieren confirmación porque hay medidas distintas registradas."
   },
   {
     "id": "active-pro-tropical",
@@ -112,7 +112,7 @@ const catalogProducts:Product[] = [
     "ingredients": "Proteína de suero de leche, piña y coco, omega 3 y 6, fibra de avena, chía y guar, aceite de canola, vitaminas, minerales, estevia, folato y cloruro de cromo.",
     "usage": null,
     "pending": [
-      "Cantidad e indicaciones de uso: el catálogo y la ficha técnica difieren."
+      "Cantidad e indicaciones de uso: las medidas registradas difieren y están pendientes de unificar."
     ],
     "image": "/products/active-pro-tropical.webp",
     "source": [
@@ -126,15 +126,15 @@ const catalogProducts:Product[] = [
     "features": [
       "Proteína de suero de leche",
       "Omegas 3 y 6, fibra, vitaminas y minerales",
-      "Endulzado con estevia, según la ficha técnica"
+      "Endulzado con estevia"
     ],
     "warnings": [
-      "Contiene proteína de suero de leche. La ficha de este sabor indica que no es apto para personas con intolerancia a la lactosa.",
-      "La ficha señala que la cantidad debe ajustarse a las necesidades de cada edad; no incluye una pauta infantil específica."
+      "Contiene proteína de suero de leche. Este sabor no es apto para personas con intolerancia a la lactosa.",
+      "La cantidad debe ajustarse a las necesidades de cada edad; no hay una pauta infantil específica confirmada."
     ],
     "faqs": [
       {
-        "question": "¿Qué endulzante se menciona en la ficha?",
+        "question": "¿Qué endulzante contiene?",
         "answer": "Hoja de estevia.",
         "keywords": [
           "endulzante",
@@ -147,7 +147,7 @@ const catalogProducts:Product[] = [
         "answer": "No. Chocolate menciona cacao y fibra de soya; Fresa, fresas; Tropical, piña y coco. Consulta la composición del sabor seleccionado."
       }
     ],
-    "preparation": "Preparación en agua o leche. La cantidad de polvo y la proporción de líquido requieren confirmación porque el catálogo y la ficha técnica indican medidas diferentes."
+    "preparation": "Preparación en agua o leche. La cantidad de polvo y la proporción de líquido requieren confirmación porque hay medidas distintas registradas."
   },
   {
     "id": "stormix",
@@ -157,7 +157,7 @@ const catalogProducts:Product[] = [
     "presentation": "Sticks",
     "package": "28 sticks",
     "ingredients": "Guaraná, maca, noni, goji, açaí, mangostán, moringa, té verde, cúrcuma, jengibre, espino, schisandra, perejil, maracuyá, mango, alfalfa, frambuesa, uva morada y probióticos.",
-    "usage": "Según la ficha técnica: disolver un sachet de 10 g en 250 ml de agua fría o al tiempo. Una vez al día por la mañana o antes de una actividad exigente.",
+    "usage": "Disolver un sachet de 10 g en 250 ml de agua fría o al tiempo. Una vez al día por la mañana o antes de una actividad exigente.",
     "pending": [
       "Concentración de cafeína y cantidades de cada ingrediente."
     ],
@@ -172,20 +172,20 @@ const catalogProducts:Product[] = [
     "features": [
       "Sticks individuales",
       "Con guaraná y té verde",
-      "Incluye seis cepas de probióticos, según la ficha técnica"
+      "Incluye seis cepas de probióticos"
     ],
     "warnings": [
-      "Formulado para adultos. La ficha no recomienda su uso durante el embarazo o la lactancia ni en personas alérgicas a sus ingredientes.",
-      "Contiene guaraná y té verde. El catálogo indica no exceder la dosis recomendada."
+      "Formulado para adultos. No se recomienda su uso durante el embarazo o la lactancia ni en personas alérgicas a sus ingredientes.",
+      "Contiene guaraná y té verde. No exceder la dosis recomendada."
     ],
     "faqs": [
       {
         "question": "¿Cómo se prepara?",
-        "answer": "La ficha indica disolver un sachet de 10 g en 250 ml de agua fría o al tiempo."
+        "answer": "Disolver un sachet de 10 g en 250 ml de agua fría o al tiempo."
       },
       {
         "question": "¿Es de origen vegetal?",
-        "answer": "La ficha técnica lo describe como vegano y con ingredientes de origen vegetal.",
+        "answer": "Está formulado con ingredientes de origen vegetal y es vegano.",
         "keywords": [
           "vegano",
           "vegana",
@@ -194,7 +194,7 @@ const catalogProducts:Product[] = [
       },
       {
         "question": "¿Se puede tomar en ayunas?",
-        "answer": "La sección de preguntas frecuentes de la ficha técnica indica que Stormix puede consumirse en ayunas.",
+        "answer": "Stormix puede consumirse en ayunas.",
         "keywords": [
           "ayunas",
           "antes de desayunar",
@@ -214,7 +214,7 @@ const catalogProducts:Product[] = [
     "presentation": "Frasco",
     "package": "280 g · 28 porciones",
     "ingredients": "Extractos de cereza y camu camu, mangostán, goji, fibra de manzana, diente de león, canela, clavo, inulina de agave, schisandra, gymnema, guanábana, fucoidano, açaí, alcachofa, semilla de apio, verbascósido, cacao, ácido cafeico, té verde y cardo mariano.",
-    "usage": "Según el catálogo: agregar una medida en 200 ml de agua caliente y revolver hasta disolver. La ficha técnica también permite agua tibia y describe consumo una o dos veces al día, preferentemente en ayunas o como parte de la rutina matutina.",
+    "usage": "Agregar una medida en 200 ml de agua caliente y revolver hasta disolver. También puede prepararse con agua tibia y consumirse una o dos veces al día, preferentemente en ayunas o como parte de la rutina matutina.",
     "pending": [
       "Equivalencia en gramos de la medida indicada."
     ],
@@ -233,14 +233,14 @@ const catalogProducts:Product[] = [
       "Disponible en frasco y sticks"
     ],
     "warnings": [
-      "La ficha no recomienda su consumo durante el embarazo o la lactancia.",
+      "No se recomienda su consumo durante el embarazo o la lactancia.",
       "Consulta a un médico si eres sensible o alérgico a algún ingrediente.",
-      "Mantener fuera del alcance de los niños. La ficha pide consultar con un pediatra antes de administrarlo."
+      "Mantener fuera del alcance de los niños. Consulta con un pediatra antes de administrarlo."
     ],
     "faqs": [
       {
         "question": "¿Sustituye una comida?",
-        "answer": "No. La ficha lo presenta como complemento de una alimentación equilibrada.",
+        "answer": "No. Es un complemento de una alimentación equilibrada.",
         "keywords": [
           "sustituye una comida",
           "sustituir una comida",
@@ -250,11 +250,11 @@ const catalogProducts:Product[] = [
       },
       {
         "question": "¿Se puede preparar con agua tibia?",
-        "answer": "Sí. La ficha técnica menciona agua tibia o caliente."
+        "answer": "Sí. Puede prepararse con agua tibia o caliente."
       },
       {
         "question": "¿Se puede tomar en ayunas?",
-        "answer": "La ficha técnica menciona tomar Complex Mocha preferentemente en ayunas o como parte de la rutina matutina.",
+        "answer": "Se recomienda tomar Complex Mocha preferentemente en ayunas o como parte de la rutina matutina.",
         "keywords": [
           "ayunas",
           "antes de desayunar",
@@ -274,7 +274,7 @@ const catalogProducts:Product[] = [
     "presentation": "Stick",
     "package": null,
     "ingredients": "Extractos de cereza y camu camu, mangostán, goji, fibra de manzana, diente de león, canela, clavo, inulina de agave, schisandra, gymnema, guanábana, fucoidano, açaí, alcachofa, semilla de apio, verbascósido, cacao, ácido cafeico, té verde y cardo mariano.",
-    "usage": "Según el catálogo: agregar una medida en 200 ml de agua caliente y revolver hasta disolver. La ficha técnica también permite agua tibia y describe consumo una o dos veces al día, preferentemente en ayunas o como parte de la rutina matutina.",
+    "usage": "Agregar una medida en 200 ml de agua caliente y revolver hasta disolver. También puede prepararse con agua tibia y consumirse una o dos veces al día, preferentemente en ayunas o como parte de la rutina matutina.",
     "pending": [
       "Equivalencia en gramos de la medida indicada.",
       "Cantidad de sticks y contenido neto de la bolsa."
@@ -293,14 +293,14 @@ const catalogProducts:Product[] = [
       "Disponible en frasco y sticks"
     ],
     "warnings": [
-      "La ficha no recomienda su consumo durante el embarazo o la lactancia.",
+      "No se recomienda su consumo durante el embarazo o la lactancia.",
       "Consulta a un médico si eres sensible o alérgico a algún ingrediente.",
-      "Mantener fuera del alcance de los niños. La ficha pide consultar con un pediatra antes de administrarlo."
+      "Mantener fuera del alcance de los niños. Consulta con un pediatra antes de administrarlo."
     ],
     "faqs": [
       {
         "question": "¿Sustituye una comida?",
-        "answer": "No. La ficha lo presenta como complemento de una alimentación equilibrada.",
+        "answer": "No. Es un complemento de una alimentación equilibrada.",
         "keywords": [
           "sustituye una comida",
           "sustituir una comida",
@@ -310,11 +310,11 @@ const catalogProducts:Product[] = [
       },
       {
         "question": "¿Se puede preparar con agua tibia?",
-        "answer": "Sí. La ficha técnica menciona agua tibia o caliente."
+        "answer": "Sí. Puede prepararse con agua tibia o caliente."
       },
       {
         "question": "¿Se puede tomar en ayunas?",
-        "answer": "La ficha técnica menciona tomar Complex Mocha preferentemente en ayunas o como parte de la rutina matutina.",
+        "answer": "Se recomienda tomar Complex Mocha preferentemente en ayunas o como parte de la rutina matutina.",
         "keywords": [
           "ayunas",
           "antes de desayunar",
@@ -334,7 +334,7 @@ const catalogProducts:Product[] = [
     "presentation": "Frasco",
     "package": "280 g · 28 porciones",
     "ingredients": "Matcha, spirulina, chlorella, camu camu, açaí, goji, mangostán, diente de león, alcachofa, guanábana, cactus, proteína de chícharo, inulina de agave, probióticos, canela, clavo, jengibre y semillas de apio.",
-    "usage": "Según el catálogo: agregar una medida en 200 ml de agua caliente y revolver hasta disolver. La ficha técnica también permite agua tibia y describe consumo una o dos veces al día, preferentemente después de las comidas.",
+    "usage": "Agregar una medida en 200 ml de agua caliente y revolver hasta disolver. También puede prepararse con agua tibia y consumirse una o dos veces al día, preferentemente después de las comidas.",
     "pending": [
       "Equivalencia en gramos de la medida indicada."
     ],
@@ -350,17 +350,17 @@ const catalogProducts:Product[] = [
     "features": [
       "Con matcha, spirulina y chlorella",
       "Con proteína de chícharo e inulina de agave",
-      "Ingredientes de origen vegetal, según la ficha técnica"
+      "Ingredientes de origen vegetal"
     ],
     "warnings": [
-      "La ficha no recomienda su consumo durante el embarazo o la lactancia.",
+      "No se recomienda su consumo durante el embarazo o la lactancia.",
       "Consulta a un médico si eres sensible o alérgico a algún ingrediente.",
-      "La ficha lo presenta como un producto para adultos."
+      "Es un producto para adultos."
     ],
     "faqs": [
       {
         "question": "¿Es vegano?",
-        "answer": "La ficha lo describe como vegano, con ingredientes de origen vegetal.",
+        "answer": "Está formulado con ingredientes de origen vegetal y es vegano.",
         "keywords": [
           "vegano",
           "vegana",
@@ -373,7 +373,7 @@ const catalogProducts:Product[] = [
       },
       {
         "question": "¿Se puede tomar en ayunas?",
-        "answer": "La sección de preguntas frecuentes de la ficha técnica indica que Complex Green Leaves puede consumirse en ayunas.",
+        "answer": "Complex Green Leaves puede consumirse en ayunas.",
         "keywords": [
           "ayunas",
           "antes de desayunar",
@@ -393,7 +393,7 @@ const catalogProducts:Product[] = [
     "presentation": "Stick",
     "package": null,
     "ingredients": "Matcha, spirulina, chlorella, camu camu, açaí, goji, mangostán, diente de león, alcachofa, guanábana, cactus, proteína de chícharo, inulina de agave, probióticos, canela, clavo, jengibre y semillas de apio.",
-    "usage": "Según el catálogo: agregar una medida en 200 ml de agua caliente y revolver hasta disolver. La ficha técnica también permite agua tibia y describe consumo una o dos veces al día, preferentemente después de las comidas.",
+    "usage": "Agregar una medida en 200 ml de agua caliente y revolver hasta disolver. También puede prepararse con agua tibia y consumirse una o dos veces al día, preferentemente después de las comidas.",
     "pending": [
       "Equivalencia en gramos de la medida indicada.",
       "Cantidad de sticks y contenido neto de la bolsa."
@@ -409,17 +409,17 @@ const catalogProducts:Product[] = [
     "features": [
       "Con matcha, spirulina y chlorella",
       "Con proteína de chícharo e inulina de agave",
-      "Ingredientes de origen vegetal, según la ficha técnica"
+      "Ingredientes de origen vegetal"
     ],
     "warnings": [
-      "La ficha no recomienda su consumo durante el embarazo o la lactancia.",
+      "No se recomienda su consumo durante el embarazo o la lactancia.",
       "Consulta a un médico si eres sensible o alérgico a algún ingrediente.",
-      "La ficha lo presenta como un producto para adultos."
+      "Es un producto para adultos."
     ],
     "faqs": [
       {
         "question": "¿Es vegano?",
-        "answer": "La ficha lo describe como vegano, con ingredientes de origen vegetal.",
+        "answer": "Está formulado con ingredientes de origen vegetal y es vegano.",
         "keywords": [
           "vegano",
           "vegana",
@@ -432,7 +432,7 @@ const catalogProducts:Product[] = [
       },
       {
         "question": "¿Se puede tomar en ayunas?",
-        "answer": "La sección de preguntas frecuentes de la ficha técnica indica que Complex Green Leaves puede consumirse en ayunas.",
+        "answer": "Complex Green Leaves puede consumirse en ayunas.",
         "keywords": [
           "ayunas",
           "antes de desayunar",
@@ -452,7 +452,7 @@ const catalogProducts:Product[] = [
     "presentation": "Gel tópico",
     "package": "208.49 ml",
     "ingredients": "Aceite de argán, colágeno, ácido hialurónico y glutatión.",
-    "usage": "Según la ficha técnica: limpiar y secar la piel, aplicar una pequeña cantidad y masajear suavemente hasta su absorción. Usar por la mañana y por la noche.",
+    "usage": "Limpiar y secar la piel, aplicar una pequeña cantidad y masajear suavemente hasta su absorción. Usar por la mañana y por la noche.",
     "pending": [],
     "image": "/products/re-new-pro.webp",
     "source": [
@@ -460,22 +460,22 @@ const catalogProducts:Product[] = [
       "Catálogo HC Wellness 2026, p. 8",
       "Contenido: etiqueta fotografiada en la ficha técnica, p. 20."
     ],
-    "description": "Gel corporal de uso tópico para el cuidado diario de la piel. La ficha describe una textura fresca e hidratante con acabado mate y una fórmula con aceite de argán, colágeno, ácido hialurónico y glutatión.",
+    "description": "Gel corporal de uso tópico para el cuidado diario de la piel. Tiene una textura fresca e hidratante con acabado mate y una fórmula con aceite de argán, colágeno, ácido hialurónico y glutatión.",
     "origin": "México",
     "line": "Premium",
     "features": [
       "Gel corporal de uso tópico",
       "Acabado mate y sensación fresca",
-      "Sin fragancias, según la ficha técnica"
+      "Sin fragancias"
     ],
     "warnings": [
-      "La ficha recomienda realizar una prueba de alergia en una pequeña zona antes del uso.",
+      "Realiza una prueba de alergia en una pequeña zona antes del uso.",
       "Uso tópico: gel corporal."
     ],
     "faqs": [
       {
         "question": "¿Tiene fragancia?",
-        "answer": "La ficha indica que está formulado sin fragancias.",
+        "answer": "Está formulado sin fragancias.",
         "keywords": [
           "fragancia",
           "perfume",
@@ -484,7 +484,7 @@ const catalogProducts:Product[] = [
       },
       {
         "question": "¿Cuándo se aplica?",
-        "answer": "La ficha indica aplicarlo por la mañana y por la noche sobre la piel limpia y seca."
+        "answer": "Aplicarlo por la mañana y por la noche sobre la piel limpia y seca."
       }
     ],
     "preparation": null
@@ -499,7 +499,7 @@ const catalogProducts:Product[] = [
     "ingredients": "Hoja de tejocote y semillas de papaya.",
     "usage": null,
     "pending": [
-      "Cantidad e indicaciones de uso: el catálogo y la ficha técnica difieren."
+      "Cantidad e indicaciones de uso: las medidas registradas difieren y están pendientes de unificar."
     ],
     "image": "/products/hc-fit.webp",
     "source": [
@@ -515,8 +515,8 @@ const catalogProducts:Product[] = [
       "Con semillas de papaya"
     ],
     "warnings": [
-      "La ficha recomienda consultar a un médico antes de usarlo si tienes condiciones médicas específicas.",
-      "El catálogo indica no exceder la porción sugerida."
+      "Consulta a un médico antes de usarlo si tienes condiciones médicas específicas.",
+      "No exceder la porción sugerida."
     ],
     "faqs": [
       {
@@ -534,7 +534,7 @@ const catalogProducts:Product[] = [
     "presentation": "Cápsulas",
     "package": "60 cápsulas",
     "ingredients": "Extracto de hongo shiitake, té, guanábana, heliotropo, GABA y Morus alba.",
-    "usage": "Según la ficha técnica: 2 cápsulas al día por vía oral con abundante agua.",
+    "usage": "2 cápsulas al día por vía oral con abundante agua.",
     "pending": [
       "Cantidades de los ingredientes y precauciones no detalladas en el material."
     ],
@@ -543,7 +543,7 @@ const catalogProducts:Product[] = [
       "Ficha técnica, pp. 9–11",
       "Catálogo HC Wellness 2026, p. 11"
     ],
-    "description": "Complemento nutricional en cápsulas formulado con extracto de hongo shiitake y otros ingredientes botánicos, entre ellos té, guanábana y Morus alba. La presentación del catálogo contiene 60 cápsulas.",
+    "description": "Complemento nutricional en cápsulas formulado con extracto de hongo shiitake y otros ingredientes botánicos, entre ellos té, guanábana y Morus alba. Esta presentación contiene 60 cápsulas.",
     "origin": "China",
     "line": "Select",
     "features": [
@@ -552,12 +552,12 @@ const catalogProducts:Product[] = [
       "Incluye GABA y otros ingredientes botánicos"
     ],
     "warnings": [
-      "La ficha recomienda consultar a un médico antes de iniciar el uso si padeces alguna condición crónica."
+      "Consulta a un médico antes de iniciar el uso si padeces alguna condición crónica."
     ],
     "faqs": [
       {
         "question": "¿Cuál es el ingrediente principal?",
-        "answer": "La ficha identifica el extracto de hongo shiitake (Lentinula edodes)."
+        "answer": "Contiene extracto de hongo shiitake (Lentinula edodes)."
       }
     ],
     "preparation": null
@@ -570,7 +570,7 @@ const catalogProducts:Product[] = [
     "presentation": "Cápsulas",
     "package": "90 cápsulas",
     "ingredients": "Calostros caprino y bovino, glutatión, resveratrol, yema de huevo, antioxidantes, lactoferrina, ácido glutámico, complejo vitamínico y ácido fólico.",
-    "usage": "Según la ficha técnica: 3 cápsulas al día con abundante agua, preferentemente con las comidas principales.",
+    "usage": "3 cápsulas al día con abundante agua, preferentemente con las comidas principales.",
     "pending": [
       "Cantidades de cada ingrediente."
     ],
@@ -589,12 +589,12 @@ const catalogProducts:Product[] = [
     ],
     "warnings": [
       "Contiene ingredientes de leche y huevo: calostros, lactoferrina y yema de huevo.",
-      "La ficha recomienda consultar a un médico antes de usarlo durante el embarazo, la lactancia o si existe alguna condición médica."
+      "Consulta a un médico antes de usarlo durante el embarazo, la lactancia o si existe alguna condición médica."
     ],
     "faqs": [
       {
         "question": "¿Cuántas cápsulas contiene el frasco?",
-        "answer": "90 cápsulas, según el catálogo y la ficha técnica."
+        "answer": "90 cápsulas."
       }
     ],
     "preparation": null
@@ -607,16 +607,16 @@ const catalogProducts:Product[] = [
     "presentation": "Cápsulas",
     "package": "60 cápsulas",
     "ingredients": "Mononucleótido de nicotinamida (NMN), pimienta negra, coenzima Q10, verbascósido y ácido alfa lipoico.",
-    "usage": "Según la ficha técnica: 2 cápsulas al día por vía oral, con abundante agua, preferentemente durante las comidas principales.",
+    "usage": "2 cápsulas al día por vía oral, con abundante agua, preferentemente durante las comidas principales.",
     "pending": [
-      "Cantidades de los ingredientes y precauciones específicas: no se detallan en la ficha recibida."
+      "Cantidades de los ingredientes y precauciones específicas: están pendientes de confirmar."
     ],
     "image": "/products/nad-shield-plus.webp",
     "source": [
       "Ficha técnica, pp. 18–19",
       "Catálogo HC Wellness 2026, p. 13"
     ],
-    "description": "Complemento alimenticio en cápsulas que incluye mononucleótido de nicotinamida (NMN), coenzima Q10 y ácido alfa lipoico. Forma parte de la línea Select del catálogo.",
+    "description": "Complemento alimenticio en cápsulas que incluye mononucleótido de nicotinamida (NMN), coenzima Q10 y ácido alfa lipoico. Forma parte de la línea Select.",
     "origin": "China",
     "line": "Select",
     "features": [
@@ -636,7 +636,7 @@ const catalogProducts:Product[] = [
     "presentation": "Cápsulas",
     "package": "60 cápsulas",
     "ingredients": "Ginseng, ginkgo biloba, bacopa monnieri, huperzina, curcumina, astaxantina, ashwagandha, triptófano, luteína y bisglicinato de magnesio.",
-    "usage": "Según la ficha técnica: 2 cápsulas al día, preferentemente por la mañana después de los alimentos.",
+    "usage": "2 cápsulas al día, preferentemente por la mañana después de los alimentos.",
     "pending": [
       "Cantidades de cada ingrediente."
     ],
@@ -654,13 +654,13 @@ const catalogProducts:Product[] = [
       "Frasco de 60 cápsulas"
     ],
     "warnings": [
-      "La ficha lo presenta como un producto para adultos.",
-      "Consulta a un médico si estás embarazada, lactando o bajo tratamiento médico, según la ficha."
+      "Es un producto para adultos.",
+      "Consulta a un médico si estás embarazada, lactando o bajo tratamiento médico."
     ],
     "faqs": [
       {
         "question": "¿A quién se dirige?",
-        "answer": "La ficha lo presenta para adultos."
+        "answer": "Es para adultos."
       }
     ],
     "preparation": null
@@ -681,7 +681,7 @@ const catalogProducts:Product[] = [
     "source": [
       "Catálogo HC Wellness 2026, p. 15"
     ],
-    "description": "Producto líquido de la línea Select presentado en frasco con gotero de 30 ml. El catálogo describe su administración sublingual, pero no incluye la concentración ni una lista completa de ingredientes.",
+    "description": "Producto líquido de la línea Select presentado en frasco con gotero de 30 ml. La concentración y la lista completa de ingredientes están pendientes de confirmar.",
     "origin": null,
     "line": "Select",
     "features": [
@@ -690,10 +690,10 @@ const catalogProducts:Product[] = [
       "Contenido de 30 ml"
     ],
     "warnings": [
-      "El catálogo indica no exceder la dosis diaria recomendada. No proporciona concentración ni precauciones específicas."
+      "No exceder la dosis diaria recomendada. La concentración y las precauciones específicas están pendientes de confirmar."
     ],
     "faqs": [],
-    "preparation": "El catálogo describe uso sublingual: mantener el líquido debajo de la lengua durante 60 segundos antes de tragar. La cantidad requiere confirmar la concentración y la etiqueta vigente."
+    "preparation": "Uso sublingual: mantener el líquido debajo de la lengua durante 60 segundos antes de tragar. La cantidad requiere confirmar la concentración y la etiqueta vigente."
   },
   {
     "id": "espresso",
@@ -702,8 +702,8 @@ const catalogProducts:Product[] = [
     "category": "Café",
     "presentation": "Daily",
     "package": "84 g · 28 porciones",
-    "ingredients": "La etiqueta fotografiada menciona café negro árabe y diez hongos adaptógenos. El material no detalla las especies ni la lista completa de ingredientes.",
-    "usage": "Según el catálogo: mezclar una porción en agua caliente. Consumir preferentemente por la mañana o antes de actividades de alto rendimiento.",
+    "ingredients": "Contiene café negro árabe y diez hongos adaptógenos. Las especies y la lista completa de ingredientes están pendientes de confirmar.",
+    "usage": "Mezclar una porción en agua caliente. Consumir preferentemente por la mañana o antes de actividades de alto rendimiento.",
     "pending": [
       "Especies de hongos y composición completa, cantidad exacta por porción, volumen de agua y precauciones."
     ],
@@ -712,19 +712,19 @@ const catalogProducts:Product[] = [
       "Catálogo HC Wellness 2026, p. 17",
       "Contenido, porciones y base de la fórmula: etiqueta fotografiada en el catálogo."
     ],
-    "description": "Café Espresso en polvo de la línea Daily. La etiqueta fotografiada lo describe como un suplemento alimenticio a base de café negro árabe con diez hongos adaptógenos; se prepara con agua caliente.",
+    "description": "Café Espresso en polvo de la línea Daily. Es un suplemento alimenticio a base de café negro árabe con diez hongos adaptógenos; se prepara con agua caliente.",
     "origin": null,
     "line": "Daily",
     "features": [
-      "Café negro árabe, según la etiqueta",
-      "Con diez hongos adaptógenos, según la etiqueta",
+      "Café negro árabe",
+      "Con diez hongos adaptógenos",
       "Bolsa de 84 g con 28 porciones"
     ],
     "warnings": [],
     "faqs": [
       {
         "question": "¿Cómo se prepara?",
-        "answer": "El catálogo indica mezclar una porción con agua caliente; no especifica el volumen de agua."
+        "answer": "Mezclar una porción con agua caliente; no especifica el volumen de agua."
       }
     ],
     "preparation": null
@@ -736,8 +736,8 @@ const catalogProducts:Product[] = [
     "category": "Café",
     "presentation": "Daily",
     "package": "280 g · 28 porciones",
-    "ingredients": "La etiqueta fotografiada menciona café negro árabe y diez hongos adaptógenos. El material no detalla las especies ni la lista completa de ingredientes.",
-    "usage": "Según el catálogo: mezclar una porción en agua caliente. Consumir preferentemente por la mañana o antes de actividades de alto rendimiento.",
+    "ingredients": "Contiene café negro árabe y diez hongos adaptógenos. Las especies y la lista completa de ingredientes están pendientes de confirmar.",
+    "usage": "Mezclar una porción en agua caliente. Consumir preferentemente por la mañana o antes de actividades de alto rendimiento.",
     "pending": [
       "Especies de hongos y composición completa, cantidad exacta por porción, volumen de agua y precauciones."
     ],
@@ -746,19 +746,19 @@ const catalogProducts:Product[] = [
       "Catálogo HC Wellness 2026, p. 18",
       "Contenido, porciones y base de la fórmula: etiqueta fotografiada en el catálogo."
     ],
-    "description": "Café Macchiato en polvo de la línea Daily, presentado en bolsa para preparar con agua caliente. La etiqueta fotografiada lo describe como un suplemento alimenticio con café negro árabe y diez hongos adaptógenos.",
+    "description": "Café Macchiato en polvo de la línea Daily, presentado en bolsa para preparar con agua caliente. Es un suplemento alimenticio con café negro árabe y diez hongos adaptógenos.",
     "origin": null,
     "line": "Daily",
     "features": [
       "Presentación Macchiato de la línea Daily",
-      "Con diez hongos adaptógenos, según la etiqueta",
+      "Con diez hongos adaptógenos",
       "Bolsa de 280 g con 28 porciones"
     ],
     "warnings": [],
     "faqs": [
       {
         "question": "¿Cómo se prepara?",
-        "answer": "El catálogo indica mezclar una porción con agua caliente; no especifica el volumen de agua."
+        "answer": "Mezclar una porción con agua caliente; no especifica el volumen de agua."
       }
     ],
     "preparation": null
@@ -785,7 +785,7 @@ export function answerQuestion(question:string):string {
     if(namedVariants.length!==1&&matches.some(p=>p.warnings.join('\n')!==product.warnings.join('\n')))return `Las precauciones dependen de la presentación de ${product.family}. Selecciona una: ${matches.map(p=>p.presentation).join(', ')}. Consulta también a tu profesional de salud.`;
     return `${product.name}. Precauciones indicadas: ${product.warnings.length?product.warnings.join(' '):'Las precauciones específicas están por confirmar.'} Esta guía no determina si es adecuado para ti; consulta la etiqueta vigente y a tu profesional de salud.`;
   }
-  if(faq)return `${faq.answer} Fuente: ${faq.source??product.source.join('; ')}.`;
+  if(faq)return faq.answer;
   if(/benefici/.test(value)&&product.benefits?.length)return `${product.family} tiene este enfoque nutricional:\n\n${product.benefits.map(benefit=>'• '+benefit).join('\n')}`;
   if(/paraquesirv|benefici|cuales.*funcion|cuales.*utilidad/.test(value))return product.purpose??`${product.name}. ${product.description}`;
   if(fasting)return `El material recibido no especifica si ${product.family} puede tomarse en ayunas. Consulta la etiqueta vigente y a tu profesional de salud.`;
@@ -793,11 +793,11 @@ export function answerQuestion(question:string):string {
   if(/presentacion|variante|sabor/.test(value))return `${matches[0].family}: ${matches.map(p=>p.presentation).join(', ')}.`;
   if(/ingrediente|composicion/.test(value)){
     if(namedVariants.length!==1&&matches.some(p=>p.ingredients!==product.ingredients))return `Selecciona la presentación de ${product.family}: ${matches.map(p=>p.presentation).join(', ')}. Su composición puede variar.`;
-    return product.ingredients?`${product.name}. Ingredientes según el material recibido: ${product.ingredients} Fuente: ${product.source.join('; ')}.`:`La composición de ${product.name} está por confirmar.`;
+    return product.ingredients?`${product.name}. Ingredientes: ${product.ingredients}`:`La composición de ${product.name} está por confirmar.`;
   }
-  if(/pendiente|confirmar/.test(value))return product.pending.length?`${product.family}: por confirmar. ${product.pending.join(' ')}`:`No hay campos marcados como pendientes en la ficha de ${product.family}.`;
+  if(/pendiente|confirmar/.test(value))return product.pending.length?`${product.family}: por confirmar. ${product.pending.join(' ')}`:`No hay datos marcados como pendientes para ${product.family}.`;
   if(/quees|descripcion|cuentame/.test(value))return `${product.name}. ${product.description} Contenido: ${product.package??'por confirmar'}.`;
   if(!/prepar|como.*(tom|us|consum|aplic)|dosis|cantidad|indicacion/.test(value))return `No encuentro esa respuesta en la información disponible de ${product.family}. Puedes consultar sus ingredientes, preparación y precauciones, o preguntar a la persona que te compartió la guía.`;
   if(!product.usage)return `Las indicaciones de ${product.family} están por confirmar. ${product.preparation??''} ${product.pending.join(' ')} Consulta la etiqueta vigente y a tu profesional de salud.`;
-  return `${product.name}. ${product.usage} Fuente: ${product.source.join('; ')}. Consulta la etiqueta vigente y a tu profesional de salud.`;
+  return `${product.name}. ${product.usage} Consulta la etiqueta vigente y a tu profesional de salud.`;
 }

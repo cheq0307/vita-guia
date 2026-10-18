@@ -426,3 +426,6 @@ Referencia de implementación: docs/releases/v2.md y docs/superpowers/plans/2026
 
 ### Ajuste v2: propósito e imagen móvil
 La respuesta de propósito combina el perfil con los beneficios revisados del catálogo para todas las presentaciones. Conserva incertidumbre y prioridad de precauciones; no extrae afirmaciones nuevas ni integra un modelo. La imagen del detalle usa un contenedor flex de altura definida, límites al elemento y recorte de desbordes. Reproducción previa a390px: imagen470px en caja270px invadía el texto; después232px dentro de270px. Prueba de regresión en active-pro-conversation.test.mjs.
+
+### Textos directos y contenido del envase
+Los textos visibles de productos, preparación, precauciones y preguntas frecuentes se redactan sin narrar la ficha o el catálogo. Se mantienen las referencias internas y las incertidumbres de cantidad y composición. El contenido neto y las porciones se muestran inmediatamente después del título, antes de descripción y variantes. Regresión customer-copy y product-pages. Suite72/72 en estado local QA limpio; estado local previo conservado para restauración.

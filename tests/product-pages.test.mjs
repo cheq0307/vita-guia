@@ -13,6 +13,8 @@ test('dedicated product pages preserve permissions, variant navigation and retur
   const html=await page.text();
   assert.match(html,/product-detail/);
   assert.match(html,/Active Pro/);
+  assert.match(html,/<h1[^>]*id="product-title"[^>]*>Active Pro<\/h1><p class="product-presentation product-net-content">770 g · 14 porciones<\/p>/);
+  assert.ok(html.indexOf('product-net-content')<html.indexOf('product-description'));
   assert.match(html,/Indicaciones por confirmar/);
   assert.ok(html.includes('href="/admin/biblioteca/productos?q=fresa&amp;pagina=2"'));
   assert.ok(html.includes('href="/admin/biblioteca/productos/active-pro-chocolate?q=fresa&amp;pagina=2"'));
